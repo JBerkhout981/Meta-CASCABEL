@@ -106,11 +106,11 @@ interactive : "T"
 # available on the program to be executed, therefore if the default            #
 # configuration of the pipeline doesn't consider some particular user desired  #
 # argument, it can be specified on the extra_params section for each rule      #
-#====================================PARAMS====================================#
-# onRawReads (T|F)            Perform QC on rawreads                           #
-# onTrimmedReads (T|F)        Perform QC on trimmed reads                      #
-# tool (both|sequali|fastqc)  Chose the tool you want to use to perform read   #
-#                             trimming, either sequali, fastqc or both         #
+#=======================PARAMS=================================================#
+# onRawReads            'T' or 'F' Perform QC on rawreads                      #
+# onTrimmedReads        'T' or 'F' Perform QC on trimmed reads                 #
+# tool                  Chose the tool you want to use to perform trimming,    #
+#                       either sequali, fastqc or both                         #
 #------------------------------------------------------------------------------#
 
 # It always executes both tools, 'tool:' parameter doesn't work
@@ -125,9 +125,9 @@ QC:
 #===============================DESCRIPTION====================================#
 # Sequence quality metrics for FASTQ and uBAM files.                           #
 # Sequali (https://github.com/rhpvorderman/sequali).                           #
-#====================================PARAMS====================================#
-# threads                  Number of threads to run sequali.                   #
-# extra_params             Extra parameters. See sequali --help for more info. #
+#=======================PARAMS=================================================#
+# threads               Number of threads to run sequali.                      #
+# extra_params          Extra parameters. See sequali --help for more info.    #
 #------------------------------------------------------------------------------#
 sequali:
   threads: 10
@@ -143,11 +143,11 @@ sequali:
 # Sequence Length Distribution, Sequence Duplication Levels, Overrepresented   #
 # sequences, Adapter Content and Kmer Content). Here you can set the max number#
 # of FAILS accepted on fastqc without sending a warning message                #
-#====================================PARAMS====================================#
-# onRawReads (T|F)             Perform FastQC on raw reads                     #
-# onTrimmedReads (T|F)         Perform FastQC on trimmed reads                 #
-# threads
-# qcLimit                      Number of max fails                             #
+#=======================PARAMS=================================================#
+# onRawReads            'T' or 'F' Perform FastQC on raw reads                 #
+# onTrimmedReads        'T' or 'F' Perform FastQC on trimmed reads             #
+# threads               Number of threads                                      #
+# qcLimit               Number of max fails                                    #
 #------------------------------------------------------------------------------#
 
 # 'onRawReads', 'onTrimmedReads' and qcLimit don't appear in snakefile
@@ -164,58 +164,66 @@ FastQC:
 # Remove adapter contamination and trim very low quality parts (ends) of the   #
 # reads. Use maxinfo 0.6 for Q trimming and leave read 1 and 2 separate since  #
 # spades (assembler) does no longer support merged reads                       #
-#==============================REQUIRED SETTINGS===============================#
-# mode PE             (Paired End), The data type is paired reads              #
-# threads
-# type'ILLUMINACLIP'  Step to find and remove Illumina adapters.               #
-# adapter:            path to a fasta file containing all the adapters, PCR    #
-#                     sequences etc.                                           #
-#====================================PARAMS====================================#
-# seed            specifies the maximum mismatch count which will still allow  #
-#                 a full match to be performed                                 #
-# palindrome_ct   specifies how accurate the match between the two 'adapter    #
-#                 ligated' reads must be for PE palindrome read alignment.     #
-# simple_ct       specifies how accurate the match between any adapter etc.    #
-#                 sequence must be against a read.                             #
-# minAdpLength    In addition to the alignment score, palindrome mode can      #
-#                 verify that a minimum length of adapter has been detected.   #
-#                 If unspecified, this defaults to 8 bases, for historical     #
-#                 reasons. However, since palindrome mode has a very low false #
-#                 positive rate, this can be safely reduced, even down to 1,   #
-#                 to allow shorter adapter fragments to be removed.            #
-# keepBoth:       After read-though has been detected by palindrome mode, and  #
-# (TRUE|FALSE)    the adapter sequence removed, the reverse read contains the  #
-#                 same sequence information as the forward read, albeit in     #
-#                 reverse complement. For this reason, the default behaviour   #
-#                 is to entirely drop the reverse read. By specifying „true‟   #
-#                 for this parameter, the reverse read will also be retained,  #
-#                 which may be useful e.g. if the downstream tools cannot      #
-#                 handle a combination of paired and unpaired reads.           #
+#=======================REQUIRED SETTINGS======================================#
+# mode PE               (Paired End), The data type is paired reads            #
+# threads               Number of threads.                                     #       
+# type'ILLUMINACLIP'    Step to find and remove Illumina adapters.             #
+# adapter               path to a fasta file containing all the adapters, PCR  #
+#                       sequences etc.                                         #
+#=======================PARAMS=================================================#
+# seed                  specifies the maximum mismatch count which will still  #
+#                       allow                                                  #
+#                       a full match to be performed                           #
+# palindrome_ct         specifies how accurate the match between the two       #
+#                       'adapter ligated' reads must be for PE palindrome read #
+#                       alignment.                                             #
+# simple_ct             specifies how accurate the match between any adapter   #
+#                       etc. sequence must be against a read.                  #
+# minAdpLength          In addition to the alignment score, palindrome mode    #
+#                       can verify that a minimum length of adapter has been   #
+#                       detected.                                              #
+#                       If unspecified, this defaults to 8 bases, for          #
+#                       historical reasons. However, since palindrome mode has #
+#                       a very low false positive rate, this can be safely     #
+#                       reduced, even down to 1, to allow shorter adapter      #
+#                       fragments to be removed.                               #
+# keepBoth              (TRUE|FALSE) After read-though has been detected by    #
+#                       palindrome mode, and the adapter sequence removed, the #
+#                       reverse read contains the same sequence information as #
+#                       the forward read, albeit in reverse complement. For    #
+#                       this reason, the default behaviour is to entirely drop #
+#                       the reverse read. By specifying „true‟ for this        #
+#                       parameter, the reverse read will also be retained,     #
+#                       which may be useful e.g. if the downstream tools cannot#
+#                       handle a combination of paired and unpaired reads.     #
 # sliding                                                                      #
-# type: "SLIDINGWINDOW:<windowSize>:<requiredQuality>"                         #
-#  - SLIDINGWINDOW    Sliding window trimming type                             #
-#  - windowSize       specifies the number of bases to average across          #
-#  - requiredQuality  specifies the average quality required.                  #
+# type:                 "SLIDINGWINDOW:<windowSize>:<requiredQuality>"         #
+#  - SLIDINGWINDOW      Sliding window trimming type                           #
+#  - windowSize         specifies the number of bases to average across        #
+#  - requiredQuality    specifies the average quality required.                #
 # maxinfo                                                                      #
-# type: "MAXINFO" Performs an adaptive quality trim, balancing the benefits of #
-#                 retaining longer reads against the costs of retaining bases  #
-#                 with errors.                                                 #
-#  - targetLength     This specifies the read length which is likely to allow  #
-#                     the location of the read within the target sequence to   #
-#                     be determined.                                           #
-#  - strictness:      This value, which should be set between 0 and 1,         #
-#                     specifies the balance between preserving as much read    #
-#                     length as possible vs. removal of incorrect bases. A low #
-#                     value of this parameter (<0.2) favours longer reads,     #
-#                     while a high value (>0.8) favours read correctness.      #
+# - type                "MAXINFO" Performs an adaptive quality trim, balancing #
+#                       the benefits of                                        #
+#                       retaining longer reads against the costs of retaining  #
+#                       bases with errors.                                     #
+#  - targetLength       This specifies the read length which is likely to allow#
+#                       the location of the read within the target sequence to #
+#                       be determined.                                         #
+#  - strictness         This value, which should be set between 0 and 1,       #
+#                       specifies the balance between preserving as much read  #
+#                       length as possible vs. removal of incorrect bases. A   #
+#                       low value of this parameter (<0.2) favours longer      #
+#                       reads, while a high value (>0.8) favours read          #
+#                       correctness.                                           #
 # minlen                                                                       #
-# type: "MINLEN"  This module removes reads that fall below the specified      #
-#                 minimal length. If required, it should normally be after all #
-#                 other processing steps. Reads removed by this step will be   #
-#                 counted and included in the „dropped reads‟ count presented  #
-#                 in the trimmomatic summary.
-#  - len              Specifies the minimum length of reads to be kept.
-# extra_params    Extra parameters. 
+# - type                "MINLEN"  This module removes reads that fall below    #
+#                       the specified minimal length. If required, it should   #
+#                       normally be after all other processing steps. Reads    #
+#                       removed by this step will be counted and included in   #
+#                       the „dropped reads‟ count presented in the trimmomatic #
+#                       summary.
+#  - len                Specifies the minimum length of reads to be kept.
+# extra_params          Extra parameters. 
 #------------------------------------------------------------------------------#
 # For more info see:                                                           #
 #usadellab.org/cms/uploads/supplementary/Trimmomatic/TrimmomaticManual_V0.32.pdf
@@ -251,7 +259,7 @@ trimm:
 #                           TAXONOMIC PROFILING                                #
 #===============================DESCRIPTION====================================#
 # This options allows the user to choose if perform or not taxonomic profiling #
-# and if so, choose between different methods                                  #
+# and if so, choose between different methods.                                 #
 # This step is good to have only a first overview of the expected taxonomy     #
 # distribution, although these methods are good to identify already known      #
 # organisms, they tend to fail for identification of new species and the       #
@@ -271,25 +279,27 @@ trimm:
 #     read is assigned                                                         #
 #------------------------------------------------------------------------------#
 # KRAKEN                http://ccb.jhu.edu/software/kraken/                    #
-#   db:                 Kraken database*                                       #
-#   raw_reads:    Y to use the raw reads N will use the trimmed reads          #
-#   threads:
-#   extra_params: Any extra parameter  execute kraken -h                       #
-#   nodes:
-#   names:
-# KAIJU           https://github.com/bioinformatics-centre/kaiju               #
-#   nodes:        Path to nodes NCBI file. This is downloaded durning DB       #
-#                 creation and although it could be the newest nodes, it is    #
-#                 important to always use the one used for the DB creation.    #
-#   names: 
-#   db:           Path to target database                                      #
-#   raw_reads:    Y to use the raw reads N will use the trimmed reads          #
-#   threads
-#   extra_params: Any extra parameter execute kaiju -h                         #
+# - db                  Kraken database*                                       #
+# - raw_reads           'Y' to use the raw reads.                              #
+#                       'N' will use the trimmed reads.                        #
+#  - threads            Number of threads                                      #
+#  - extra_params       Any extra parameter, execute kraken -h                 #
+#  - nodes              Path to the nodes file                                 #
+#  - names              Path to the names file                                 #        
+# KAIJU                 https://github.com/bioinformatics-centre/kaiju         #
+# - nodes               Path to nodes NCBI file. This is downloaded durning DB #
+#                       creation and although it could be the newest nodes, it #
+#                       is important to always use the one used for the DB     #
+#                       creation.                                              #
+# - names               Path to the names file                                 # 
+# - db                  Path to target database                                #
+# - raw_reads           'Y' to use the raw reads                               #   
+#                       'N' will use the trimmed reads                         #
+# - threads             Number of threads                                      #                   
+# - extra_params        Any extra parameter, execute kaiju -h                  #
 #------------------------------------------------------------------------------#
 # * all available dabases at:                                                  #
 # http://redmine.nioz.nl/projects/databases-at-ymga/wiki/Databases             #
-#
 #------------------------------------------------------------------------------#
 TAXONOMY:
   PROFILING: "KAIJU"
