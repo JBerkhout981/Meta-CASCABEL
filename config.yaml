@@ -349,7 +349,7 @@ TAXONOMY:
 # After selecting the assembly tool, you can fine tune the options for each    #
 # tool, using the options below                                                #
 #------------------------------------------------------------------------------#
-ASSEMBLER: "MEGAHIT"
+ASSEMBLER: "SPADES"
 contigs: ""
 
 #------------------------------------------------------------------------------#
@@ -771,7 +771,7 @@ gtdbtk:
 #     model                                                                    #
 #------------------------------------------------------------------------------#
 GENE_CALLING:
-  TOOL: "MGM"
+  TOOL: "NONE"
   MGM:
     key: "/export/data/aabdala/utils/MetaGeneMark_linux_64/mgm/gm_key_64"
     model: "/export/data/aabdala/utils/MetaGeneMark_linux_64/mgm/MetaGeneMark_v1.mod"
