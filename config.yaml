@@ -1,0 +1,837 @@
+################################################################################
+#                             CONFIGURATION FILE                               #
+#------------------------------------------------------------------------------#
+# Configuration file for the Metagenomic Analysis Workflow.                    #
+# Set the parameters below, save the file and run snakemake.                   #
+# The file format is yaml (http://www.yaml.org/) In this file, you only need   #
+# to overwrite settings according to your needs, most values are already       #
+# pre-configured. It is very important to keep the indentation of the file     #
+# (don’t change the tabs and spaces), as well as the name of the               #
+# parameters/variables. But you can change the values of the parameters to     #
+# deviate from the default settings. Any text after a hash tag is considered a #
+# comment and will be ignored by snakemake.                                    #
+#                                                                              #
+# Author: Alejandro Abdala and Julia Engelmann                                 #
+# Date: 20/05/2021                                                             #
+# Version: 3.0                                                                 #
+################################################################################
+
+################################################################################
+#                          GENERAL PARAMS SECTION                              #
+#------------------------------------------------------------------------------#
+# The general parameters section defines variables that are global or general  #
+# for the complete work-flow execution, as well as extra information for the   #
+# report generation.                                                           #
+################################################################################
+
+#------------------------------------------------------------------------------#
+#                             Project Name                                     #
+#------------------------------------------------------------------------------#
+# The name of the project for which the pipe line will be executed. This should#
+# be the same name used as the first parameter on init_sample.sh script        #
+#------------------------------------------------------------------------------#
+PROJECT: "MetaCascabelv4_test"
+
+#------------------------------------------------------------------------------#
+#                               SAMPLES                                        #
+#------------------------------------------------------------------------------#
+# SAMPLES/Libraries you will like to include on the analysis                   #
+# Same sample names used  with init_sample.sh script                           #
+# Include all the names between quotes, and comma separated                    #
+#------------------------------------------------------------------------------#
+SAMPLES: ["CURT3D-H2O1","CURT3D-PVC1"]
+
+#------------------------------------------------------------------------------#
+#                             INPUT FILES                                      #
+#------------------------------------------------------------------------------#
+# Here you have to enter FULL PATH! to the raw reads                           #
+# fw_reads:  Full path to raw reads in forward direction                       #
+# rw_reads:  Full path to raw reads in reverse direction                       #
+# input_files: If you are analysing more than 1 metagenome create a .txt file  #
+# and put the name here (this can be any name). An example of the .txt file is #
+# on Redmine                                                                   #
+#------------------------------------------------------------------------------#
+fw_reads: ""
+rv_reads: ""
+input_files: "input.txt"
+
+#------------------------------------------------------------------------------#
+#                             INPUT TYPE                                       #
+#------------------------------------------------------------------------------#
+# This pipeline supports two types of input files, fastq and gzipped fastq   #
+# files.                                                                       #
+# The option gzip_input can take the values "T" if the input files are gziped  #
+# (only the reads!, the metadata file always needs to be uncompressed) or "F"  #
+# if the input files are regular fastq files                                   #
+#------------------------------------------------------------------------------#
+gzip_input: "T"
+
+#------------------------------------------------------------------------------#
+#                               RUN                                            #
+#------------------------------------------------------------------------------#
+# Name of the RUN - Only use alphanumeric characters and don't use spaces.     #
+# This argument helps the user to execute different runs (pipeline execution)  #
+# with the same input data but with different parameters (ideally).            #
+# The RUN variable can be set here or remain empty, in the latter case, the    #
+# user must assign this value via the command line --config RUN=User_run_name  #
+#------------------------------------------------------------------------------#
+RUN: "Test03"
+
+#------------------------------------------------------------------------------#
+#                            Description                                       #
+#------------------------------------------------------------------------------#
+# Brief description for the pipeline. Any description written here will be     #
+# included on the final report. This field is not mandatory so it can remain   #
+# empty                                                                        #
+#------------------------------------------------------------------------------#
+description: "Assembly tools uittesten"
+
+#------------------------------------------------------------------------------#
+#                             Execution mode                                   #
+#------------------------------------------------------------------------------#
+# Set this flag to T (default) in order to interact at some specific steps with#
+# the pipeline. For a list for all the "interactive" checkpoints take a look   #
+# into the following link: TBD                                                 #
+#------------------------------------------------------------------------------#
+interactive : "T"
+
+
+################################################################################
+#                         Specific Parameters Section                          #
+#------------------------------------------------------------------------------#
+# In this section of the configuration file, you can find all the values used  #
+# to run the different rules during the pipeline execution.                    #
+# Some of the parameters below, contains an option called "extra_params".      #
+# This option is designed to allow the user enter any other extra parameter    #
+# available on the program to be executed, therefore if the default            #
+# configuration of the pipeline doesn't consider some particular user desired  #
+# argument, it can be specified on the extra_params section for each rule      #
+#====================================PARAMS====================================#
+# onRawReads (T|F)            Perform QC on rawreads                           #
+# onTrimmedReads (T|F)        Perform QC on trimmed reads                      #
+# tool (both|sequali|fastqc)  Chose the tool you want to use to perform read   #
+#                             trimming, either sequali, fastqc or both         #
+#------------------------------------------------------------------------------#
+
+# It always executes both tools, 'tool:' parameter doesn't work
+QC:
+  onRawReads: "T"
+  onTrimmedReads: "T"
+  tool: "both"
+
+#------------------------------------------------------------------------------#
+#                        Quality control with Sequali                          #
+# rules: sequali                                                               #
+#===============================DESCRIPTION====================================#
+# Sequence quality metrics for FASTQ and uBAM files.                           #
+# Sequali (https://github.com/rhpvorderman/sequali).                           #
+#====================================PARAMS====================================#
+# threads                  Number of threads to run sequali.                   #
+# extra_params             Extra parameters. See sequali --help for more info. #
+#------------------------------------------------------------------------------#
+sequali:
+  threads: 10
+  extra_params: ""
+
+#------------------------------------------------------------------------------#
+#                                FastQC                                        #
+# rule: validateQC                                                             #
+#===============================DESCRIPTION====================================#
+# FastQC evaluates 12 main concepts on the sequences: (Basic Statistics, Per   #
+# base sequence quality, Per tile sequence quality, Per sequence quality scores#
+# Per base sequence content, Per sequence GC content,Per base N content,       #
+# Sequence Length Distribution, Sequence Duplication Levels, Overrepresented   #
+# sequences, Adapter Content and Kmer Content). Here you can set the max number#
+# of FAILS accepted on fastqc without sending a warning message                #
+#====================================PARAMS====================================#
+# onRawReads (T|F)             Perform FastQC on raw reads                     #
+# onTrimmedReads (T|F)         Perform FastQC on trimmed reads                 #
+# threads
+# qcLimit                      Number of max fails                             #
+#------------------------------------------------------------------------------#
+
+# 'onRawReads', 'onTrimmedReads' and qcLimit don't appear in snakefile
+FastQC:
+  onRawReads: "T"
+  onTrimmedReads: "T"
+  threads: 4
+  qcLimit : 3
+
+#------------------------------------------------------------------------------#
+#                                Trimmomatic                                   #
+# rule: trimmomatic                                                            #
+#===============================DESCRIPTION====================================#
+# Remove adapter contamination and trim very low quality parts (ends) of the   #
+# reads. Use maxinfo 0.6 for Q trimming and leave read 1 and 2 separate since  #
+# spades (assembler) does no longer support merged reads                       #
+#==============================REQUIRED SETTINGS===============================#
+# mode PE             (Paired End), The data type is paired reads              #
+# threads
+# type'ILLUMINACLIP'  Step to find and remove Illumina adapters.               #
+# adapter:            path to a fasta file containing all the adapters, PCR    #
+#                     sequences etc.                                           #
+#====================================PARAMS====================================#
+# seed            specifies the maximum mismatch count which will still allow  #
+#                 a full match to be performed                                 #
+# palindrome_ct   specifies how accurate the match between the two 'adapter    #
+#                 ligated' reads must be for PE palindrome read alignment.     #
+# simple_ct       specifies how accurate the match between any adapter etc.    #
+#                 sequence must be against a read.                             #
+# minAdpLength    In addition to the alignment score, palindrome mode can      #
+#                 verify that a minimum length of adapter has been detected.   #
+#                 If unspecified, this defaults to 8 bases, for historical     #
+#                 reasons. However, since palindrome mode has a very low false #
+#                 positive rate, this can be safely reduced, even down to 1,   #
+#                 to allow shorter adapter fragments to be removed.            #
+# keepBoth:       After read-though has been detected by palindrome mode, and  #
+# (TRUE|FALSE)    the adapter sequence removed, the reverse read contains the  #
+#                 same sequence information as the forward read, albeit in     #
+#                 reverse complement. For this reason, the default behaviour   #
+#                 is to entirely drop the reverse read. By specifying „true‟   #
+#                 for this parameter, the reverse read will also be retained,  #
+#                 which may be useful e.g. if the downstream tools cannot      #
+#                 handle a combination of paired and unpaired reads.           #
+# sliding                                                                      #
+# type: "SLIDINGWINDOW:<windowSize>:<requiredQuality>"                         #
+#  - SLIDINGWINDOW    Sliding window trimming type                             #
+#  - windowSize       specifies the number of bases to average across          #
+#  - requiredQuality  specifies the average quality required.                  #
+# maxinfo                                                                      #
+# type: "MAXINFO" Performs an adaptive quality trim, balancing the benefits of #
+#                 retaining longer reads against the costs of retaining bases  #
+#                 with errors.                                                 #
+#  - targetLength     This specifies the read length which is likely to allow  #
+#                     the location of the read within the target sequence to   #
+#                     be determined.                                           #
+#  - strictness:      This value, which should be set between 0 and 1,         #
+#                     specifies the balance between preserving as much read    #
+#                     length as possible vs. removal of incorrect bases. A low #
+#                     value of this parameter (<0.2) favours longer reads,     #
+#                     while a high value (>0.8) favours read correctness.      #
+# minlen                                                                       #
+# type: "MINLEN"  This module removes reads that fall below the specified      #
+#                 minimal length. If required, it should normally be after all #
+#                 other processing steps. Reads removed by this step will be   #
+#                 counted and included in the „dropped reads‟ count presented  #
+#                 in the trimmomatic summary.
+#  - len              Specifies the minimum length of reads to be kept.
+# extra_params    Extra parameters. 
+#------------------------------------------------------------------------------#
+# For more info see:                                                           #
+#usadellab.org/cms/uploads/supplementary/Trimmomatic/TrimmomaticManual_V0.32.pdf
+#------------------------------------------------------------------------------#
+
+# Blokje bij 'sliding type' opdelen in windowzise & required quality
+trimm:
+  mode: "PE"
+  threads: 15
+  clip:
+    type: "ILLUMINACLIP"
+    adapter: "/export/lv1/user/aabdala/.conda/envs/metac4/share/trimmomatic/adapters/TruSeq3-PE-2.fa"
+    seed: 1
+    palindrome_ct: 30
+    simple_ct: 10
+    minAdpLength: 5
+    keepBoth: "TRUE"
+  sliding:
+    type: "SLIDINGWINDOW:5:22"
+#   type: "SLIDINGWINDOW"
+#   windowSize: 5
+#   requiredQuality: 22
+  maxinfo:
+    type: "MAXINFO"
+    targetLength: 40
+    strictness: 0.6
+  minlen:
+    type: "MINLEN"
+    len: 100
+  extra_params: ""
+
+#------------------------------------------------------------------------------#
+#                           TAXONOMIC PROFILING                                #
+#===============================DESCRIPTION====================================#
+# This options allows the user to choose if perform or not taxonomic profiling #
+# and if so, choose between different methods                                  #
+# This step is good to have only a first overview of the expected taxonomy     #
+# distribution, although these methods are good to identify already known      #
+# organisms, they tend to fail for identification of new species and the       #
+# specifivicty of the algorithms declain at deeper taxonomic levels (genus,    #
+# species, and so on... )                                                      #
+#=======================PARAMS=================================================#
+# PROFILING             If you wish to make the profiling, select one of the   #
+#                       following tools:                                       #
+# - KRAKEN              Run Kraken2                                            #
+# - KAIJU               Run Kaiju                                              #
+# - CLARK               Run CLARK                                              #
+# - ALL                 Runs all of the above                                  #
+# - NONE (Defualt)      Skip this step                                         #
+# taxonomy_path         Use this option to choose your output taxonomy path.   #
+#                       Default 7 classic levels:                              #
+#  -r + superkingdom, phylum, order, class, family, genus, species             #
+#  -p print the full path empty will print the default taxon name at which the #
+#     read is assigned                                                         #
+#------------------------------------------------------------------------------#
+# KRAKEN                http://ccb.jhu.edu/software/kraken/                    #
+#   db:                 Kraken database*                                       #
+#   raw_reads:    Y to use the raw reads N will use the trimmed reads          #
+#   threads:
+#   extra_params: Any extra parameter  execute kraken -h                       #
+#   nodes:
+#   names:
+# KAIJU           https://github.com/bioinformatics-centre/kaiju               #
+#   nodes:        Path to nodes NCBI file. This is downloaded durning DB       #
+#                 creation and although it could be the newest nodes, it is    #
+#                 important to always use the one used for the DB creation.    #
+#   names: 
+#   db:           Path to target database                                      #
+#   raw_reads:    Y to use the raw reads N will use the trimmed reads          #
+#   threads
+#   extra_params: Any extra parameter execute kaiju -h                         #
+# CLARK           http://clark.cs.ucr.edu/                                     #
+#   targets:      bacteria, viruses, human, custom                             #
+#   level:        taxonomy rank --phylum, --class, --order, --family, --genus  #
+#                 or --species. Default is --species                           #
+#   spaced:       specify --spaced or leave it blank. Is created for powerful  #
+#                 workstations and exploiting spaced k-mers this classifier    #
+#                 requires a higher RAM usage but it does offer a higher       #
+#                 sensitivity than CLARK at the species level                  #
+#   raw_reads:    Y to use the raw reads N will use the trimmed reads          #
+#   extra_params: Any extra parameter  execute classify_metagenome.sh -h       #
+#------------------------------------------------------------------------------#
+# * all available dabases at:                                                  #
+# http://redmine.nioz.nl/projects/databases-at-ymga/wiki/Databases             #
+#
+#------------------------------------------------------------------------------#
+TAXONOMY:
+  PROFILING: "KAIJU"
+  taxonomy_path: "-r species"
+  KRAKEN:
+#    db: "/export/data01/databases/kraken/std_db/"
+    db: "/export/lv13/databases/kraken2_modified/db_05_2024_standart"
+    raw_reads: "N"
+    threads: 30
+    extra_params: ""
+#    nodes: "/export/data01/databases/kraken/std_db/taxonomy/nodes.dmp"
+#    names: "/export/data01/databases/kraken/std_db/taxonomy/names.dmp"
+    nodes: "/export/lv13/databases/kraken2_modified/nodes.dmp"
+    names: "/export/lv13/databases/kraken2_modified/names.dmp"
+  KAIJU:
+#    nodes: "/export/data01/databases/kaiju/nodes.dmp"
+#    names: "/export/data01/databases/kaiju/names.dmp"
+#    db: "/export/data01/databases/kaiju/refseq/kaiju_db.fmi"
+    nodes: "/export/lv13/databases/kaiju/progenomes/nodes.dmp"
+    names: "/export/lv13/databases/kaiju/progenomes/names.dmp"
+    db: "/export/lv13/databases/kaiju/progenomes/kaiju_db_progenomes.fmi"
+    raw_reads: "N"
+    threads: 30
+    extra_params: ""
+  CLARK:
+    targets: "bacteria human"
+    level: "--species"
+    spaced: "--spaced"
+    raw_reads: "N"
+    extra_params: ""
+
+#------------------------------------------------------------------------------#
+#                           Select assembly tool                               #
+#===============================DESCRIPTION====================================#
+# This option allows the user to choose between different assemblers.          #
+#=======================PARAMS=================================================#
+# ASSEMBLER             Chose one of the following (case sensitive):           #
+# - SPADES              This option runs spades                                #
+# - IDBA                This option runs IDBA                                  #
+# - MEGAHIT             This option runs Megahit                               #
+# - ASSEMBLED           Use "ASSEMBLED" if you already have contigs and want   #
+#                       to skip Meta-CASCABEL assembly steps.                  #
+# contigs               If ASSEMBLER = "ASSEMBLED" supply file pointing to     #
+#                       contigs/scaffolds.                                     #
+#                                                                              #
+# After selecting the assembly tool, you can fine tune the options for each    #
+# tool, using the options below                                                #
+#------------------------------------------------------------------------------#
+ASSEMBLER: "MEGAHIT"
+contigs: ""
+
+#------------------------------------------------------------------------------#
+#                             Split assembly                                   #
+#===============================DESCRIPTION====================================#
+# This option allows the user to split the contig file. According to CONCOCT   #
+# documentation, in order to give more weight to larger contigs and mitigate   #
+# the effect of assembly errors we cut up the contigs into chunks of 10 Kb.    #
+# The final chunk is appended to the one before it if it is < SPLIT_SIZE Kb to #
+# prevent generating small contigs. This means that no contig < SPLIT_SIZE*2 Kb#
+# is cut up.                                                                   #
+# We recommend to set this to true whenever the pipeline is running for CONCOCT#
+# This method only work for contigs ((ANALYSIS: "CONTIGS")                     #
+#=======================PARAMS=================================================#
+# SPLIT_ASSEMBLY        "T" or "F" in order to split or not the contigs        #
+# SPLIT_SIZE             Chunk size (in bases) for splitting. Option -c within #
+#                        CONCOCT's script cut_up_fasta.py -c.                  #
+#------------------------------------------------------------------------------#
+SPLIT_ASSEMBLY: "T"
+SPLIT_SIZE: 10000
+
+#------------------------------------------------------------------------------#
+#                           Assembly with SPADES                               #
+# rule: Spades                                                                 #
+#===============================DESCRIPTION====================================#
+# Assembly using spades, always try to use it with nice in order to avoid the  #
+# program to take a lot a memory! The nice parameter is used for this purpose. #
+# It ranges from minus 20 to plus 19 and can take on only integer values. A    #
+# value of minus 20 represents the highest priority level, whereas 19          #
+# represents the lowest.                                                       #
+# moreinfo at: http://spades.bioinf.spbau.ru/release3.11.1/manual.html#sec3.4  #
+#=======================PARAMS=================================================#
+# nice                  To avoid take all the resources. It ranges from minus  #
+#                       20 to plus 19 and can take on only integer values. A   #
+#                       value of minus 20 represents the highest priority      #
+#                       level, whereas 19 represents the lowest.               #
+# threads               Number of threads                                      #
+# memory                RAM limit for SPAdes in Gb (terminates if exceeded)    #
+# kmers                 Comma-separated list of k-mer sizes (must be odd and   #
+#                       less than 128)                                         #
+# extra_params          Any extra argument to be passed.                       #
+#                       Run spades.py -h for more options.                     #
+#------------------------------------------------------------------------------#
+spades:
+  nice: "5"
+  threads: "25"
+  memory: "350"
+  kmers: "21,33,55,77"
+  extra_params: ""
+
+#------------------------------------------------------------------------------#
+#                           Assembly with IDBA_UD                              #
+# rule: idba                                                                   #
+#===============================DESCRIPTION====================================#
+# IDBA is the basic iterative de Bruijn graph assembler for second-generation  #
+# sequencing reads. IDBA-UD, an extension of IDBA, is designed to utilize      #
+# paired-end reads to assemble low-depth regions and use progressive depth on  #
+# contigs to reduce errors in high-depth regions.                              #
+#=======================PARAMS=================================================#
+# step                  Increment of k-mer of each iteration                   #
+# threads               Number of threads                                      #
+# extra_params          Any extra argument to be passed. For more info run:    #
+#                       /export/data/aabdala/utils/idba/bin/idba_ud            #
+#------------------------------------------------------------------------------#
+idba:
+  step: "10"
+  threads: "35"
+  extra_params: ""
+
+#------------------------------------------------------------------------------#
+#                           Assembly with MEGAHIT                              #
+# rule: megahit                                                                #
+#===============================DESCRIPTION====================================#
+# MEGAHIT is a single node assembler for large and complex metagenomics NGS    #
+# reads, such as soil. It makes use of succinct de Bruijn graph (SdBG) to      #
+# achieve low memory assembly.                                                 #
+# Choosing k                                                                   #
+# MEGAHIT uses multiple k-mer strategy. Minimum k, maximum k and the step for  #
+# iteration can be set by options --k-min, --k-max and --k-step respectively.  #
+# k must be odd numbers while the step must be an even number.                 #
+# for ultra complex metagenomics data such as soil, a larger kmin, say 27, is  #
+# recommended to reduce the complexity of the de Bruijn graph. Quality trimming#
+# is also recommended for high-depth generic data, large --k-min (25 to 31) is #
+# recommended smaller --k-step, say 10, is more friendly to low-coverage       #
+# datasets: https://github.com/voutcn/megahit/wiki/Assembly-Tips               #
+#=======================PARAMS=================================================#
+# kmin                  Minimum kmer size (<= 255), must be odd number.        #
+#                       Default = 21                                           #
+# kmax                  Maximum kmer size (<= 255), must be odd number.        #
+#                       Default = 141                                          #
+# kstep                 Increment of kmer size of each iteration (<= 28),      #
+#                       must be even number. Default = 12                      #
+# memory                Max memory in byte to be used in SdBG construction,    #
+#                       set between 0-1, fraction of the machine's total memory#
+#                       Default = 0.5.                                         #
+# cpus                  Number of CPU threads default 6                        #
+# extra_params          Any extra argument to be passed.                       #
+#                       For more info run: megahit -h                          #
+#------------------------------------------------------------------------------#
+megahit:
+  kmin: 21
+  kmax: 141
+  kstep: 14
+  memory: 0.3
+  cpus: 35
+  extra_params: ""
+
+#------------------------------------------------------------------------------#
+#                                  QUAST                                       #
+# rule: quast_contigs and quast_scaffolds                                      #
+#===============================DESCRIPTION====================================#
+# QUality ASsessment Tool for Genome Assemblies                                #
+#=======================PARAMS=================================================#
+# threads               Number of threads                                      #
+# extra_params          Any extra argument to be passed. For more info run:    #
+#                       quast.py --help                                        #
+#------------------------------------------------------------------------------#
+quast:
+  threads: "20"
+  extra_params: ""
+
+#------------------------------------------------------------------------------#
+#                               Analysis Type                                  #
+# rule: mapping                                                                #
+#===============================DESCRIPTION====================================#
+# Some metagenomic analysis use the contigs and some others the scaffolds in   #
+# order to perform the mapping, binning and other downstream analysis after the#
+# assembly. The following variable can take two values: CONTIGS or SCAFFOLDS   #
+# So deppending on this, the pipeline will continue the analysis with the      #
+# assembled contigs or with the assembled scaffolds.                           #
+#------------------------------------------------------------------------------#
+ANALYSIS: "CONTIGS"
+
+
+#------------------------------------------------------------------------------#
+#                                  BWA MEM                                     #
+# rule: bwa_mem                                                                #
+#===============================DESCRIPTION====================================#
+# Map the trimmed reads against the assembly                                   #
+#=======================PARAMS=================================================#
+# nice                  To avoid take all the resources. It ranges from minus  #
+#                       20 to plus 19 and can take on only integer values. A   #
+#                       value of minus 20 represents the highest priority      #
+#                       level, whereas 19 represents the lowest.               #
+# threads               number of threads                                      #
+# differential_coverage_matrix                                                 #
+#------------------------------------------------------------------------------#
+bwa:
+  nice: "5"
+  threads: "12"
+  differential_coverage_matrix: "F"
+
+#------------------------------------------------------------------------------#
+#                        jgi_summarize_bam_contig_depths                       #
+# rule: jgi_summ                                                               #
+#===============================DESCRIPTION====================================#
+# This program generate a depth file from BAM files. It runs with all the      #
+# default parameters, however the extra_params variable is present in order to #
+# include an desired option.                                                   #
+#------------------------------------------------------------------------------#
+jgi_summ:
+  extra_params: ""
+
+#------------------------------------------------------------------------------#
+#                        Select the binning tool                               #
+#=======================DESCRIPTION============================================#
+# Here, you can select the binning method of your choice.                      #
+#=======================PARAMS=================================================#
+# BINNING               Available options are (case sensitive):                #
+# - METABAT             this option runs Metabat2                              #
+# - MAXBIN              this option run MaxBin2                                #
+# - CONCOCT             this option runs Concoct                               #
+# - BINSANITY           this option runs BinSanity workflow                    #
+# - DAS                 this option run all the above methods and then refine  #
+#                       bins with DASTool                                      #
+#                                                                              #
+# After selecting the target method, you can fine tune the options for each    #
+# tool, using the options below                                                #                                       
+#------------------------------------------------------------------------------#
+BINNING: "DAS"
+
+#------------------------------------------------------------------------------#
+#                          Unbinned conntigs                                   #
+# rule:                                                                        #
+#===============================DESCRIPTION====================================#
+# If this option is set to "T" (true) , a file with all the unbinned contigs   #
+# will be created.
+#------------------------------------------------------------------------------#
+CREATE_UNBINNED: "T"
+
+#------------------------------------------------------------------------------#
+#                                 MetaBAT2                                     #
+# rule: metabat                                                                #
+#=======================DESCRIPTION============================================#
+# Metagenome Binning based on Abundance and Tetranucleotide frequency          #
+#=======================PARAMS=================================================#
+# threads               Number of threads to use                               #
+# min_contig            Minimum size of a contig for binning. Default = 2500.  #
+#                       Should be >=1500.                                      #
+# min_score             Minimum score of a edge for binning. Default = 60.     #
+#                       Should be between 1 and 99, greater = more specific.   #
+# maxP                  Percentage of 'good' contigs considered for binning    #
+#                       decided by connection among contigs. Default = 95.     #
+#                       The greater, the more sensitive.                       #
+# maxEdge               Maximum number of edges per node. Default = 200.       # 
+#                       The greater, the more sensitive.                       #
+# min_bin_size          Minimum size of a bin as the output. Default = 200000. #
+# extra_params          Any extra params. Default values on this pipeline:     #
+#   --saveCls           Save cluster memberships as a matrix format            #
+#   -v                  verbose                                                #
+#------------------------------------------------------------------------------#
+metabat2:
+  threads: "20"
+  min_contig: "2500"
+  min_score: "30"
+  maxP: "98"
+  maxEdge: "400"
+  min_bin_size: "200000"
+  extra_params: "--saveCls -v"
+
+#------------------------------------------------------------------------------#
+#                                 MaxBin                                       #
+# rule: maxbin                                                                 #
+#===============================DESCRIPTION====================================#
+# MaxBin uses the nucleotide composition information and contig abundance      #
+# information to do achieve binning through an Expectation-Maximization        # 
+# algorithm.                                                                   #
+#=======================PARAMS=================================================#
+# threads               Number of threads                                      #
+# min_contig_length     minimum contig length. Default 1000                    #
+# max_iteration         maximum Expectation-Maximization algorithm iteration   #
+#                       number. Default 50.                                    #
+# prob_threshold        Probability threshold for EM final classification.     #
+#                       Default 0.9                                            #
+# plotmarker            Values -plotmarker to generate plot with marker        #
+#                       abundance or empty to skip plot generation             #
+# markerset             Marker gene sets, 107 (default) or 40.                 #
+#                       See /export/data/aabdala/utils/MaxBin-2.2.4/README.txt)#
+#                       for more information.                                  #
+# extra_params:         Any extra params.                                      #
+#------------------------------------------------------------------------------#
+maxbin:
+  threads: "20"
+  min_contig_length: "2500"
+  max_iteration: "50"
+  prob_threshold: "0.9"
+  plotmarker: "-plotmarker"
+  markerset: "107"
+  extra_params: ""
+
+#------------------------------------------------------------------------------#
+#                                concoct                                       #
+# rule: concoct                                                                #
+#===============================DESCRIPTION====================================#
+# CONCOCT does unsupervised binning of metagenomic contigs by using nucleotide #
+# composition - kmer frequencies - and coverage data for multiple samples.     #
+# CONCOCT can accurately (up to species level) bin metagenomic contigs.        #
+# more info about concoct: https://concoct.readthedocs.io/en/latest/index.html #
+#=======================PARAMS=================================================#
+# min_contig_length     minimum contig length. Default 1000)                   #
+# max_iteration         Specify maximum number of iterations for the VBGM      #
+#                       Default 500.                                           #
+# threads               Number of threads to use                               #
+# extra_params          Any extra params. See concoct -h                       #
+#------------------------------------------------------------------------------#
+concoct:
+  min_contig_length: "2500"
+  max_iteration: "600"
+  threads: "20"
+  extra_params: ""
+
+#------------------------------------------------------------------------------#
+#                                BinSanity                                     #
+# rule: binsanity                                                              #
+#===============================DESCRIPTION====================================#
+# BinSanity contains a suite a scripts designed to cluster contigs generated   #
+# from metagenomic assembly into putative genomes. What makes BinSanity unique #
+# is the usage of Affinity Propagation (AP) and its biphasic approach.         #
+# The biphasic approach whereby contigs are clustered initially with contig    #
+# coverage followed by refinement using GC% and k-mer frequencies yields more  #
+# complete bins than similar methods.                                          #
+# ========PARAMS========                                                       #
+# preference            Specify a preference [Default: -3] Note: decreasing the#
+#                       preference leads to more lumping, increasing will lead #
+#                       to more splitting. If your range of coverages are low  #
+#                       you will want to decrease the preference, if you have  #
+#                       10 or less replicates increasing the preference could  #
+#                       benefit you.                                           #
+# min_contig_length     Option -x/SizeThreshold. Specify the contig size       #
+#                       cut-off [Default: 1000 bp]                             #
+# threads               Indicate how many threads you want dedicated to the    #
+#                       subprocess CheckM                                      #
+# low_completion        T or F. BinSanity WF output two different kind of bins:#
+#                       "refined" bins (high quality) bins and also low        #
+#                       completion bins. Use T to include low comp. bins in    #
+#                       downstream analysis                                    #
+# extra_params:         Any extra params. See Binsanity-wf -h                  #
+#------------------------------------------------------------------------------#
+binsanity:
+  preference: -3
+  min_contig_length: 2500
+  threads: 20
+  low_completion: "T"
+  extra_params: ""
+
+#------------------------------------------------------------------------------#
+#                                 Semibin Tool                                 #
+# rule:                                                                        #
+#===============================DESCRIPTION====================================#
+#====================================PARAMS====================================#
+
+
+
+
+
+#------------------------------------------------------------------------------#
+#                                 DAS Tool                                     #
+# rule: das                                                                    #
+#===============================DESCRIPTION====================================#
+# DAS Tool is an automated method that integrates the results of a flexible    #
+# number of binning algorithms to calculate an optimized, non-redundant set of #
+# bins from a single assembly.                                                 #
+# ========PARAMS========                                                       #
+# threads               Number of threads                                      #
+# db                    Directory of single copy gene database.                #
+# search_engine         Engine used for single copy gene identification        #
+#                       [blast/diamond/usearch].                               #
+
+# max_iteration         maximum Expectation-Maximization algorithm iteration   #
+#                       number. Default 50.                                    #
+
+# extra_params         Any extra params. Run DAS_Tool to see available options #
+#                                                                              #
+# By default, DAS will run metabat if you want to turn on/off other tools use  #
+# values T (true) or F (false) accordingly for binsanity, concoct and maxbin.  #
+# In case you use any of these tools, select if you want to perform checkm     #
+# and/or gtdbtk analyzes by seting the corresponding flags, also to T or F    #  
+#------------------------------------------------------------------------------#
+
+# max_interation in description but not in params
+
+das:
+  threads: "20"
+  db: "/export/lv1/user/aabdala/.conda/envs/metac4/share/das_tool-1.1.7-1/db/"
+  search_engine: diamond
+  extra_params: ""
+  metabat:
+    gtdbtk_analysis: "T"
+    checkm_analysis: "T"
+  binsanity: 
+    run: "T"
+    gtdbtk_analysis: "T"
+    checkm_analysis: "T"
+  concoct: 
+   run: "T"
+   gtdbtk_analysis: "T"
+   checkm_analysis: "T"
+  maxbin: 
+    run: "T"
+    gtdbtk_analysis: "T"
+    checkm_analysis: "T"
+
+
+#------------------------------------------------------------------------------#
+#                       chekM                                                  #
+# rule: checkm_<bin_method>                                                    #
+#=======================DESCRIPTION============================================#
+# This rule asses the quality of genomes recovered from isolates, single cells #
+# or metagenomes.                                                              #
+#=======================PARAMS=================================================#
+# threads               Number of threads                                      #
+# extra_params          Any extra params. Run checkm to see available options  #
+#------------------------------------------------------------------------------#
+checkM:
+  threads: "15" 
+  extra_params: ""
+
+
+#------------------------------------------------------------------------------#
+#                                GTDB-Tk                                       #
+# rule: gtdbtk_<bin_method>                                                    #
+#===============================DESCRIPTION====================================#
+# GTDB-Tk is a software toolkit for assigning objective taxonomic              #
+# classifications to bacterial and archaeal genomes based on the Genome        #
+# Database Taxonomy GTDB.                                                      #
+#=======================PARAMS=================================================#
+# cpus                  Number of CPUs                                         #
+# extra_params          Any extra params. Run gtdbtk to see available options  #
+#------------------------------------------------------------------------------#
+gtdbtk:
+  cpus: "35"
+  extra_params: "--min_perc_aa 0.5 --force"
+
+#------------------------------------------------------------------------------#
+#                                GENE CALLING                                  #
+# rule:                                                                        #
+#------------------------------------------------------------------------------#
+#===============================DESCRIPTION====================================#
+# This option allows the user to predict genes (call genes) into the assembled #
+# reads. The pipeline supports the following options:                          #
+#     - MetaGeneMark (http://exon.gatech.edu/meta_gmhmmp.cgi)                  #
+#         * use TOOL: "MGM"                                                    #
+#     - FragGeneScan (https://github.com/COL-IU/FragGeneScan)                  #
+#         * use TOOL: "FGS"                                                    #
+#     - Skip gene calling                                                      #
+#         * use TOOL: "NONE" (or other value)                                  #
+#=======================PARAMS=================================================#
+# TOOL                  (MGM|FGS|NONE)                                         #
+#   MGM                                                                        #
+#     key                                                                      #
+#     model             file with gene finding parameters                      #
+#     f                 output format (Default = 3):                           #
+#                       [L] for LST                                            #
+#                       [G] for GFF/GFF2/GTF                                   #
+#                       [3] for GFF3                                           #
+#  extra_params                                                                #
+#  FGS                                                                         #
+#     complete                                                                 #
+#     model                                                                    #
+#------------------------------------------------------------------------------#
+GENE_CALLING:
+  TOOL: "MGM"
+  MGM:
+    key: "/export/data/aabdala/utils/MetaGeneMark_linux_64/mgm/gm_key_64"
+    model: "/export/data/aabdala/utils/MetaGeneMark_linux_64/mgm/MetaGeneMark_v1.mod"
+    f: "G"
+    extra_params: ""
+  FGS:
+    complete: 0
+    model: "/export/data/aabdala/utils/FragGeneScan/train/complete"
+    threads: 4
+
+#------------------------------------------------------------------------------#
+#                                   Prokka                                     #
+# rule: prokka_metabat_bins                                                    #
+#===============================DESCRIPTION====================================#
+# Prokka is a software tool to annotate bacterial, archaeal and viral genomes  #
+# quickly and produce standards-compliant output files.                        #
+#=======================PARAMS=================================================#
+# extra_params          Any extra params. Default values on this pipeline:     #
+#                       -v = verbose                                           #
+#                       --saveCls = Save cluster memberships as a matrix format#
+#   --addmrna           Add 'mRNA' features for each 'CDS' feature             #
+#   --increment         Locus tag counter increment (default '1')              #
+# cpus                  Number of CPUs to use                                  #
+#------------------------------------------------------------------------------#
+
+# Extra params present in script? Copy paste from MetaBAT2 description? 
+# And should extra params here be empty?
+
+prokka:
+  extra_params: "--addmrna --increment 1"
+  cpus: 6
+
+#------------------------------------------------------------------------------#
+#                                   DIAMOND                                    #
+# rule: diamond_gen_bins                                                       #
+#===============================DESCRIPTION====================================#
+# DIAMOND is  a BLAST-compatible local  aligner  for  mapping translated DNA   #
+# query  sequences  against  a  protein  reference database (BLASTX alignment  #
+# mode). The speedup over BLAST is up to 20,000 on short reads at a typical    #
+# sensitivity of 90-99% relative to BLAST depending on the data and settings.  #
+# For more info on the tool and parameters, see:                               #
+# https://github.com/bbuchfink/diamond/wiki/3.-Command-line-options            #
+#=======================PARAMS=================================================#
+# db                    Path to the output DIAMOND database file               #
+# taxonmap              Path to mapping file that maps NCBI protein accession  #
+#                       numbers to taxon ids                                   #
+# outfmt                Format of the output file                              #
+# threads               Number of CPU threads                                  #
+# extra_params          Any extra params. Default values on this pipeline:     #
+#   -v                  verbose                                                #
+#   --saveCls           Save cluster memberships as a matrix format            #
+#   --sensitive         Find hits of >40% identity and short read fragments    #
+#------------------------------------------------------------------------------#
+
+# Extra params present in script? Copy paste from MetaBAT2 description? 
+# And should extra params here be empty?
+
+diamond:
+  db: "/export/data01/databases/ncbi_nr/diamond/nr.proka.dmnd"
+  taxonmap: "/export/data01/databases/ncbi_nr/diamond/nr.proka.dmnd"
+  outfmt: "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore staxids stitle"
+  threads: "30"
+  extra_params: "--sensitive"
