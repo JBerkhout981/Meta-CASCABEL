@@ -336,50 +336,6 @@ if config["TAXONOMY"]["PROFILING"] == "KAIJU" or config["TAXONOMY"]["PROFILING"]
            # "kaijuReport -t {config[TAXONOMY][KAIJU][nodes]} -n {config[TAXONOMY][KAIJU][names]} "
            # "-i {input} {config[TAXONOMY][taxonomy_path]}  -o {output}"
 
-
-# if config["TAXONOMY"]["PROFILING"] == "CLARK" or config["TAXONOMY"]["PROFILING"] == "ALL":
-#     rule clark_target_db:
-#         """
-#             In order to run clark allways first we need to set the targets for the
-#             database. For this we call the set_targets.sh script
-#         """
-#         output:
-#             "{PROJECT}/runs/{run}/{sample}_data/taxonomy/clark.targetdb.out"
-#         shell:
-#             "set_targets.sh /export/data/databases/clark {config[TAXONOMY][CLARK][targets]} "
-#             "{config[TAXONOMY][CLARK][level]} > {output}"
-#     if config["TAXONOMY"]["CLARK"]["spaced"] == "--spaced":
-#         rule clark_build_db:
-#             """
-#                 Clark can run in different modes, and one of this is the spaced db
-#                 search. It requires more time and memory but it suppose it outperform
-#                 the other taxonomy profielers, to run this spaced kmaer search it is
-#                 needed to always run this command before run the classifier.
-#             """
-#             input:
-#                 "{PROJECT}/runs/{run}/{sample}_data/taxonomy/clark.targetdb.out"
-#             output:
-#                 "{PROJECT}/runs/{run}/{sample}_data/taxonomy/clark.builddb.out"
-#             shell:
-#                 "buildSpacedDB.sh > {output}"
-#     rule clark:
-#         """
-#             Execute Clark taxonomy profiling
-#         """
-#         input:
-#             dbcreation_log="{PROJECT}/runs/{run}/{sample}_data/taxonomy/clark.builddb.out"
-#             if config["TAXONOMY"]["CLARK"]["spaced"] == "--spaced" else "{PROJECT}/runs/{run}/{sample}_data/taxonomy/clark.targetdb.out",
-#             fw="{PROJECT}/samples/{sample}/rawdata/fw.fastq"
-#             if config["TAXONOMY"]["KRAKEN"]["raw_reads"] == "Y" else "{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_paired.fq",
-#             rv="{PROJECT}/samples/{sample}/rawdata/rv.fastq"
-#             if config["TAXONOMY"]["KRAKEN"]["raw_reads"] == "Y" else "{PROJECT}/runs/{run}/{sample}_data/trimmed/read2_paired.fq"
-#         params:
-#             "{PROJECT}/runs/{run}/{sample}_data/taxonomy/"
-#         output:
-#             "{PROJECT}/runs/{run}/{sample}_data/taxonomy/clark.taxonomy.out"
-#         shell:
-#             "classify_metagenome.sh -P {input.fw} {input.rv} "
-#             "{config[TAXONOMY][CLARK][extra_params]} -R {output} {config[TAXONOMY][CLARK][spaced]}"
 if config["TAXONOMY"]["PROFILING"] not in "KRAKEN KAIJU CLARK ALL":
     rule create_taxo_out:
         """
@@ -454,7 +410,7 @@ if config["ASSEMBLER"] == "SPADES":
         input:
             read1_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_paired.fq",
             read2_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read2_paired.fq",
-            read12_singles="{PROJECT}/runs/{run}/{sample}_data/trimmed/all_singles.fq"
+            read12_singles="{PROJECT}/runs/{run}/{sample}_data/trimmed/all_si ngles.fq"
         output:
             "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/contigs.fasta",
             "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/scaffolds.fasta"
@@ -619,7 +575,9 @@ if config["SPLIT_ASSEMBLY"] == "T":
         output:
             "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/contigs.chunks.fasta"
         shell:
-            "/opt/biolinux/anaconda2.2019.07/bin/cut_up_fasta.py -c {config[SPLIT_SIZE]} "
+            # "/opt/biolinux/anaconda2.2019.07/bin/cut_up_fasta.py -c {config[SPLIT_SIZE]} "
+            # This pathway currently only works for ada, not ada94
+            "/opt/biolinux/anaconda/73/2022.05/envs/metacascabel_c_env/bin/cut_up_fasta.py  -c {config[SPLIT_SIZE]} "
             "-o 0 -m {input.contigs} > {output}"
     rule std_splitted_assembly:
         input:
