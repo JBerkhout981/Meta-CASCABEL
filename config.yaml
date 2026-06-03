@@ -84,7 +84,7 @@ RUN: "Test03"
 # included on the final report. This field is not mandatory so it can remain   #
 # empty                                                                        #
 #------------------------------------------------------------------------------#
-description: "Assembly tools uittesten"
+description: "Script uittesten"
 
 #------------------------------------------------------------------------------#
 #                             Execution mode                                   #
@@ -262,7 +262,6 @@ trimm:
 #                       following tools:                                       #
 # - KRAKEN              Run Kraken2                                            #
 # - KAIJU               Run Kaiju                                              #
-# - CLARK               Run CLARK                                              #
 # - ALL                 Runs all of the above                                  #
 # - NONE (Defualt)      Skip this step                                         #
 # taxonomy_path         Use this option to choose your output taxonomy path.   #
@@ -287,16 +286,6 @@ trimm:
 #   raw_reads:    Y to use the raw reads N will use the trimmed reads          #
 #   threads
 #   extra_params: Any extra parameter execute kaiju -h                         #
-# CLARK           http://clark.cs.ucr.edu/                                     #
-#   targets:      bacteria, viruses, human, custom                             #
-#   level:        taxonomy rank --phylum, --class, --order, --family, --genus  #
-#                 or --species. Default is --species                           #
-#   spaced:       specify --spaced or leave it blank. Is created for powerful  #
-#                 workstations and exploiting spaced k-mers this classifier    #
-#                 requires a higher RAM usage but it does offer a higher       #
-#                 sensitivity than CLARK at the species level                  #
-#   raw_reads:    Y to use the raw reads N will use the trimmed reads          #
-#   extra_params: Any extra parameter  execute classify_metagenome.sh -h       #
 #------------------------------------------------------------------------------#
 # * all available dabases at:                                                  #
 # http://redmine.nioz.nl/projects/databases-at-ymga/wiki/Databases             #
@@ -324,12 +313,6 @@ TAXONOMY:
     db: "/export/lv13/databases/kaiju/progenomes/kaiju_db_progenomes.fmi"
     raw_reads: "N"
     threads: 30
-    extra_params: ""
-  CLARK:
-    targets: "bacteria human"
-    level: "--species"
-    spaced: "--spaced"
-    raw_reads: "N"
     extra_params: ""
 
 #------------------------------------------------------------------------------#
