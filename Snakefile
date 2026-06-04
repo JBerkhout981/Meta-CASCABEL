@@ -410,7 +410,7 @@ if config["ASSEMBLER"] == "SPADES":
         input:
             read1_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_paired.fq",
             read2_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read2_paired.fq",
-            read12_singles="{PROJECT}/runs/{run}/{sample}_data/trimmed/all_si ngles.fq"
+            read12_singles="{PROJECT}/runs/{run}/{sample}_data/trimmed/all_singles.fq"
         output:
             "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/contigs.fasta",
             "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/scaffolds.fasta"
