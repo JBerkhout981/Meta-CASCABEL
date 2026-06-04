@@ -97,8 +97,8 @@ interactive : "T"
 
 
 ################################################################################
-#                         Specific Parameters Section                          #
-#------------------------------------------------------------------------------#
+#                       Specific Parameters Section                            #
+#=======================DESCRIPTION============================================#
 # In this section of the configuration file, you can find all the values used  #
 # to run the different rules during the pipeline execution.                    #
 # Some of the parameters below, contains an option called "extra_params".      #
@@ -120,9 +120,9 @@ QC:
   tool: "both"
 
 #------------------------------------------------------------------------------#
-#                        Quality control with Sequali                          #
+#                       Quality control with Sequali                           #
 # rules: sequali                                                               #
-#===============================DESCRIPTION====================================#
+#=======================DESCRIPTION============================================#
 # Sequence quality metrics for FASTQ and uBAM files.                           #
 # Sequali (https://github.com/rhpvorderman/sequali).                           #
 #=======================PARAMS=================================================#
@@ -134,9 +134,9 @@ sequali:
   extra_params: ""
 
 #------------------------------------------------------------------------------#
-#                                FastQC                                        #
+#                       FastQC                                                 #
 # rule: validateQC                                                             #
-#===============================DESCRIPTION====================================#
+#=======================DESCRIPTION============================================#
 # FastQC evaluates 12 main concepts on the sequences: (Basic Statistics, Per   #
 # base sequence quality, Per tile sequence quality, Per sequence quality scores#
 # Per base sequence content, Per sequence GC content,Per base N content,       #
@@ -158,9 +158,9 @@ FastQC:
   qcLimit : 3
 
 #------------------------------------------------------------------------------#
-#                                Trimmomatic                                   #
+#                       Trimmomatic                                            #
 # rule: trimmomatic                                                            #
-#===============================DESCRIPTION====================================#
+#=======================DESCRIPTION============================================#
 # Remove adapter contamination and trim very low quality parts (ends) of the   #
 # reads. Use maxinfo 0.6 for Q trimming and leave read 1 and 2 separate since  #
 # spades (assembler) does no longer support merged reads                       #
@@ -256,8 +256,8 @@ trimm:
   extra_params: ""
 
 #------------------------------------------------------------------------------#
-#                           TAXONOMIC PROFILING                                #
-#===============================DESCRIPTION====================================#
+#                       TAXONOMIC PROFILING                                    #
+#=======================DESCRIPTION============================================#
 # This options allows the user to choose if perform or not taxonomic profiling #
 # and if so, choose between different methods.                                 #
 # This step is good to have only a first overview of the expected taxonomy     #
@@ -326,8 +326,8 @@ TAXONOMY:
     extra_params: ""
 
 #------------------------------------------------------------------------------#
-#                           Select assembly tool                               #
-#===============================DESCRIPTION====================================#
+#                       Select assembly tool                                   #
+#=======================DESCRIPTION============================================#
 # This option allows the user to choose between different assemblers.          #
 #=======================PARAMS=================================================#
 # ASSEMBLER             Chose one of the following (case sensitive):           #
@@ -346,8 +346,8 @@ ASSEMBLER: "SPADES"
 contigs: ""
 
 #------------------------------------------------------------------------------#
-#                             Split assembly                                   #
-#===============================DESCRIPTION====================================#
+#                       Split assembly                                         #
+#=======================DESCRIPTION============================================#
 # This option allows the user to split the contig file. According to CONCOCT   #
 # documentation, in order to give more weight to larger contigs and mitigate   #
 # the effect of assembly errors we cut up the contigs into chunks of 10 Kb.    #
@@ -365,9 +365,9 @@ SPLIT_ASSEMBLY: "T"
 SPLIT_SIZE: 10000
 
 #------------------------------------------------------------------------------#
-#                           Assembly with SPADES                               #
+#                       Assembly with SPADES                                   #
 # rule: Spades                                                                 #
-#===============================DESCRIPTION====================================#
+#=======================DESCRIPTION============================================#
 # Assembly using spades, always try to use it with nice in order to avoid the  #
 # program to take a lot a memory! The nice parameter is used for this purpose. #
 # It ranges from minus 20 to plus 19 and can take on only integer values. A    #
@@ -394,9 +394,9 @@ spades:
   extra_params: ""
 
 #------------------------------------------------------------------------------#
-#                           Assembly with IDBA_UD                              #
+#                       Assembly with IDBA_UD                                  #
 # rule: idba                                                                   #
-#===============================DESCRIPTION====================================#
+#=======================DESCRIPTION============================================#
 # IDBA is the basic iterative de Bruijn graph assembler for second-generation  #
 # sequencing reads. IDBA-UD, an extension of IDBA, is designed to utilize      #
 # paired-end reads to assemble low-depth regions and use progressive depth on  #
@@ -413,9 +413,9 @@ idba:
   extra_params: ""
 
 #------------------------------------------------------------------------------#
-#                           Assembly with MEGAHIT                              #
+#                       Assembly with MEGAHIT                                  #
 # rule: megahit                                                                #
-#===============================DESCRIPTION====================================#
+#=======================DESCRIPTION============================================#
 # MEGAHIT is a single node assembler for large and complex metagenomics NGS    #
 # reads, such as soil. It makes use of succinct de Bruijn graph (SdBG) to      #
 # achieve low memory assembly.                                                 #
@@ -451,9 +451,9 @@ megahit:
   extra_params: ""
 
 #------------------------------------------------------------------------------#
-#                                  QUAST                                       #
+#                       QUAST                                                  #
 # rule: quast_contigs and quast_scaffolds                                      #
-#===============================DESCRIPTION====================================#
+#=======================DESCRIPTION============================================#
 # QUality ASsessment Tool for Genome Assemblies                                #
 #=======================PARAMS=================================================#
 # threads               Number of threads                                      #
@@ -465,9 +465,9 @@ quast:
   extra_params: ""
 
 #------------------------------------------------------------------------------#
-#                               Analysis Type                                  #
+#                       Analysis Type                                          #
 # rule: mapping                                                                #
-#===============================DESCRIPTION====================================#
+#=======================DESCRIPTION============================================#
 # Some metagenomic analysis use the contigs and some others the scaffolds in   #
 # order to perform the mapping, binning and other downstream analysis after the#
 # assembly. The following variable can take two values: CONTIGS or SCAFFOLDS   #
@@ -478,9 +478,9 @@ ANALYSIS: "CONTIGS"
 
 
 #------------------------------------------------------------------------------#
-#                                  BWA MEM                                     #
+#                       BWA MEM                                                #
 # rule: bwa_mem                                                                #
-#===============================DESCRIPTION====================================#
+#=======================DESCRIPTION============================================#
 # Map the trimmed reads against the assembly                                   #
 #=======================PARAMS=================================================#
 # nice                  To avoid take all the resources. It ranges from minus  #
@@ -496,9 +496,9 @@ bwa:
   differential_coverage_matrix: "F"
 
 #------------------------------------------------------------------------------#
-#                        jgi_summarize_bam_contig_depths                       #
+#                       jgi_summarize_bam_contig_depths                        #
 # rule: jgi_summ                                                               #
-#===============================DESCRIPTION====================================#
+#=======================DESCRIPTION============================================#
 # This program generate a depth file from BAM files. It runs with all the      #
 # default parameters, however the extra_params variable is present in order to #
 # include an desired option.                                                   #
@@ -507,7 +507,7 @@ jgi_summ:
   extra_params: ""
 
 #------------------------------------------------------------------------------#
-#                        Select the binning tool                               #
+#                       Select the binning tool                                #
 #=======================DESCRIPTION============================================#
 # Here, you can select the binning method of your choice.                      #
 #=======================PARAMS=================================================#
@@ -525,16 +525,16 @@ jgi_summ:
 BINNING: "DAS"
 
 #------------------------------------------------------------------------------#
-#                          Unbinned conntigs                                   #
+#                       Unbinned conntigs                                      #
 # rule:                                                                        #
-#===============================DESCRIPTION====================================#
+#=======================DESCRIPTION============================================#
 # If this option is set to "T" (true) , a file with all the unbinned contigs   #
 # will be created.
 #------------------------------------------------------------------------------#
 CREATE_UNBINNED: "T"
 
 #------------------------------------------------------------------------------#
-#                                 MetaBAT2                                     #
+#                       MetaBAT2                                               #
 # rule: metabat                                                                #
 #=======================DESCRIPTION============================================#
 # Metagenome Binning based on Abundance and Tetranucleotide frequency          #
@@ -564,9 +564,9 @@ metabat2:
   extra_params: "--saveCls -v"
 
 #------------------------------------------------------------------------------#
-#                                 MaxBin                                       #
+#                       MaxBin                                                 #
 # rule: maxbin                                                                 #
-#===============================DESCRIPTION====================================#
+#=======================DESCRIPTION============================================#
 # MaxBin uses the nucleotide composition information and contig abundance      #
 # information to do achieve binning through an Expectation-Maximization        # 
 # algorithm.                                                                   #
@@ -594,9 +594,9 @@ maxbin:
   extra_params: ""
 
 #------------------------------------------------------------------------------#
-#                                concoct                                       #
+#                       concoct                                                #
 # rule: concoct                                                                #
-#===============================DESCRIPTION====================================#
+#=======================DESCRIPTION============================================#
 # CONCOCT does unsupervised binning of metagenomic contigs by using nucleotide #
 # composition - kmer frequencies - and coverage data for multiple samples.     #
 # CONCOCT can accurately (up to species level) bin metagenomic contigs.        #
@@ -615,9 +615,9 @@ concoct:
   extra_params: ""
 
 #------------------------------------------------------------------------------#
-#                                BinSanity                                     #
+#                       BinSanity                                              #
 # rule: binsanity                                                              #
-#===============================DESCRIPTION====================================#
+#=======================DESCRIPTION============================================#
 # BinSanity contains a suite a scripts designed to cluster contigs generated   #
 # from metagenomic assembly into putative genomes. What makes BinSanity unique #
 # is the usage of Affinity Propagation (AP) and its biphasic approach.         #
@@ -649,19 +649,19 @@ binsanity:
   extra_params: ""
 
 #------------------------------------------------------------------------------#
-#                                 Semibin Tool                                 #
+#                       Semibin Tool                                           #
 # rule:                                                                        #
-#===============================DESCRIPTION====================================#
-#====================================PARAMS====================================#
+#=======================DESCRIPTION============================================#
+#=======================PARAMS=================================================#
 
 
 
 
 
 #------------------------------------------------------------------------------#
-#                                 DAS Tool                                     #
+#                       DAS Tool                                               #
 # rule: das                                                                    #
-#===============================DESCRIPTION====================================#
+#=======================DESCRIPTION============================================#
 # DAS Tool is an automated method that integrates the results of a flexible    #
 # number of binning algorithms to calculate an optimized, non-redundant set of #
 # bins from a single assembly.                                                 #
@@ -722,9 +722,9 @@ checkM:
 
 
 #------------------------------------------------------------------------------#
-#                                GTDB-Tk                                       #
+#                       GTDB-Tk                                                #
 # rule: gtdbtk_<bin_method>                                                    #
-#===============================DESCRIPTION====================================#
+#=======================DESCRIPTION============================================#
 # GTDB-Tk is a software toolkit for assigning objective taxonomic              #
 # classifications to bacterial and archaeal genomes based on the Genome        #
 # Database Taxonomy GTDB.                                                      #
@@ -737,10 +737,10 @@ gtdbtk:
   extra_params: "--min_perc_aa 0.5 --force"
 
 #------------------------------------------------------------------------------#
-#                                GENE CALLING                                  #
+#                       GENE CALLING                                           #
 # rule:                                                                        #
 #------------------------------------------------------------------------------#
-#===============================DESCRIPTION====================================#
+#=======================DESCRIPTION============================================#
 # This option allows the user to predict genes (call genes) into the assembled #
 # reads. The pipeline supports the following options:                          #
 #     - MetaGeneMark (http://exon.gatech.edu/meta_gmhmmp.cgi)                  #
@@ -776,9 +776,9 @@ GENE_CALLING:
     threads: 4
 
 #------------------------------------------------------------------------------#
-#                                   Prokka                                     #
+#                       Prokka                                                 #
 # rule: prokka_metabat_bins                                                    #
-#===============================DESCRIPTION====================================#
+#=======================DESCRIPTION============================================#
 # Prokka is a software tool to annotate bacterial, archaeal and viral genomes  #
 # quickly and produce standards-compliant output files.                        #
 #=======================PARAMS=================================================#
@@ -798,9 +798,9 @@ prokka:
   cpus: 6
 
 #------------------------------------------------------------------------------#
-#                                   DIAMOND                                    #
+#                       DIAMOND                                                #
 # rule: diamond_gen_bins                                                       #
-#===============================DESCRIPTION====================================#
+#=======================DESCRIPTION============================================#
 # DIAMOND is  a BLAST-compatible local  aligner  for  mapping translated DNA   #
 # query  sequences  against  a  protein  reference database (BLASTX alignment  #
 # mode). The speedup over BLAST is up to 20,000 on short reads at a typical    #
