@@ -577,8 +577,8 @@ if config["SPLIT_ASSEMBLY"] == "T":
         shell:
             # "/opt/biolinux/anaconda2.2019.07/bin/cut_up_fasta.py -c {config[SPLIT_SIZE]} "
             # This pathway currently only works for ada, not ada94
-            "/opt/biolinux/anaconda/73/2022.05/envs/metacascabel_c_env/bin/cut_up_fasta.py  -c {config[SPLIT_SIZE]} "
-            "-o 0 -m {input.contigs} > {output}"
+            # "/opt/biolinux/anaconda/73/2022.05/envs/metacascabel_c_env/bin/cut_up_fasta.py  -c {config[SPLIT_SIZE]} "
+            "cut_up_fasta.py  -c {config[SPLIT_SIZE]} -o 0 -m {input.contigs} > {output}"
     rule std_splitted_assembly:
         input:
             "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/contigs.chunks.fasta"
