@@ -36,7 +36,6 @@ elif len(config["input_files"])>2 and len(config["SAMPLES"])>=1:
 
 if config["QC"]["onRawReads"].lower() == "t":
 #First we run fastQC over the rawdata
-#First we run fastQC over the rawdata
     rule fast_qc:
         input:
             r1="{PROJECT}/samples/{sample}/rawdata/fw.fastq" if config["gzip_input"] == "F" else "{PROJECT}/samples/{sample}/rawdata/fw.fastq.gz",
@@ -1253,7 +1252,7 @@ rule gtdbtk_metabat2:
    threads:
        int(config["gtdbtk"]["cpus"])
    shell:
-       "gtdbtk classify_wf --genome_dir  {params.bin_folder} --out_dir {params.out_folder}  -x {params.bin_ext} --cpus {config[gtdbtk][cpus]} {config[gtdbtk][extra_params]} > {output}"
+       "gtdbtk classify_wf --genome_dir {params.bin_folder} --out_dir {params.out_folder}  -x {params.bin_ext} --cpus {config[gtdbtk][cpus]} {config[gtdbtk][extra_params]} > {output}"
 
 rule gtdbtk_maxbin:
    input:

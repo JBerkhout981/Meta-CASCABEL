@@ -690,19 +690,19 @@ das:
   search_engine: diamond
   extra_params: ""
   metabat:
-    gtdbtk_analysis: "T"
+    gtdbtk_analysis: "F"
     checkm_analysis: "T"
   binsanity: 
     run: "T"
-    gtdbtk_analysis: "T"
+    gtdbtk_analysis: "F"
     checkm_analysis: "T"
   concoct: 
    run: "T"
-   gtdbtk_analysis: "T"
+   gtdbtk_analysis: "F"
    checkm_analysis: "T"
   maxbin: 
     run: "T"
-    gtdbtk_analysis: "T"
+    gtdbtk_analysis: "F"
     checkm_analysis: "T"
 
 
