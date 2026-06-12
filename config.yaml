@@ -679,7 +679,7 @@ binsanity:
 # By default, DAS will run metabat if you want to turn on/off other tools use  #
 # values T (true) or F (false) accordingly for binsanity, concoct and maxbin.  #
 # In case you use any of these tools, select if you want to perform checkm     #
-# and/or gtdbtk analyzes by seting the corresponding flags, also to T or F    #  
+# and/or gtdbtk analyzes by seting the corresponding flags, also to T or F     #  
 #------------------------------------------------------------------------------#
 
 # max_interation in description but not in params
