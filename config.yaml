@@ -342,7 +342,7 @@ TAXONOMY:
 # After selecting the assembly tool, you can fine tune the options for each    #
 # tool, using the options below                                                #
 #------------------------------------------------------------------------------#
-ASSEMBLER: "SPADES"
+ASSEMBLER: "IDBA"
 contigs: ""
 
 #------------------------------------------------------------------------------#
@@ -690,19 +690,19 @@ das:
   search_engine: diamond
   extra_params: ""
   metabat:
-    gtdbtk_analysis: "F"
+    gtdbtk_analysis: "T"
     checkm_analysis: "T"
   binsanity: 
     run: "T"
-    gtdbtk_analysis: "F"
+    gtdbtk_analysis: "T"
     checkm_analysis: "T"
   concoct: 
    run: "T"
-   gtdbtk_analysis: "F"
+   gtdbtk_analysis: "T"
    checkm_analysis: "T"
   maxbin: 
     run: "T"
-    gtdbtk_analysis: "F"
+    gtdbtk_analysis: "T"
     checkm_analysis: "T"
 
 

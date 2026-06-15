@@ -335,7 +335,7 @@ if config["TAXONOMY"]["PROFILING"] == "KAIJU" or config["TAXONOMY"]["PROFILING"]
            # "kaijuReport -t {config[TAXONOMY][KAIJU][nodes]} -n {config[TAXONOMY][KAIJU][names]} "
            # "-i {input} {config[TAXONOMY][taxonomy_path]}  -o {output}"
 
-if config["TAXONOMY"]["PROFILING"] not in "KRAKEN KAIJU CLARK ALL":
+if config["TAXONOMY"]["PROFILING"] not in "KRAKEN KAIJU ALL":
     rule create_taxo_out:
         """
             As there is no taxonomy profiling touch one file to generate a "silly" file
@@ -352,7 +352,6 @@ elif config["TAXONOMY"]["PROFILING"] == "ALL":
         input:
             kraken="{PROJECT}/runs/{run}/{sample}_data/taxonomy/kraken.taxonomy.out",
             kaiju="{PROJECT}/runs/{run}/{sample}_data/taxonomy/kaiju.taxonomy.out"
-            #clark="{PROJECT}/runs/{run}/{sample}_data/taxonomy/clark.taxonomy.out"
         output:
             "{PROJECT}/runs/{run}/{sample}_data/taxonomy/all.taxonomy.out"
         shell:
@@ -1806,8 +1805,6 @@ rule report:
          if config["TAXONOMY"]["PROFILING"] == "KRAKEN" else
          "{PROJECT}/runs/{run}/{sample}_data/taxonomy/kaiju.taxonomy.out.report"
          if config["TAXONOMY"]["PROFILING"] == "KAIJU" else
-         "{PROJECT}/runs/{run}/{sample}_data/taxonomy/clark.taxonomy.out"
-         if config["TAXONOMY"]["PROFILING"] == "CLARK" else
          "{PROJECT}/runs/{run}/{sample}_data/taxonomy/all.taxonomy.out"
          if config["TAXONOMY"]["PROFILING"] == "ALL" else
          "{PROJECT}/runs/{run}/{sample}_data/no_tax.txt",
