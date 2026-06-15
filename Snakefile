@@ -211,6 +211,7 @@ if config["QC"]["onTrimmedReads"].lower() == "t":
             "{PROJECT}/runs/{run}/{sample}_data/trimmed/qc_validation.benchmark"
         script:
             "Scripts/validateQC.py"
+
     rule sequali_trimmed_reads:
         input:
             r1="{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_paired.fq",
@@ -357,6 +358,9 @@ elif config["TAXONOMY"]["PROFILING"] == "ALL":
         shell:
             "touch {output}"
 
+
+
+
 if config["ASSEMBLER"] == "SPADES":
     rule fq2fasta:
         input:
@@ -404,6 +408,7 @@ if config["ASSEMBLER"] == "SPADES":
             "-k {config[spades][kmers]} --12 {input.reads_paired} -s {input.read12_singles} "
             "{config[spades][extra_params]} -o {params}"
 
+
     rule meta_spades:
         input:
             read1_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_paired.fq",
@@ -422,6 +427,16 @@ if config["ASSEMBLER"] == "SPADES":
             "nice -{config[spades][nice]} spades.py --meta -t {config[spades][threads]} -m {config[spades][memory]} "
             "-k {config[spades][kmers]} --pe1-1 {input.read1_paired} --pe1-2 {input.read2_paired} --pe1-s {input.read12_singles} "
             "{config[spades][extra_params]} -o {params}"
+
+    rule std_assembly_meta_spades:
+        input:
+            contigs="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/contigs.fasta",
+            scaffolds="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/scaffolds.fasta"
+        output:
+            contigs="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.fasta",
+            scaffolds="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_scaffolds.fasta"
+        shell:
+            "mv {input.contigs} {output.contigs} && mv {input.scaffolds} {output.scaffolds}"
 
 if config["ASSEMBLER"] == "MEGAHIT":
     rule megahit:
@@ -446,8 +461,8 @@ if config["ASSEMBLER"] == "MEGAHIT":
         input:
             contig="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/final.contigs.fa"
         output:
-            contigs="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/contigs.fasta",
-            scaffolds="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/scaffolds.fasta"
+            contigs="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.fasta",
+            scaffolds="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_scaffolds.fasta"
         shell:
             "mv {input.contig} {output.contigs} && ln -sr {output.contigs} {output.scaffolds}"
     #rule std_assembly_megahit_step2:
@@ -498,13 +513,13 @@ if config["ASSEMBLER"] == "IDBA":
             "--step {config[idba][step]} --num_threads {config[idba][threads]} {config[idba][extra_params]}"
     #As spades output contigs.fasta and scaffolds.fasta, we standarize those
     #names in order to decress complexity on downstream rules
-    rule std_assembly:
+    rule std_assembly_idba:
         input:
             contig="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/contig.fa",
             scaffold="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/scaffold.fa"
         output:
-            contigs="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/contigs.fasta",
-            scaffolds="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/scaffolds.fasta"
+            contigs="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.fasta",
+            scaffolds="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_scaffolds.fasta"
         shell:
             "mv {input.contig} {output.contigs} && mv {input.scaffold} {output.scaffolds}"
 
@@ -513,8 +528,8 @@ if config["ASSEMBLER"] == "ASSEMBLED":
         input:
             contigs=config["contigs"]
         output:
-            contigs="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/contigs.fasta",
-            scaffolds="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/scaffolds.fasta"
+            contigs="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.fasta",
+            scaffolds="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_scaffolds.fasta"
         shell:
             "ln -s {input.contigs} {output.contigs} && ln -s {input.contigs} {output.scaffolds}"
 
@@ -522,7 +537,7 @@ if config["ASSEMBLER"] == "ASSEMBLED":
 
 rule quast_libs:
     input:
-        "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/contigs.fasta"
+        "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.fasta"
     output:
         temp("{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/quast/quast_lib_config.txt")
     shell:
@@ -530,7 +545,7 @@ rule quast_libs:
 
 rule quast_contigs:
     input:
-        "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/contigs.fasta"
+        "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.fasta"
         #"{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/quast/quast_lib_config.txt"
     output:
         "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/quast/contigs/report.txt"
@@ -545,7 +560,7 @@ rule quast_contigs:
 
 rule quast_scaffolds:
     input:
-        scaffolds="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/scaffolds.fasta"
+        scaffolds="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_scaffolds.fasta"
         #tmp_i="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/quast/quast_lib_config.txt"
     output:
         "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/quast/scaffolds/report.txt"
@@ -569,9 +584,9 @@ if config["SPLIT_ASSEMBLY"] == "T":
     """
     rule split_assembly:
         input:
-            contigs="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/contigs.fasta"
+            contigs="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.fasta"
         output:
-            "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/contigs.chunks.fasta"
+            "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.chunks.fasta"
         shell:
             # "/opt/biolinux/anaconda2.2019.07/bin/cut_up_fasta.py -c {config[SPLIT_SIZE]} "
             # This pathway currently only works for ada, not ada94
@@ -579,12 +594,12 @@ if config["SPLIT_ASSEMBLY"] == "T":
             "cut_up_fasta.py  -c {config[SPLIT_SIZE]} -o 0 -m {input.contigs} > {output}"
     rule std_splitted_assembly:
         input:
-            "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/contigs.chunks.fasta"
+            "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.chunks.fasta"
         output:
             flag="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/split_flag.txt",
-            complete="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/contigs.complete.fasta"
+            complete="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.complete.fasta"
         params:
-            contigs="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/contigs.fasta"
+            contigs="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.fasta"
         shell:
             "mv {params.contigs} {output.complete} && mv {input} {params.contigs} "
             "&& echo \"contigs.fasta has been splitted by cut_up_fasta.py original contig file is: contigs.complete.fasta\" > {output.flag}"
@@ -669,8 +684,8 @@ if config["GENE_CALLING"]["TOOL"] == "MGM":
     #        "cp {config[GENE_CALLING][MGM][key]}  {output}"
     rule call_genes_mgm:
         input:
-            assembly="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/scaffolds.fasta"
-            if config["ANALYSIS"] == "SCAFFOLDS" else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/contigs.fasta",
+            assembly="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_scaffolds.fasta"
+            if config["ANALYSIS"] == "SCAFFOLDS" else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.fasta",
             #key="$HOME/.gm_key"
         output:
             gff="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/mgm_"+config["ANALYSIS"]+"/genes.gff",
@@ -685,8 +700,8 @@ if config["GENE_CALLING"]["TOOL"] == "MGM":
 elif config["GENE_CALLING"]["TOOL"] == "FGS":
     rule call_genes_fgs:
         input:
-            assembly="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/scaffolds.fasta"
-            if config["ANALYSIS"] == "SCAFFOLDS" else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/contigs.fasta"
+            assembly="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_scaffolds.fasta"
+            if config["ANALYSIS"] == "SCAFFOLDS" else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.fasta"
         output:
             gff="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/fgs_"+config["ANALYSIS"]+"/genes.gff",
             genes="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/fgs_"+config["ANALYSIS"]+"/genes.ffn",
@@ -703,8 +718,8 @@ elif config["GENE_CALLING"]["TOOL"] == "FGS":
 elif config["GENE_CALLING"]["TOOL"] == "PRODIGAL":
     rule call_genes_prodigal:
         input:
-            assembly="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/scaffolds.fasta"
-            if config["ANALYSIS"] == "SCAFFOLDS" else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/contigs.fasta"
+            assembly="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_scaffolds.fasta"
+            if config["ANALYSIS"] == "SCAFFOLDS" else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.fasta"
         output:
             gff="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/prodigal_"+config["ANALYSIS"]+"/genes.gff",
             genes="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/prodigal_"+config["ANALYSIS"]+"/genes.ffn",
@@ -720,13 +735,17 @@ else :
         shell:
             "touch {output}"
 
+
+
+
+
   #cp gm_key_64 ~/.gm_key
 rule bwa_index:
     input:
         #tmp_flw="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/quast/validate_assembly.txt",
         tmp_flw="{PROJECT}/runs/{run}/tables/assembly_"+config["ASSEMBLER"]+"/quast/",
-        assembly="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/scaffolds.fasta"
-        if config["ANALYSIS"] == "SCAFFOLDS" else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/contigs.fasta"
+        assembly="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_scaffolds.fasta"
+        if config["ANALYSIS"] == "SCAFFOLDS" else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.fasta"
     output:
         "{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_assembly.bwt"
     benchmark:
@@ -777,8 +796,8 @@ rule bwa_mem_new:
 
 rule bwa_mem_mtx:
     input:
-        assembly="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/scaffolds.fasta"
-        if config["ANALYSIS"] == "SCAFFOLDS" else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/contigs.fasta",
+        assembly="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_scaffolds.fasta"
+        if config["ANALYSIS"] == "SCAFFOLDS" else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.fasta",
         r1=expand("{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_paired.fq", PROJECT=config["PROJECT"],sample=config["SAMPLES"], run=run),
         r2=expand("{PROJECT}/runs/{run}/{sample}_data/trimmed/read2_paired.fq",  PROJECT=config["PROJECT"],sample=config["SAMPLES"], run=run),
         idx="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_assembly.bwt"
@@ -910,8 +929,8 @@ if config["BINNING"] == "METABAT" or config["BINNING"] == "DAS":
     rule metabat:
         input:
             depth="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_depth.txt",
-            assembly="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/scaffolds.fasta"
-            if config["ANALYSIS"] == "SCAFFOLDS" else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/contigs.fasta"
+            assembly="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_scaffolds.fasta"
+            if config["ANALYSIS"] == "SCAFFOLDS" else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.fasta"
         output:
         #"{PROJECT}/runs/{run}/{sample}_data/metabat2/bin/metabat2.log",
         #"{PROJECT}/runs/{run}/{sample}_data/metabat2/bin{number}.fa",
@@ -941,8 +960,8 @@ if config["BINNING"] == "MAXBIN" or (config["BINNING"] == "DAS" and config["das"
             depth="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_depth_avg.txt"
             if config["bwa"]["differential_coverage_matrix"].lower() == "f" else
             "{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_depth_avg_maxbin.txt",
-            assembly="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/scaffolds.fasta"
-            if config["ANALYSIS"] == "SCAFFOLDS" else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/contigs.fasta"
+            assembly="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_scaffolds.fasta"
+            if config["ANALYSIS"] == "SCAFFOLDS" else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.fasta"
         output:
             log="{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/maxbin.log"
         params:
@@ -979,8 +998,8 @@ if config["BINNING"] == "CONCOCT" or ( config["BINNING"] == "DAS"  and config["d
     rule concoct:
         input:
             depth="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_depth_avg.txt",
-            assembly="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/scaffolds.fasta"
-            if config["ANALYSIS"] == "SCAFFOLDS" else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/contigs.fasta"
+            assembly="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_scaffolds.fasta"
+            if config["ANALYSIS"] == "SCAFFOLDS" else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.fasta"
             #concoct_activation="{PROJECT}/runs/{run}/concoct_activation.log"
         output:
             #log="{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/concoct.log",
@@ -1000,8 +1019,8 @@ if config["BINNING"] == "CONCOCT" or ( config["BINNING"] == "DAS"  and config["d
 #    if config["BINNING"] == "CONCOCT":
     rule extract_concoct_bins:
         input:
-            assembly="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/scaffolds.fasta"
-            if config["ANALYSIS"] == "SCAFFOLDS" else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/contigs.fasta",
+            assembly="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_scaffolds.fasta"
+            if config["ANALYSIS"] == "SCAFFOLDS" else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.fasta",
             clustering="{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/bin_clustering_gt"+config["concoct"]["min_contig_length"]+".csv"
         output:
             log="{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/concoct.log"
@@ -1040,8 +1059,8 @@ if config["BINNING"] == "BINSANITY" or (config["BINNING"] == "DAS" and config["d
     rule filter_fasta_by_coverage:
         input:
             depth="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_depth_avg_log.txt",
-            fasta="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/scaffolds.fasta"
-            if config["ANALYSIS"] == "SCAFFOLDS" else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/contigs.fasta"
+            fasta="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_scaffolds.fasta"
+            if config["ANALYSIS"] == "SCAFFOLDS" else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.fasta"
         output:
             temp("{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/assembly_coverage_gt0.fasta")
         shell:
@@ -1050,15 +1069,15 @@ if config["BINNING"] == "BINSANITY" or (config["BINNING"] == "DAS" and config["d
     rule bin_sanity:
         input:
             depth="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_depth_avg_log.txt",
-            assembly="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/scaffolds.fasta"
-            if config["ANALYSIS"] == "SCAFFOLDS" else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/contigs.fasta"
+            assembly="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_scaffolds.fasta"
+            if config["ANALYSIS"] == "SCAFFOLDS" else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.fasta"
         params:
             contig_directory="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"],
             bin_directory="{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/",
             #final bins will be at  {bin_directory}/BinSanity-Final-bins/final_Bin-xx.fna
             #also they can be found in the form final_Bin-xx_refined-xx.fna
-            assembly="scaffolds.fasta"
-            if config["ANALYSIS"] == "SCAFFOLDS" else "contigs.fasta"
+            assembly="{sample}_scaffolds.fasta"
+            if config["ANALYSIS"] == "SCAFFOLDS" else "{sample}_contigs.fasta"
         output:
             log="{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanityWf.log"
         threads:
@@ -1105,8 +1124,8 @@ if config["BINNING"] == "DAS":
             maxbin_bin2t="{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/binTable.tsv",
             concoct_bin2t="{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/binTable.tsv",
             binsanity_bin2t="{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/binTable.tsv",
-            assembly="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/scaffolds.fasta"
-            if config["ANALYSIS"] == "SCAFFOLDS" else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/contigs.fasta"
+            assembly="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_scaffolds.fasta"
+            if config["ANALYSIS"] == "SCAFFOLDS" else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.fasta"
         params:
             das_out_dir="{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/DasOut",
             bs_input=",{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/binTable.tsv" if config["das"]["binsanity"]["run"]=="T" else "",
@@ -1585,8 +1604,8 @@ if config["CREATE_UNBINNED"] == "T":
             "{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/binTable.tsv"
             if config["BINNING"] == "BINSANITY" else
             "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/DasOut_DASTool_summary.tsv",
-            assembly="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/scaffolds.fasta"
-            if config["ANALYSIS"] == "SCAFFOLDS" else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/contigs.fasta"
+            assembly="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_scaffolds.fasta"
+            if config["ANALYSIS"] == "SCAFFOLDS" else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.fasta"
         output:
             "{PROJECT}/runs/{run}/{sample}_data/unbinned/unbinned_contigs_list.txt"
         shell:
@@ -1595,8 +1614,8 @@ if config["CREATE_UNBINNED"] == "T":
     rule create_unbinned_fasta:
         input:
             unbinned_list="{PROJECT}/runs/{run}/{sample}_data/unbinned/unbinned_contigs_list.txt",
-            assembly="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/scaffolds.fasta"
-            if config["ANALYSIS"] == "SCAFFOLDS" else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/contigs.fasta"
+            assembly="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_scaffolds.fasta"
+            if config["ANALYSIS"] == "SCAFFOLDS" else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.fasta"
         output:
             "{PROJECT}/runs/{run}/{sample}_data/unbinned/unbinned.fasta"
         shell:
