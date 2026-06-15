@@ -686,7 +686,7 @@ binsanity:
 
 das:
   threads: "20"
-  db: "/export/lv1/user/aabdala/.conda/envs/metac4/share/das_tool-1.1.7-1/db/"
+  db: "/export/lv13/databases/DAS_tool/release-1.1.7"
   search_engine: diamond
   extra_params: ""
   metabat:
