@@ -1,0 +1,107 @@
+__use_yte__: true
+name: Datavzrd Report
+datasets:
+  bwa:
+    path: ?input.table
+    separator: "\t"
+    headers: 1
+    offer-excel: false
+max-in-memory-rows: 20000
+views:
+  bwa:
+    hidden: false
+    dataset: bwa
+    page-size: 20
+    render-table:
+      columns:
+        Paired prc:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: ordinal
+              clamp: false
+              color-scheme: category20
+              range: []
+              aux-domain-columns: ~
+          plot-view-legend: false
+        Reads:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: linear
+              clamp: false
+              color-scheme: ""
+              range:
+                - white
+                - blue
+              aux-domain-columns: ~
+          plot-view-legend: false
+        Mapped percentage:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: ordinal
+              clamp: false
+              color-scheme: category20
+              range: []
+              aux-domain-columns: ~
+          plot-view-legend: false
+        Assembly:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: ordinal
+              clamp: false
+              color-scheme: category20
+              range: []
+              aux-domain-columns: ~
+          plot-view-legend: false
+        Raw reads:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: ordinal
+              clamp: false
+              color-scheme: category20
+              range: []
+              aux-domain-columns: ~
+          plot-view-legend: false
+        Mapped reads:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: linear
+              clamp: false
+              color-scheme: ""
+              range:
+                - white
+                - blue
+              aux-domain-columns: ~
+          plot-view-legend: false
+        Paired:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: linear
+              clamp: false
+              color-scheme: ""
+              range:
+                - white
+                - blue
+              aux-domain-columns: ~
+          plot-view-legend: false
+webview-controls: false

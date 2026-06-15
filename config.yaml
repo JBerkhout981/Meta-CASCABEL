@@ -12,8 +12,8 @@
 # comment and will be ignored by snakemake.                                    #
 #                                                                              #
 # Author: Alejandro Abdala and Julia Engelmann                                 #
-# Date: 20/05/2021                                                             #
-# Version: 3.0                                                                 #
+# Date: 16/04/2026                                                             #
+# Version: 4.0                                                                 #
 ################################################################################
 
 ################################################################################
@@ -38,7 +38,7 @@ PROJECT: ""
 # Same sample names used  with init_sample.sh script                           #
 # Include all the names between quotes, and comma separated                    #
 #------------------------------------------------------------------------------#
-SAMPLES: [""]
+SAMPLES: []
 #------------------------------------------------------------------------------#
 #                             INPUT FILES                                      #
 #------------------------------------------------------------------------------#
@@ -48,6 +48,7 @@ SAMPLES: [""]
 #------------------------------------------------------------------------------#
 fw_reads: ""
 rv_reads: ""
+input_files: ""
 #------------------------------------------------------------------------------#
 #                             INPUT TYPE                                       #
 #------------------------------------------------------------------------------#
@@ -99,6 +100,42 @@ interactive : "F"
 #------------------------------------------------------------------------------#
 
 #------------------------------------------------------------------------------#
+#                        Quality control with Sequali                          #
+#------------------------------------------------------------------------------#
+# Select which tool to use for quality control.                                #
+#------------------------------------------------------------------------------#
+# * onRawReads      Run QC steps on raw reads: T|F                             #
+# * onTrimmedReads  Run QC steps on trimmed reads: T|F                         #
+# * tool            Tool for QC steps: "fastqc","sequali","both"(sequali and   #
+#                                                                      fastqc) #
+#------------------------------------------------------------------------------# 
+QC:
+  onRawReads: "T"
+  onTrimmedReads: "T"
+  tool: "both"
+
+
+#------------------------------------------------------------------------------#
+#                        Quality control with Sequali                          #
+# rules: sequali                                                               #
+#------------------------------------------------------------------------------#
+# Sequali (https://github.com/rhpvorderman/sequali).                           #
+# Sequence quality metrics for FASTQ and uBAM files.                           #
+#                                                                              #
+#-----------------------------       PARAMS       -----------------------------#
+#                                                                              #
+# - threads       Number of threads to run sequali.                            #
+# - extra_params  Extra parameters. See sequali --help for more info.          #
+#------------------------------------------------------------------------------#
+sequali:
+  threads: 10
+  extra_params: ""
+
+
+
+
+
+#------------------------------------------------------------------------------#
 #                                FastQC                                        #
 # rule: validateQC                                                             #
 #------------------------------------------------------------------------------#
@@ -113,6 +150,7 @@ interactive : "F"
 FastQC:
   onRawReads: "T"
   onTrimmedReads: "T"
+  threads: 4
   qcLimit : 3
 #------------------------------------------------------------------------------#
 #                                Trimmomatic                                   #
@@ -133,7 +171,7 @@ trimm:
   threads: 15
   clip:
     type: "ILLUMINACLIP"
-    adapter: "/opt/Downloads/biolinux/trimmomatic-0.38/adapters/TruSeq3-PE-2.fa"
+    adapter: "/.conda/envs/metac4/share/trimmomatic/adapters/TruSeq3-PE-2.fa"
     seed: 1
     palindrome_ct: 30
     simple_ct: 10
@@ -203,18 +241,18 @@ TAXONOMY:
   PROFILING: "NONE"
   taxonomy_path: "-r species"
   KRAKEN:
-    db: "/export/data01/databases/kraken/std_db/"
+    db: "kraken/"
     raw_reads: "N"
-    threads: 10
+    threads: 30
     extra_params: ""
-    nodes: "/export/data01/databases/kraken/std_db/taxonomy/nodes.dmp"
-    names: "/export/data01/databases/kraken/std_db/taxonomy/names.dmp"
+    nodes: "nodes.dmp"
+    names: "names.dmp"
   KAIJU:
-    nodes: "/export/data01/databases/kaiju/nodes.dmp"
-    names: "/export/data01/databases/kaiju/names.dmp"
-    db: "/export/data01/databases/kaiju/refseq/kaiju_db.fmi"
+    nodes: "kaiju/nodes.dmp"
+    names: "kaiju/names.dmp"
+    db: "refseq/kaiju_db.fmi"
     raw_reads: "N"
-    threads: 10
+    threads: 30
     extra_params: ""
   CLARK:
     targets: "bacteria human"
@@ -273,7 +311,7 @@ SPLIT_SIZE: 10000
 #------------------------------------------------------------------------------#
 spades:
   nice: "5"
-  threads: "20"
+  threads: "25"
   memory: "350"
   kmers: "21,33,55,77"
   extra_params: ""
@@ -293,7 +331,7 @@ spades:
 #------------------------------------------------------------------------------#
 idba:
   step: "10"
-  threads: "6"
+  threads: "35"
   extra_params: ""
 #------------------------------------------------------------------------------#
 #                           Assembly with MEGAHIT                              #
@@ -326,7 +364,7 @@ megahit:
   kmax: 141
   kstep: 14
   memory: 0.3
-  cpus: 20
+  cpus: 35
   extra_params: ""
 
 #------------------------------------------------------------------------------#
@@ -339,7 +377,7 @@ megahit:
 # quast.py --help                                                              #
 #------------------------------------------------------------------------------#
 quast:
-  threads: "15"
+  threads: "20"
   extra_params: ""
 
 #------------------------------------------------------------------------------#
@@ -367,7 +405,8 @@ ANALYSIS: "CONTIGS"
 #------------------------------------------------------------------------------#
 bwa:
   nice: "5"
-  threads: "20"
+  threads: "12"
+  differential_coverage_matrix: "F"
 #------------------------------------------------------------------------------#
 #                        jgi_summarize_bam_contig_depths                       #
 # rule: jgi_summ                                                               #
@@ -424,7 +463,7 @@ CREATE_UNBINNED: "T"
 #------------------------------------------------------------------------------#
 metabat2:
   threads: "20"
-  min_contig: "2000" #def 2500
+  min_contig: "2500" #def 2500
   min_score: "30" #def 60
   maxP: "98" #def 95
   maxEdge: "400" #def 200
@@ -476,6 +515,7 @@ maxbin:
 concoct:
   min_contig_length: "2500"
   max_iteration: "600"
+  threads: "20"
   extra_params: ""
 
 #------------------------------------------------------------------------------#
@@ -533,24 +573,24 @@ binsanity:
 #------------------------------------------------------------------------------#
 das:
   threads: "20"
-  db: "/opt/biolinux/DAS_Tool" #"/export/data/aabdala/utils/DAS_Tool/db"
+  db: "/.conda/envs/metac4/share/das_tool-1.1.7-1/db/"
   search_engine: diamond
-  extra_params: "--duplicate_penalty 0.4 --megabin_penalty 0.4 "
+  extra_params: ""
   metabat:
-    gtdbtk_analysis: "T"
-    checkm_analysis: "T"
+    gtdbtk_analysis: "F"
+    checkm_analysis: "F"
   binsanity: 
     run: "T"
-    gtdbtk_analysis: "T"
-    checkm_analysis: "T"
+    gtdbtk_analysis: "F"
+    checkm_analysis: "F"
   concoct: 
-   run: "T"
-   gtdbtk_analysis: "T"
-   checkm_analysis: "T"
+   run: "F"
+   gtdbtk_analysis: "F"
+   checkm_analysis: "F"
   maxbin: 
     run: "T"
-    gtdbtk_analysis: "T"
-    checkm_analysis: "T"
+    gtdbtk_analysis: "F"
+    checkm_analysis: "F"
 
 
 #------------------------------------------------------------------------------#
@@ -582,7 +622,7 @@ checkM:
 # extra_params:         Any extra params.(run gtdbtk to see available options) #
 #------------------------------------------------------------------------------#
 gtdbtk:
-  cpus: "15"
+  cpus: "35"
   extra_params: "--min_perc_aa 0.5 --force"
 
 
@@ -609,13 +649,13 @@ gtdbtk:
 GENE_CALLING:
   TOOL: "NONE"
   MGM:
-    key: "/export/data/aabdala/utils/MetaGeneMark_linux_64/mgm/gm_key_64"
-    model: "/export/data/aabdala/utils/MetaGeneMark_linux_64/mgm/MetaGeneMark_v1.mod"
+    key: ""
+    model: "MetaGeneMark_v1.mod"
     f: "G"
     extra_params: ""
   FGS:
     complete: 0
-    model: "/export/data/aabdala/utils/FragGeneScan/train/complete"
+    model: "/FragGeneScan/train/complete"
     threads: 4
 
 #------------------------------------------------------------------------------#
@@ -643,8 +683,8 @@ prokka:
 #               --saveCls = Save cluster memberships as a matrix format        #
 #------------------------------------------------------------------------------#
 diamond:
-  db: "/export/data01/databases/ncbi_nr/diamond/nr.proka.dmnd"
-  taxonmap: "/export/data01/databases/ncbi_nr/diamond/nr.proka.dmnd"
+  db: "diamond/nr.proka.dmnd"
+  taxonmap: "diamond/nr.proka.dmnd"
   outfmt: "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore staxids stitle"
   threads: "30"
   extra_params: "--sensitive"

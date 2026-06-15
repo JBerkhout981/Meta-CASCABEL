@@ -1,0 +1,67 @@
+__use_yte__: true
+name: Datavzrd Report
+datasets:
+  trimm_stats:
+    path: ?input.table
+    separator: "\t"
+    headers: 1
+    offer-excel: false
+max-in-memory-rows: 20000
+views:
+  trimm_stats:
+    hidden: false
+    dataset: trimm_stats
+    page-size: 20
+    render-table:
+      columns:
+        Both Surviving:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot-view-legend: false
+        Input Read Pairs:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot-view-legend: false
+        Reverse Only %:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot-view-legend: false
+        Dropped:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot-view-legend: false
+        Reverse Only Surviving:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot-view-legend: false
+        Sample:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot-view-legend: false
+        Forward Only Surviving:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot-view-legend: false
+        Both %:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot-view-legend: false
+        Forward Only %:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot-view-legend: false
+        Dropped %:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot-view-legend: false
+webview-controls: false

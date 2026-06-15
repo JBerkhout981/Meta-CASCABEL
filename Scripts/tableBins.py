@@ -33,7 +33,7 @@ for file in os.listdir(output_dir_metabat):
 
 
 #maxbin
-if snakemake.config["das"]["binsanity"]=="T":
+if snakemake.config["das"]["maxbin"]["run"]=="T":
     for file in os.listdir(output_dir_maxbin):
         if file.endswith(file_extension_maxbin):
             #i = i+1
@@ -45,7 +45,7 @@ if snakemake.config["das"]["binsanity"]=="T":
 else:
     os.system("touch " +snakemake.output["maxbin_out"])
 #BinSanity
-if snakemake.config["das"]["binsanity"]=="T":
+if snakemake.config["das"]["binsanity"]["run"]=="T":
     try:
         for file in os.listdir(output_dir_binsanity):
             if file.endswith(file_extension_binsanity) and (file.startswith("final") or (bin_sanity_low_completion == "T" and file.startswith("low_"))):
@@ -68,7 +68,7 @@ else:
     os.system("touch " +snakemake.output["binsanity_out"])
 
 #CONCOCT
-if snakemake.config["das"]["binsanity"]=="T":
-    os.system("cat "+ concoct_clustering + " | awk -F\",\" '{print $1\"\tconcoct.\"$2}'   > " +snakemake.output["concoct_out"])
+if snakemake.config["das"]["concoct"]["run"]=="T":
+    os.system("cat "+ concoct_clustering + " | awk -F\",\" 'NR>1{print $1\"\tconcoct.\"$2}'   > " +snakemake.output["concoct_out"])
 else: 
     os.system("touch " +snakemake.output["concoct_out"])

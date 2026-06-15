@@ -1,0 +1,337 @@
+name: Datavzrd Report
+datasets:
+  FinalBins.summary:
+    path: FinalBins.summary.tsv
+    separator: "\t"
+    headers: 1
+    offer-excel: false
+max-in-memory-rows: 20000
+views:
+  FinalBins.summary:
+    hidden: false
+    dataset: FinalBins.summary
+    page-size: 20
+    render-table:
+      columns:
+        GTDB_red_value:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: ordinal
+              clamp: false
+              color-scheme: category20
+              range: []
+              aux-domain-columns: ~
+          plot-view-legend: false
+        Contamination:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: linear
+              clamp: false
+              color-scheme: ""
+              range:
+                - white
+                - blue
+              aux-domain-columns: ~
+          plot-view-legend: false
+        avg_depth:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: linear
+              clamp: false
+              color-scheme: ""
+              range:
+                - white
+                - blue
+              aux-domain-columns: ~
+          plot-view-legend: false
+        "1":
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: linear
+              clamp: false
+              color-scheme: ""
+              range:
+                - white
+                - blue
+              aux-domain-columns: ~
+          plot-view-legend: false
+        total_length:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: linear
+              clamp: false
+              color-scheme: ""
+              range:
+                - white
+                - blue
+              aux-domain-columns: ~
+          plot-view-legend: false
+        Bin Id:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: ordinal
+              clamp: false
+              color-scheme: category20
+              range: []
+              aux-domain-columns: ~
+          plot-view-legend: false
+        "#marker_sets":
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: linear
+              clamp: false
+              color-scheme: ""
+              range:
+                - white
+                - blue
+              aux-domain-columns: ~
+          plot-view-legend: false
+        GTDB_classification:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: ordinal
+              clamp: false
+              color-scheme: category20
+              range: []
+              aux-domain-columns: ~
+          plot-view-legend: false
+        "3":
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: linear
+              clamp: false
+              color-scheme: ""
+              range:
+                - white
+                - blue
+              aux-domain-columns: ~
+          plot-view-legend: false
+        Completeness:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: linear
+              clamp: false
+              color-scheme: ""
+              range:
+                - white
+                - blue
+              aux-domain-columns: ~
+          plot-view-legend: false
+        method:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: ordinal
+              clamp: false
+              color-scheme: category20
+              range: []
+              aux-domain-columns: ~
+          plot-view-legend: false
+        "2":
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: linear
+              clamp: false
+              color-scheme: ""
+              range:
+                - white
+                - blue
+              aux-domain-columns: ~
+          plot-view-legend: false
+        num_contigs:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: linear
+              clamp: false
+              color-scheme: ""
+              range:
+                - white
+                - blue
+              aux-domain-columns: ~
+          plot-view-legend: false
+        avg_gc:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: linear
+              clamp: false
+              color-scheme: ""
+              range:
+                - white
+                - blue
+              aux-domain-columns: ~
+          plot-view-legend: false
+        "4":
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: linear
+              clamp: false
+              color-scheme: ""
+              range:
+                - white
+                - blue
+              aux-domain-columns: ~
+          plot-view-legend: false
+        "#genomes":
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: linear
+              clamp: false
+              color-scheme: ""
+              range:
+                - white
+                - blue
+              aux-domain-columns: ~
+          plot-view-legend: false
+        "#markers":
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: linear
+              clamp: false
+              color-scheme: ""
+              range:
+                - white
+                - blue
+              aux-domain-columns: ~
+          plot-view-legend: false
+        "0":
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: linear
+              clamp: false
+              color-scheme: ""
+              range:
+                - white
+                - blue
+              aux-domain-columns: ~
+          plot-view-legend: false
+        GTDB_aa_percent:
+          optional: false
+          display-mode: normal
+#          plot:
+#            heatmap:
+#              scale: l
+#              clamp: false
+#              color-scheme: ""
+#              range:
+#                - white
+#                - blue
+#              aux-domain-columns: ~
+#          plot-view-legend: false
+        Marker_lineage:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: ordinal
+              clamp: false
+              color-scheme: category20
+              range: []
+              aux-domain-columns: ~
+          plot-view-legend: false
+        New_BinID:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: ordinal
+              clamp: false
+              color-scheme: category20
+              range: []
+              aux-domain-columns: ~
+          plot-view-legend: false
+        5+:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: linear
+              clamp: false
+              color-scheme: ""
+              range:
+                - white
+                - blue
+              aux-domain-columns: ~
+          plot-view-legend: false
+        GTDB_warnings:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: ordinal
+              clamp: false
+              color-scheme: category20
+              range: []
+              aux-domain-columns: ~
+          plot-view-legend: false
+        Strain_heterogeneity:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: linear
+              clamp: false
+              color-scheme: ""
+              range:
+                - white
+                - blue
+              aux-domain-columns: ~
+          plot-view-legend: false
+webview-controls: false

@@ -1,0 +1,345 @@
+__use_yte__: true
+name: Assembly statistics
+datasets:
+  stats_assembly:
+    path: ?input.table
+    separator: "\t"
+    headers: 1
+    offer-excel: false
+max-in-memory-rows: 20000
+views:
+  Assembly Stats:
+    hidden: false
+    dataset: stats_assembly
+    page-size: 20
+    render-table:
+      columns:
+        "Num. N's per 100 kbp":
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: linear
+              clamp: false
+              color-scheme: ""
+              range:
+                - white
+                - red
+              aux-domain-columns: ~
+          plot-view-legend: false
+        Total length (>= 10000 bp):
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: linear
+              clamp: false
+              color-scheme: ""
+              range:
+                - white
+                - blue
+              aux-domain-columns: ~
+          plot-view-legend: false
+        Total length (>= 25000 bp):
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: linear
+              clamp: false
+              color-scheme: ""
+              range:
+                - white
+                - blue
+              aux-domain-columns: ~
+          plot-view-legend: false
+        Num. contigs (>= 10000 bp):
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: linear
+              clamp: false
+              color-scheme: ""
+              range:
+                - white
+                - blue
+              aux-domain-columns: ~
+          plot-view-legend: false
+        auN:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: linear
+              clamp: false
+              color-scheme: ""
+              range:
+                - white
+                - blue
+              aux-domain-columns: ~
+          plot-view-legend: false
+        Num. contigs (>= 25000 bp):
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: linear
+              clamp: false
+              color-scheme: ""
+              range:
+                - white
+                - blue
+              aux-domain-columns: ~
+          plot-view-legend: false
+        Total length (>= 50000 bp):
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: linear
+              clamp: false
+              color-scheme: ""
+              range:
+                - white
+                - blue
+              aux-domain-columns: ~
+          plot-view-legend: false
+        Total length (>= 1000 bp):
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: linear
+              clamp: false
+              color-scheme: ""
+              range:
+                - white
+                - blue
+              aux-domain-columns: ~
+          plot-view-legend: false
+        L90:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: linear
+              clamp: false
+              color-scheme: ""
+              range:
+                - white
+                - blue
+              aux-domain-columns: ~
+          plot-view-legend: false
+        Num. contigs (>= 5000 bp):
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: linear
+              clamp: false
+              color-scheme: ""
+              range:
+                - white
+                - blue
+              aux-domain-columns: ~
+          plot-view-legend: false
+        Num. contigs (>= 1000 bp):
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: linear
+              clamp: false
+              color-scheme: ""
+              range:
+                - white
+                - blue
+              aux-domain-columns: ~
+          plot-view-legend: false
+        Largest contig:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: linear
+              clamp: false
+              color-scheme: ""
+              range:
+                - white
+                - blue
+              aux-domain-columns: ~
+          plot-view-legend: false
+        Total length (>= 5000 bp):
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: linear
+              clamp: false
+              color-scheme: ""
+              range:
+                - white
+                - blue
+              aux-domain-columns: ~
+          plot-view-legend: false
+        Num. contigs (>= 50000 bp):
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: linear
+              clamp: false
+              color-scheme: ""
+              range:
+                - white
+                - blue
+              aux-domain-columns: ~
+          plot-view-legend: false
+        GC (%):
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: linear
+              clamp: false
+              color-scheme: ""
+              range:
+                - white
+                - blue
+              aux-domain-columns: ~
+          plot-view-legend: false
+        N90:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: linear
+              clamp: false
+              color-scheme: ""
+              range:
+                - white
+                - blue
+              aux-domain-columns: ~
+          plot-view-legend: false
+        Sample:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: ordinal
+              clamp: false
+              color-scheme: category20
+              range: []
+              aux-domain-columns: ~
+          plot-view-legend: false
+        Num. contigs (>= 0 bp):
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: ordinal
+              clamp: false
+              color-scheme: category20
+              range: []
+              aux-domain-columns: ~
+          plot-view-legend: false
+        N50:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: linear
+              clamp: false
+              color-scheme: ""
+              range:
+                - white
+                - blue
+              aux-domain-columns: ~
+          plot-view-legend: false
+        Assembly:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: ordinal
+              clamp: false
+              color-scheme: category20
+              range: []
+              aux-domain-columns: ~
+          plot-view-legend: false
+        Total length:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: linear
+              clamp: false
+              color-scheme: ""
+              range:
+                - white
+                - blue
+              aux-domain-columns: ~
+          plot-view-legend: false
+        Total length (>= 0 bp):
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: ordinal
+              clamp: false
+              color-scheme: category20
+              range: []
+              aux-domain-columns: ~
+          plot-view-legend: false
+        L50:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: linear
+              clamp: false
+              color-scheme: ""
+              range:
+                - white
+                - blue
+              aux-domain-columns: ~
+          plot-view-legend: false
+        Num. contigs:
+          optional: false
+          precision: 2
+          display-mode: normal
+          plot:
+            heatmap:
+              scale: linear
+              clamp: false
+              color-scheme: ""
+              range:
+                - white
+                - blue
+              aux-domain-columns: ~
+          plot-view-legend: false
+webview-controls: false
