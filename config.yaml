@@ -12,8 +12,8 @@
 # comment and will be ignored by snakemake.                                    #
 #                                                                              #
 # Author: Alejandro Abdala and Julia Engelmann                                 #
-# Date: 20/05/2021                                                             #
-# Version: 3.0                                                                 #
+# Date: 16/04/2026                                                             #
+# Version: 4.0                                                                 #
 ################################################################################
 
 ################################################################################
@@ -45,11 +45,11 @@ SAMPLES: ["CURT3D-H2O1","CURT3D-PVC1"]
 #                             INPUT FILES                                      #
 #------------------------------------------------------------------------------#
 # Here you have to enter FULL PATH! to the raw reads                           #
-# fw_reads:  Full path to raw reads in forward direction                       #
-# rw_reads:  Full path to raw reads in reverse direction                       #
-# input_files: If you are analysing more than 1 metagenome create a .txt file  #
-# and put the name here (this can be any name). An example of the .txt file is #
-# on Redmine                                                                   #
+# fw_reads:     Full path to raw reads in forward direction                    #
+# rv_reads:     Full path to raw reads in reverse direction                    #
+# input_files:  If you are analysing more than 1 metagenome create a .txt file #
+#               and put the name here (this can be any name).                  #
+#               An example of the .txt file is on Redmine.                     #
 #------------------------------------------------------------------------------#
 fw_reads: ""
 rv_reads: ""
@@ -58,7 +58,7 @@ input_files: "input.txt"
 #------------------------------------------------------------------------------#
 #                             INPUT TYPE                                       #
 #------------------------------------------------------------------------------#
-# This pipeline supports two types of input files, fastq and gzipped fastq   #
+# This pipeline supports two types of input files, fastq and gzipped fastq     #
 # files.                                                                       #
 # The option gzip_input can take the values "T" if the input files are gziped  #
 # (only the reads!, the metadata file always needs to be uncompressed) or "F"  #
@@ -98,7 +98,7 @@ interactive : "T"
 
 ################################################################################
 #                       Specific Parameters Section                            #
-#=======================DESCRIPTION============================================#
+#------------------------------------------------------------------------------#
 # In this section of the configuration file, you can find all the values used  #
 # to run the different rules during the pipeline execution.                    #
 # Some of the parameters below, contains an option called "extra_params".      #
@@ -106,11 +106,16 @@ interactive : "T"
 # available on the program to be executed, therefore if the default            #
 # configuration of the pipeline doesn't consider some particular user desired  #
 # argument, it can be specified on the extra_params section for each rule      #
+#------------------------------------------------------------------------------#
+
+#------------------------------------------------------------------------------#
+#                       Quality control with Sequali                           #
+#=======================DESCRIPTION============================================#
+# Select which tool to use for quality control.                                #
 #=======================PARAMS=================================================#
-# onRawReads            'T' or 'F' Perform QC on rawreads                      #
-# onTrimmedReads        'T' or 'F' Perform QC on trimmed reads                 #
-# tool                  Chose the tool you want to use to perform trimming,    #
-#                       either sequali, fastqc or both                         #
+# onRawReads            Run QC steps on raw reads: T|F                         #
+# onTrimmedReads        Run QC steps on trimmed reads: T|F                     #
+# tool                  Tool for QC steps: "fastqc","sequali" or "both"        #
 #------------------------------------------------------------------------------#
 
 # It always executes both tools, 'tool:' parameter doesn't work
@@ -338,9 +343,6 @@ TAXONOMY:
 #                       to skip Meta-CASCABEL assembly steps.                  #
 # contigs               If ASSEMBLER = "ASSEMBLED" supply file pointing to     #
 #                       contigs/scaffolds.                                     #
-#                                                                              #
-# After selecting the assembly tool, you can fine tune the options for each    #
-# tool, using the options below                                                #
 #------------------------------------------------------------------------------#
 ASSEMBLER: "IDBA"
 contigs: ""
