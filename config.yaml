@@ -241,6 +241,7 @@ trimm:
   clip:
     type: "ILLUMINACLIP"
     adapter: "/export/lv1/user/aabdala/.conda/envs/metac4/share/trimmomatic/adapters/TruSeq3-PE-2.fa"
+    # adapter: "/.conda/envs/metac4/share/trimmomatic/adapters/TruSeq3-PE-2.fa"
     seed: 1
     palindrome_ct: 30
     simple_ct: 10
@@ -310,22 +311,22 @@ TAXONOMY:
   PROFILING: "KAIJU"
   taxonomy_path: "-r species"
   KRAKEN:
-#    db: "/export/data01/databases/kraken/std_db/"
     db: "/export/lv13/databases/kraken2_modified/db_05_2024_standart"
+    # db: "kraken/"
     raw_reads: "N"
     threads: 30
     extra_params: ""
-#    nodes: "/export/data01/databases/kraken/std_db/taxonomy/nodes.dmp"
-#    names: "/export/data01/databases/kraken/std_db/taxonomy/names.dmp"
     nodes: "/export/lv13/databases/kraken2_modified/nodes.dmp"
     names: "/export/lv13/databases/kraken2_modified/names.dmp"
+    # nodes: "nodes.dmp"
+    # names: "names.dmp"
   KAIJU:
-#    nodes: "/export/data01/databases/kaiju/nodes.dmp"
-#    names: "/export/data01/databases/kaiju/names.dmp"
-#    db: "/export/data01/databases/kaiju/refseq/kaiju_db.fmi"
     nodes: "/export/lv13/databases/kaiju/progenomes/nodes.dmp"
     names: "/export/lv13/databases/kaiju/progenomes/names.dmp"
     db: "/export/lv13/databases/kaiju/progenomes/kaiju_db_progenomes.fmi"
+    # nodes: "kaiju/nodes.dmp"
+    # names: "kaiju/names.dmp"
+    # db: "refseq/kaiju_db.fmi"
     raw_reads: "N"
     threads: 30
     extra_params: ""
@@ -689,6 +690,7 @@ binsanity:
 das:
   threads: "20"
   db: "/export/lv13/databases/DAS_tool/release-1.1.7"
+  # db: "/.conda/envs/metac4/share/das_tool-1.1.7-1/db/
   search_engine: diamond
   extra_params: ""
   metabat:
@@ -768,13 +770,16 @@ gtdbtk:
 GENE_CALLING:
   TOOL: "NONE"
   MGM:
-    key: "/export/data/aabdala/utils/MetaGeneMark_linux_64/mgm/gm_key_64"
-    model: "/export/data/aabdala/utils/MetaGeneMark_linux_64/mgm/MetaGeneMark_v1.mod"
+    key: ""
+    model: "MetaGeneMark_v1.mo
+    # key: "/export/data/aabdala/utils/MetaGeneMark_linux_64/mgm/gm_key_64"
+    # model: "/export/data/aabdala/utils/MetaGeneMark_linux_64/mgm/MetaGeneMark_v1.mod"d"
     f: "G"
     extra_params: ""
   FGS:
     complete: 0
-    model: "/export/data/aabdala/utils/FragGeneScan/train/complete"
+    model: "/FragGeneScan/train/complete"
+    # model: "/export/data/aabdala/utils/FragGeneScan/train/complete"
     threads: 4
 
 #------------------------------------------------------------------------------#
