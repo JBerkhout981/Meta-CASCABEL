@@ -7,6 +7,8 @@
 !config.yaml
 !hpc.sh
 !Snakefile
+!env.yaml
+!README.md
 !Scripts/
 !Scripts/**
 !resources/
