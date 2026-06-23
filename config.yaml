@@ -775,7 +775,7 @@ GENE_CALLING:
   TOOL: "NONE"
   MGM:
     key: ""
-    model: "MetaGeneMark_v1.mo
+    model: "MetaGeneMark_v1.mo"
     # key: "/export/data/aabdala/utils/MetaGeneMark_linux_64/mgm/gm_key_64"
     # model: "/export/data/aabdala/utils/MetaGeneMark_linux_64/mgm/MetaGeneMark_v1.mod"d"
     f: "G"
