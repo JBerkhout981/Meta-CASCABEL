@@ -75,7 +75,7 @@ gzip_input: "T"
 # The RUN variable can be set here or remain empty, in the latter case, the    #
 # user must assign this value via the command line --config RUN=User_run_name  #
 #------------------------------------------------------------------------------#
-RUN: "Test03"
+RUN: "Test04"
 
 #------------------------------------------------------------------------------#
 #                            Description                                       #
@@ -84,7 +84,7 @@ RUN: "Test03"
 # included on the final report. This field is not mandatory so it can remain   #
 # empty                                                                        #
 #------------------------------------------------------------------------------#
-description: "Script uittesten"
+description: "Testing trimmomatic sliding window, IDBA and unique header names"
 
 #------------------------------------------------------------------------------#
 #                             Execution mode                                   #
@@ -93,7 +93,7 @@ description: "Script uittesten"
 # the pipeline. For a list for all the "interactive" checkpoints take a look   #
 # into the following link: TBD                                                 #
 #------------------------------------------------------------------------------#
-interactive : "T"
+interactive : "F"
 
 
 ################################################################################
@@ -120,8 +120,8 @@ interactive : "T"
 
 # It always executes both tools, 'tool:' parameter doesn't work
 QC:
-  onRawReads: "T"
-  onTrimmedReads: "T"
+  onRawReads: "F"
+  onTrimmedReads: "F"
   tool: "both"
 
 #------------------------------------------------------------------------------#
@@ -157,8 +157,8 @@ sequali:
 
 # 'onRawReads', 'onTrimmedReads' and qcLimit don't appear in snakefile
 FastQC:
-  onRawReads: "T"
-  onTrimmedReads: "T"
+  onRawReads: "F"
+  onTrimmedReads: "F"
   threads: 4
   qcLimit : 3
 
@@ -308,7 +308,7 @@ trimm:
 # http://redmine.nioz.nl/projects/databases-at-ymga/wiki/Databases             #
 #------------------------------------------------------------------------------#
 TAXONOMY:
-  PROFILING: "KAIJU"
+  PROFILING: "NONE"
   taxonomy_path: "-r species"
   KRAKEN:
     db: "/export/lv13/databases/kraken2_modified/db_05_2024_standart"
@@ -664,16 +664,6 @@ binsanity:
   threads: 20
   low_completion: "T"
   extra_params: ""
-
-#------------------------------------------------------------------------------#
-#                       Semibin Tool                                           #
-# rule:                                                                        #
-#=======================DESCRIPTION============================================#
-#=======================PARAMS=================================================#
-
-
-
-
 
 #------------------------------------------------------------------------------#
 #                       DAS Tool                                               #

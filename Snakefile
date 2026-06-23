@@ -1259,78 +1259,88 @@ rule checkM_bins:
         "ln -s ../{params.dir}/summary.txt {output}"
 
 rule gtdbtk_metabat2:
-   input:
-       "{PROJECT}/runs/{run}/{sample}_data/binning/metabat2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/metabat.log"
-   params:
-       bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/metabat2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/",
-       out_folder="{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_metabat2/",
-       bin_ext="fa"
-   output:
-       out_file="{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_metabat2/summary.txt"
-   threads:
-       int(config["gtdbtk"]["cpus"])
-   shell:
-       "gtdbtk classify_wf --genome_dir {params.bin_folder} --out_dir {params.out_folder}  -x {params.bin_ext} --cpus {config[gtdbtk][cpus]} {config[gtdbtk][extra_params]} > {output}"
+    input:
+        "{PROJECT}/runs/{run}/{sample}_data/binning/metabat2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/metabat.log"
+    params:
+        bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/metabat2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/",
+        out_folder="{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_metabat2/",
+        bin_ext="fa"
+    output:
+        out_file="{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_metabat2/summary.txt"
+    threads:
+        int(config["gtdbtk"]["cpus"])
+    conda:
+        "envs/gtdbtk.yaml"
+    shell:
+        "gtdbtk classify_wf --genome_dir {params.bin_folder} --out_dir {params.out_folder}  -x {params.bin_ext} --cpus {config[gtdbtk][cpus]} {config[gtdbtk][extra_params]} > {output}"
 
 rule gtdbtk_maxbin:
-   input:
-       "{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/maxbin.log"
-   params:
-       bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/",
-       out_folder="{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_maxbin/",
-       bin_ext="fasta"
-   output:
-       out_file="{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_maxbin/summary.txt"
-   threads:
-       int(config["gtdbtk"]["cpus"])
-   shell:
-       "gtdbtk classify_wf --genome_dir  {params.bin_folder} --out_dir {params.out_folder}  -x {params.bin_ext} --cpus {config[gtdbtk][cpus]} {config[gtdbtk][extra_params]}  > {output}"
+    input:
+        "{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/maxbin.log"
+    params:
+        bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/",
+        out_folder="{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_maxbin/",
+        bin_ext="fasta"
+    output:
+        out_file="{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_maxbin/summary.txt"
+    threads:
+        int(config["gtdbtk"]["cpus"])
+    conda:
+        "envs/gtdbtk.yaml"
+    shell:
+        "gtdbtk classify_wf --genome_dir  {params.bin_folder} --out_dir {params.out_folder}  -x {params.bin_ext} --cpus {config[gtdbtk][cpus]} {config[gtdbtk][extra_params]}  > {output}"
 
 rule gtdbtk_concoct:
-   input:
-       "{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/concoct.log"
-   params:
-       bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/",
-       out_folder="{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_concoct/",
-       bin_ext="fa"
-   output:
-       out_file="{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_concoct/summary.txt"
-   threads:
-       int(config["gtdbtk"]["cpus"])
-   shell:
-       "gtdbtk classify_wf --genome_dir  {params.bin_folder} --out_dir {params.out_folder}  -x {params.bin_ext} --cpus {config[gtdbtk][cpus]} {config[gtdbtk][extra_params]}  > {output}"
+    input:
+        "{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/concoct.log"
+    params:
+        bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/",
+        out_folder="{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_concoct/",
+        bin_ext="fa"
+    output:
+        out_file="{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_concoct/summary.txt"
+    threads:
+        int(config["gtdbtk"]["cpus"])
+    conda:
+        "envs/gtdbtk.yaml"
+    shell:
+        "gtdbtk classify_wf --genome_dir  {params.bin_folder} --out_dir {params.out_folder}  -x {params.bin_ext} --cpus {config[gtdbtk][cpus]} {config[gtdbtk][extra_params]}  > {output}"
 
 rule gtdbtk_binsanity:
-   input:
-       "{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanityWf.log"
-   params:
-       bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanity-Final-bins/",
-       out_folder="{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_binsanity/",
-       bin_ext="fna"
-   output:
-       out_file="{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_binsanity/summary.txt"
-   threads:
-       int(config["gtdbtk"]["cpus"])
-   shell:
-       "gtdbtk classify_wf --genome_dir  {params.bin_folder} --out_dir {params.out_folder}  -x {params.bin_ext} --cpus {config[gtdbtk][cpus]} {config[gtdbtk][extra_params]}  > {output} "
+    input:
+        "{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanityWf.log"
+    params:
+        bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanity-Final-bins/",
+        out_folder="{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_binsanity/",
+        bin_ext="fna"
+    output:
+        out_file="{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_binsanity/summary.txt"
+    threads:
+        int(config["gtdbtk"]["cpus"])
+    conda:
+        "envs/gtdbtk.yaml"
+    shell:
+        "gtdbtk classify_wf --genome_dir  {params.bin_folder} --out_dir {params.out_folder}  -x {params.bin_ext} --cpus {config[gtdbtk][cpus]} {config[gtdbtk][extra_params]}  > {output} "
 
 rule gtdbtk_das:
-   input:
-       "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log",
-       "{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_metabat2/summary.txt",
-       "{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_maxbin/summary.txt" if config["das"]["maxbin"]["run"]=="T" and config["das"]["maxbin"]["gtdbtk_analysis"]=="T" else "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log",
-       "{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_concoct/summary.txt" if config["das"]["concoct"]["run"]=="T" and config["das"]["concoct"]["gtdbtk_analysis"]=="T" else "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log",
-       "{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_binsanity/summary.txt" if config["das"]["binsanity"]["run"]=="T" and config["das"]["binsanity"]["gtdbtk_analysis"]=="T"  else "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log"
-   params:
-       bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/DasOut_DASTool_bins/",
-       out_folder="{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_das/",
-       bin_ext="fa"
-   output:
-       out_file="{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_das/summary.txt"
-   threads:
-       int(config["gtdbtk"]["cpus"])
-   shell:
-      "gtdbtk classify_wf --genome_dir  {params.bin_folder} --out_dir {params.out_folder}  -x {params.bin_ext} --cpus {config[gtdbtk][cpus]} {config[gtdbtk][extra_params]} > {output} "
+    input:
+        "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log",
+        "{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_metabat2/summary.txt",
+        "{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_maxbin/summary.txt" if config["das"]["maxbin"]["run"]=="T" and config["das"]["maxbin"]["gtdbtk_analysis"]=="T" else "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log",
+        "{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_concoct/summary.txt" if config["das"]["concoct"]["run"]=="T" and config["das"]["concoct"]["gtdbtk_analysis"]=="T" else "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log",
+        "{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_binsanity/summary.txt" if config["das"]["binsanity"]["run"]=="T" and config["das"]["binsanity"]["gtdbtk_analysis"]=="T"  else "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log"
+    params:
+        bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/DasOut_DASTool_bins/",
+        out_folder="{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_das/",
+        bin_ext="fa"
+    output:
+        out_file="{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_das/summary.txt"
+    threads:
+        int(config["gtdbtk"]["cpus"])
+    conda:
+        "envs/gtdbtk.yaml"
+    shell:
+        "gtdbtk classify_wf --genome_dir  {params.bin_folder} --out_dir {params.out_folder}  -x {params.bin_ext} --cpus {config[gtdbtk][cpus]} {config[gtdbtk][extra_params]} > {output} "
 
 rule gtdbtk_bins:
     input:
@@ -1553,6 +1563,7 @@ rule gc_prc_binsanity:
         "{PROJECT}/runs/{run}/{sample}_data/binning/gc_prc.binsanity.tsv"
     shell:
         "Scripts/computeGC.sh {params.bin_folder} {params.bin_ext} {output}"
+        
 rule gc_prc_das:
      input:
         "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log",
