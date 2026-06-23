@@ -521,11 +521,13 @@ jgi_summ:
 # - BINSANITY           this option runs BinSanity workflow                    #
 # - DAS                 this option run all the above methods and then refine  #
 #                       bins with DASTool                                      #
+# - SEMIBIN             This option runs multi sample binning with semibin2.   #
+#                       Does not work with DAS                                 #
 #                                                                              #
 # After selecting the target method, you can fine tune the options for each    #
 # tool, using the options below                                                #                                       
 #------------------------------------------------------------------------------#
-BINNING: "DAS"
+BINNING: "SEMIBIN"
 
 #------------------------------------------------------------------------------#
 #                       Unbinned conntigs                                      #
@@ -535,6 +537,18 @@ BINNING: "DAS"
 # will be created.
 #------------------------------------------------------------------------------#
 CREATE_UNBINNED: "T"
+
+#------------------------------------------------------------------------------#
+#                       Semibin Tool                                           #
+# rule:                                                                        #
+#=======================DESCRIPTION============================================#
+# type                  'SINGLE' if you want to eprform single sample binning  #
+#                       'MULTI' if you want to perfomr multi-sample binning    #
+# threads               Number of threads you want to use                      #
+#=======================PARAMS=================================================#
+semibin:
+  type: "SINGLE"
+  threads: 20
 
 #------------------------------------------------------------------------------#
 #                       MetaBAT2                                               #
