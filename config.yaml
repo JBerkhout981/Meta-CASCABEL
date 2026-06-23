@@ -248,10 +248,10 @@ trimm:
     minAdpLength: 5
     keepBoth: "TRUE"
   sliding:
-    type: "SLIDINGWINDOW:5:22"
-#   type: "SLIDINGWINDOW"
-#   windowSize: 5
-#   requiredQuality: 22
+#    type: "SLIDINGWINDOW:5:22"
+    type: "SLIDINGWINDOW"
+    windowSize: 5
+    requiredQuality: 22
   maxinfo:
     type: "MAXINFO"
     targetLength: 40
@@ -527,7 +527,7 @@ jgi_summ:
 # After selecting the target method, you can fine tune the options for each    #
 # tool, using the options below                                                #                                       
 #------------------------------------------------------------------------------#
-BINNING: "SEMIBIN"
+BINNING: "DAS"
 
 #------------------------------------------------------------------------------#
 #                       Unbinned conntigs                                      #

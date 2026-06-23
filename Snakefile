@@ -129,7 +129,7 @@ rule trimmomatic:
         "{output.read1_paired} {output.read1_single} {output.read2_paired} {output.read2_single} "
         "{config[trimm][clip][type]}:{config[trimm][clip][adapter]}:{config[trimm][clip][seed]}:{config[trimm][clip][palindrome_ct]}:"
         "{config[trimm][clip][simple_ct]}:{config[trimm][clip][minAdpLength]}:{config[trimm][clip][keepBoth]} "
-        "{config[trimm][sliding][type]} "
+        "{config[trimm][sliding][type]}:{config[trimm][sliding][windowSize]}:{config[trimm][sliding][requiredQuality]} "
         "{config[trimm][maxinfo][type]}:{config[trimm][maxinfo][targetLength]}:{config[trimm][maxinfo][strictness]} "
         "{config[trimm][minlen][type]}:{config[trimm][minlen][len]} > {output.log} 2>&1"
 
