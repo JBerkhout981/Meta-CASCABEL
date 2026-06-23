@@ -84,7 +84,7 @@ RUN: "Test04"
 # included on the final report. This field is not mandatory so it can remain   #
 # empty                                                                        #
 #------------------------------------------------------------------------------#
-description: "Testing trimmomatic sliding window, IDBA and unique header names"
+description: "Testing trimmomatic sliding window, IDBA, unique header names and gtdbtk rule specific environment"
 
 #------------------------------------------------------------------------------#
 #                             Execution mode                                   #

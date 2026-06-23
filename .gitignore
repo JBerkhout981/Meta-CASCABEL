@@ -13,3 +13,5 @@
 !Scripts/**
 !resources/
 !resources/**
+!envs/
+!envs/**

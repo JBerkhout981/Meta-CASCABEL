@@ -1,0 +1,9 @@
+name: gtdbtk
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+
+dependencies:
+  - gtdbtk=2.7.2
+  - python=3.10
