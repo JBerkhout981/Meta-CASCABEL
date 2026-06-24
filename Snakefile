@@ -129,7 +129,7 @@ rule trimmomatic:
         "{output.read1_paired} {output.read1_single} {output.read2_paired} {output.read2_single} "
         "{config[trimm][clip][type]}:{config[trimm][clip][adapter]}:{config[trimm][clip][seed]}:{config[trimm][clip][palindrome_ct]}:"
         "{config[trimm][clip][simple_ct]}:{config[trimm][clip][minAdpLength]}:{config[trimm][clip][keepBoth]} "
-        "{config[trimm][sliding][type]}:{config[trimm][sliding][windowSize]}:{config[trimm][sliding][requiredQuality]} "
+        "{config[trimm][sliding][type]} "
         "{config[trimm][maxinfo][type]}:{config[trimm][maxinfo][targetLength]}:{config[trimm][maxinfo][strictness]} "
         "{config[trimm][minlen][type]}:{config[trimm][minlen][len]} > {output.log} 2>&1"
 
@@ -673,71 +673,6 @@ rule datavzrd_assembly:
         ),
     wrapper:
         "v4.7.2/utils/datavzrd"
-
-
-
-if config["GENE_CALLING"]["TOOL"] == "MGM":
-    #rule check_mgm_key:
-    #    output:
-    #        "$HOME/.gm_key"
-    #    shell:
-    #        "cp {config[GENE_CALLING][MGM][key]}  {output}"
-    rule call_genes_mgm:
-        input:
-            assembly="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_scaffolds.fasta"
-            if config["ANALYSIS"] == "SCAFFOLDS" else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.fasta",
-            #key="$HOME/.gm_key"
-        output:
-            gff="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/mgm_"+config["ANALYSIS"]+"/genes.gff",
-            genes="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/mgm_"+config["ANALYSIS"]+"/genes.fasta",
-            prots="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/mgm_"+config["ANALYSIS"]+"/prots.fasta"
-        params:
-            "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/mgm_"+config["ANALYSIS"]+"/"
-        shell:
-            "/export/data/aabdala/utils/MetaGeneMark_linux_64/mgm/gmhmmp -a -d -f {config[GENE_CALLING][MGM][f]} "
-            "-m {config[GENE_CALLING][MGM][model]} -A {output.genes} -D {output.prots} -o {output.gff} {input.assembly}"
-
-elif config["GENE_CALLING"]["TOOL"] == "FGS":
-    rule call_genes_fgs:
-        input:
-            assembly="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_scaffolds.fasta"
-            if config["ANALYSIS"] == "SCAFFOLDS" else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.fasta"
-        output:
-            gff="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/fgs_"+config["ANALYSIS"]+"/genes.gff",
-            genes="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/fgs_"+config["ANALYSIS"]+"/genes.ffn",
-            prots="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/fgs_"+config["ANALYSIS"]+"/genes.faa",
-            out="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/fgs_"+config["ANALYSIS"]+"/genes.out"
-
-
-        params:
-            "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/fgs_"+config["ANALYSIS"]+"/"
-        shell:
-            "/export/data/aabdala/utils/FragGeneScan/run_FragGeneScan.pl -genome={input.assembly} -out={params}genes "
-            "-complete={config[GENE_CALLING][FGS][complete]} -train={config[GENE_CALLING][FGS][model]} -thread={config[GENE_CALLING][FGS][threads]}"
-
-elif config["GENE_CALLING"]["TOOL"] == "PRODIGAL":
-    rule call_genes_prodigal:
-        input:
-            assembly="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_scaffolds.fasta"
-            if config["ANALYSIS"] == "SCAFFOLDS" else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.fasta"
-        output:
-            gff="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/prodigal_"+config["ANALYSIS"]+"/genes.gff",
-            genes="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/prodigal_"+config["ANALYSIS"]+"/genes.ffn",
-            prots="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/prodigal_"+config["ANALYSIS"]+"/genes.faa"
-        params:
-            "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/prodigal_"+config["ANALYSIS"]+"/"
-        shell:
-            "prodigal -a {output.prots} -d {output.genes} -f gff  -i {input.assembly} -p meta -o {output.gff} "
-else :
-    rule skip_gene_calling:
-        output:
-             "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/gene_calling.skip"
-        shell:
-            "touch {output}"
-
-
-
-
 
   #cp gm_key_64 ~/.gm_key
 rule bwa_index:
@@ -1838,13 +1773,6 @@ rule report:
          "{PROJECT}/runs/{run}/{sample}_data/taxonomy/all.taxonomy.out"
          if config["TAXONOMY"]["PROFILING"] == "ALL" else
          "{PROJECT}/runs/{run}/{sample}_data/no_tax.txt",
-         "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/mgm_"+config["ANALYSIS"]+"/prots.fasta"
-         if config["GENE_CALLING"]["TOOL"] == "MGM" else
-         "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/fgs_"+config["ANALYSIS"]+"/genes.out"
-         if config["GENE_CALLING"]["TOOL"] == "FGS" else
-         "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/prodigal_"+config["ANALYSIS"]+"/genes.gff"
-         if config["GENE_CALLING"]["TOOL"] == "PRODIGAL" else
-         "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/gene_calling.skip",
          "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log",
         #"{PROJECT}/runs/{run}/{sample}_data/metabat2/prokka.out"
         #"{PROJECT}/runs/{run}/{sample}_data/metabat2/bin/metabat2.log",

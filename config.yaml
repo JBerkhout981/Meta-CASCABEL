@@ -75,7 +75,7 @@ gzip_input: "T"
 # The RUN variable can be set here or remain empty, in the latter case, the    #
 # user must assign this value via the command line --config RUN=User_run_name  #
 #------------------------------------------------------------------------------#
-RUN: "Test04"
+RUN: "Test05"
 
 #------------------------------------------------------------------------------#
 #                            Description                                       #
@@ -84,7 +84,7 @@ RUN: "Test04"
 # included on the final report. This field is not mandatory so it can remain   #
 # empty                                                                        #
 #------------------------------------------------------------------------------#
-description: "Testing trimmomatic sliding window, IDBA, unique header names and gtdbtk rule specific environment"
+description: "Testing trimmomatic sliding window, IDBA, unique header names and gtdbtk rule specific environments"
 
 #------------------------------------------------------------------------------#
 #                             Execution mode                                   #
@@ -248,10 +248,10 @@ trimm:
     minAdpLength: 5
     keepBoth: "TRUE"
   sliding:
-#    type: "SLIDINGWINDOW:5:22"
-    type: "SLIDINGWINDOW"
-    windowSize: 5
-    requiredQuality: 22
+    type: "SLIDINGWINDOW:5:22"
+#    type: "SLIDINGWINDOW"
+#    windowSize: 5
+#    requiredQuality: 22
   maxinfo:
     type: "MAXINFO"
     targetLength: 40
@@ -701,13 +701,13 @@ das:
     gtdbtk_analysis: "T"
     checkm_analysis: "T"
   binsanity: 
-    run: "T"
-    gtdbtk_analysis: "T"
-    checkm_analysis: "T"
+    run: "F"
+    gtdbtk_analysis: "F"
+    checkm_analysis: "F"
   concoct: 
-   run: "T"
-   gtdbtk_analysis: "T"
-   checkm_analysis: "T"
+   run: "F"
+   gtdbtk_analysis: "F"
+   checkm_analysis: "F"
   maxbin: 
     run: "T"
     gtdbtk_analysis: "T"
@@ -743,48 +743,6 @@ checkM:
 gtdbtk:
   cpus: "35"
   extra_params: "--min_perc_aa 0.5 --force"
-
-#------------------------------------------------------------------------------#
-#                       GENE CALLING                                           #
-# rule:                                                                        #
-#------------------------------------------------------------------------------#
-#=======================DESCRIPTION============================================#
-# This option allows the user to predict genes (call genes) into the assembled #
-# reads. The pipeline supports the following options:                          #
-#     - MetaGeneMark (http://exon.gatech.edu/meta_gmhmmp.cgi)                  #
-#         * use TOOL: "MGM"                                                    #
-#     - FragGeneScan (https://github.com/COL-IU/FragGeneScan)                  #
-#         * use TOOL: "FGS"                                                    #
-#     - Skip gene calling                                                      #
-#         * use TOOL: "NONE" (or other value)                                  #
-#=======================PARAMS=================================================#
-# TOOL                  (MGM|FGS|NONE)                                         #
-#   MGM                                                                        #
-#     key                                                                      #
-#     model             file with gene finding parameters                      #
-#     f                 output format (Default = 3):                           #
-#                       [L] for LST                                            #
-#                       [G] for GFF/GFF2/GTF                                   #
-#                       [3] for GFF3                                           #
-#  extra_params                                                                #
-#  FGS                                                                         #
-#     complete                                                                 #
-#     model                                                                    #
-#------------------------------------------------------------------------------#
-GENE_CALLING:
-  TOOL: "NONE"
-  MGM:
-    key: ""
-    model: "MetaGeneMark_v1.mo"
-    # key: "/export/data/aabdala/utils/MetaGeneMark_linux_64/mgm/gm_key_64"
-    # model: "/export/data/aabdala/utils/MetaGeneMark_linux_64/mgm/MetaGeneMark_v1.mod"d"
-    f: "G"
-    extra_params: ""
-  FGS:
-    complete: 0
-    model: "/FragGeneScan/train/complete"
-    # model: "/export/data/aabdala/utils/FragGeneScan/train/complete"
-    threads: 4
 
 #------------------------------------------------------------------------------#
 #                       Prokka                                                 #
