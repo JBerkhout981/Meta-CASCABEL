@@ -62,7 +62,9 @@ rule trimmomatic:
     input:
         fw="{PROJECT}/samples/{sample}/rawdata/fw.fastq" if config["gzip_input"] == "F" else "{PROJECT}/samples/{sample}/rawdata/fw.fastq.gz",
         rv="{PROJECT}/samples/{sample}/rawdata/rv.fastq" if config["gzip_input"] == "F" else "{PROJECT}/samples/{sample}/rawdata/rv.fastq.gz",
-        tmp_qcr="{PROJECT}/samples/{sample}/qc/sequali/sequali.html",
+        tmp_seq="{PROJECT}/samples/{sample}/qc/sequali/sequali.html" if config["QC"]["onRawReads"].lower() == "t"
+        else []
+
     output:
         read1_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_paired.fq",
         read1_single="{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_singles.fq",
@@ -285,7 +287,8 @@ if config["ASSEMBLER"] == "SPADES":
         input:
             read1_single="{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_singles.fq",
             read2_single="{PROJECT}/runs/{run}/{sample}_data/trimmed/read2_singles.fq",
-            tmp_seq="{PROJECT}/runs/{run}/{sample}_data/trimmed/sequali/sequali.html"
+            tmp_seq="{PROJECT}/runs/{run}/{sample}_data/trimmed/sequali/sequali.html" if config["QC"]["onTrimmedReads"].lower() == "t"
+            else []
               
         output:
             "{PROJECT}/runs/{run}/{sample}_data/trimmed/all_singles.fq"
@@ -348,7 +351,8 @@ if config["ASSEMBLER"] == "MEGAHIT":
         input:
             read1_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_paired.fq",
             read2_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read2_paired.fq",
-            tmp_seq="{PROJECT}/runs/{run}/{sample}_data/trimmed/sequali/sequali.html"
+            tmp_seq="{PROJECT}/runs/{run}/{sample}_data/trimmed/sequali/sequali.html" if config["QC"]["onTrimmedReads"].lower() == "t"
+            else []
             
         output:
             "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/final.contigs.fa"
@@ -381,7 +385,8 @@ if config["ASSEMBLER"] == "IDBA":
         input:
             read1_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_paired.fq",
             read2_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read2_paired.fq",
-            tmp_seq="{PROJECT}/runs/{run}/{sample}_data/trimmed/sequali/sequali.html"
+            tmp_seq="{PROJECT}/runs/{run}/{sample}_data/trimmed/sequali/sequali.html" if config["QC"]["onTrimmedReads"].lower() == "t"
+            else []
             
         output:
             "{PROJECT}/runs/{run}/{sample}_data/trimmed/reads_merged.fasta"
