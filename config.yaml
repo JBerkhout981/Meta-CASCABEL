@@ -117,13 +117,6 @@ interactive : "F"
 # onTrimmedReads        Run QC steps on trimmed reads: T|F                     #
 # tool                  Tool for QC steps: "fastqc","sequali" or "both"        #
 #------------------------------------------------------------------------------#
-
-# It always executes both tools, 'tool:' parameter doesn't work
-QC:
-  onRawReads: "F"
-  onTrimmedReads: "F"
-  tool: "both"
-
 #------------------------------------------------------------------------------#
 #                       Quality control with Sequali                           #
 # rules: sequali                                                               #
@@ -134,33 +127,14 @@ QC:
 # threads               Number of threads to run sequali.                      #
 # extra_params          Extra parameters. See sequali --help for more info.    #
 #------------------------------------------------------------------------------#
-sequali:
+
+QC:
+  onRawReads: "F"
+  onTrimmedReads: "F"
   threads: 10
   extra_params: ""
 
-#------------------------------------------------------------------------------#
-#                       FastQC                                                 #
-# rule: validateQC                                                             #
-#=======================DESCRIPTION============================================#
-# FastQC evaluates 12 main concepts on the sequences: (Basic Statistics, Per   #
-# base sequence quality, Per tile sequence quality, Per sequence quality scores#
-# Per base sequence content, Per sequence GC content,Per base N content,       #
-# Sequence Length Distribution, Sequence Duplication Levels, Overrepresented   #
-# sequences, Adapter Content and Kmer Content). Here you can set the max number#
-# of FAILS accepted on fastqc without sending a warning message                #
-#=======================PARAMS=================================================#
-# onRawReads            'T' or 'F' Perform FastQC on raw reads                 #
-# onTrimmedReads        'T' or 'F' Perform FastQC on trimmed reads             #
-# threads               Number of threads                                      #
-# qcLimit               Number of max fails                                    #
-#------------------------------------------------------------------------------#
 
-# 'onRawReads', 'onTrimmedReads' and qcLimit don't appear in snakefile
-FastQC:
-  onRawReads: "F"
-  onTrimmedReads: "F"
-  threads: 4
-  qcLimit : 3
 
 #------------------------------------------------------------------------------#
 #                       Trimmomatic                                            #
