@@ -35,37 +35,6 @@ elif len(config["input_files"])>2 and len(config["SAMPLES"])>=1:
             "Scripts/init_sample.py"
 
 if config["QC"]["onRawReads"].lower() == "t":
-#First we run fastQC over the rawdata
-    rule fast_qc:
-        input:
-            r1="{PROJECT}/samples/{sample}/rawdata/fw.fastq" if config["gzip_input"] == "F" else "{PROJECT}/samples/{sample}/rawdata/fw.fastq.gz",
-            r2="{PROJECT}/samples/{sample}/rawdata/rv.fastq" if config["gzip_input"] == "F" else "{PROJECT}/samples/{sample}/rawdata/rv.fastq.gz"
-        output:
-            o1="{PROJECT}/samples/{sample}/qc/fastqc/fw_fastqc.html",
-            o2="{PROJECT}/samples/{sample}/qc/fastqc/rv_fastqc.html",
-            s1="{PROJECT}/samples/{sample}/qc/fastqc/fw_fastqc/summary.txt",
-            s2="{PROJECT}/samples/{sample}/qc/fastqc/rv_fastqc/summary.txt",
-            r=report(directory("{PROJECT}/samples/{sample}/qc/fastqc/"), patterns=["{name}_fastqc.html"], category="2. Quality", subcategory="Raw reads",labels={"sample":"{sample}","Tool":"FastQC", "Read":"{name}"},)
-        benchmark:
-            "{PROJECT}/samples/{sample}/qc/fq.benchmark"
-        threads:
-            int(config["FastQC"]["threads"])
-        shell:
-            "fastqc {input.r1} {input.r2} --extract -t 4 -o {wildcards.PROJECT}/samples/{wildcards.sample}/qc/fastqc/"
-    #validate qc if to many fails on qc report
-    rule validateQC:
-        input:
-            "{PROJECT}/samples/{sample}/qc/fastqc/fw_fastqc/summary.txt",
-            "{PROJECT}/samples/{sample}/qc/fastqc/rv_fastqc/summary.txt",
-            "{PROJECT}/samples/{sample}/qc/fastqc/fw_fastqc.html",
-            "{PROJECT}/samples/{sample}/qc/fastqc/rv_fastqc.html",
-            "{PROJECT}/samples/{sample}/rawdata/fw.fastq" if config["gzip_input"] == "F" else "{PROJECT}/samples/{sample}/rawdata/fw.fastq.gz",
-            "{PROJECT}/samples/{sample}/rawdata/rv.fastq" if config["gzip_input"] == "F" else "{PROJECT}/samples/{sample}/rawdata/rv.fastq.gz"
-        output:
-            "{PROJECT}/samples/{sample}/qc/fq_fw_internal_validation.txt",
-            "{PROJECT}/samples/{sample}/qc/s"
-        script:
-            "Scripts/validateQC.py"
     rule sequali:
         """
         Runs QC with sequali on raw reads
@@ -80,28 +49,11 @@ if config["QC"]["onRawReads"].lower() == "t":
         params:
             outdir="{PROJECT}/samples/{sample}/qc/sequali/"
         threads:
-            int(config["sequali"]["threads"])
+            int(config["QC"]["threads"])
         benchmark:
             "{PROJECT}/samples/{sample}/benchmark/sequali.benchmark"
         shell:
-            "sequali --outdir {params.outdir} --html  sequali.html --json sequali.json -t {config[sequali][threads]}  {config[sequali][extra_params]}  {input}"
-
-else:
-    rule skip_raw_fastqc:
-        output:
-            fw="{PROJECT}/samples/{sample}/qc/fq_fw_internal_validation.txt",
-            rv="{PROJECT}/samples/{sample}/qc/fq_rv_internal_validation.txt"
-        shell:
-            "echo \"User skip raw reads quality control\" > {output.fw} && echo \"User skip raw reads quality control\" > {output.rv}"
-#Run LowQA
-#rule lowQuality:
-#    input:
-#        "{PROJECT}/samples/{sample}/rawdata/fw.fastq",
-#        "{PROJECT}/samples/{sample}/rawdata/rv.fastq",
-#        "{PROJECT}/samples/{sample}/qc/fq_fw_internal_validation.txt",
-#        "{PROJECT}/samples/{sample}/qc/fq_rv_internal_validation.txt"
-#    output:
-#        ""
+            "sequali --outdir {params.outdir} --html  sequali.html --json sequali.json -t {config[QC][threads]}  {config[QC][extra_params]}  {input}"
 
 # run trimmomatic to remove adapter contamination and trim very low quality parts (ends) of the reads.
 # trimmomatic-0.35.jar PE -threads 2 $inFile1 $inFile2 $fol/read1_paired.fq $fol/read1_singles.fq $fol/read2_paired.fq $fol/read2_singles.fq
@@ -110,9 +62,7 @@ rule trimmomatic:
     input:
         fw="{PROJECT}/samples/{sample}/rawdata/fw.fastq" if config["gzip_input"] == "F" else "{PROJECT}/samples/{sample}/rawdata/fw.fastq.gz",
         rv="{PROJECT}/samples/{sample}/rawdata/rv.fastq" if config["gzip_input"] == "F" else "{PROJECT}/samples/{sample}/rawdata/rv.fastq.gz",
-        tmp1="{PROJECT}/samples/{sample}/qc/fq_fw_internal_validation.txt" if config["QC"]["tool"].lower() == "fastqc" or config["QC"]["tool"].lower() == "both" or config["QC"]["onRawReads"].lower() == "f" else [],
-        #tmp1="{PROJECT}/samples/{sample}/qc/fq_fw_internal_validation.txt",
-        #tmp2="{PROJECT}/samples/{sample}/qc/fq_rv_internal_validation.txt"
+        tmp_qcr="{PROJECT}/samples/{sample}/qc/sequali/sequali.html",
     output:
         read1_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_paired.fq",
         read1_single="{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_singles.fq",
@@ -177,41 +127,6 @@ rule datavzrd_trimmomatic:
         "v4.7.2/utils/datavzrd"
 
 if config["QC"]["onTrimmedReads"].lower() == "t":
-    rule qc_trimmed_reads:
-        input:
-            r1="{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_paired.fq",
-            r2="{PROJECT}/runs/{run}/{sample}_data/trimmed/read2_paired.fq"
-        output:
-            o1="{PROJECT}/runs/{run}/{sample}_data/trimmed/qc/read1_paired_fastqc.html",
-            o2="{PROJECT}/runs/{run}/{sample}_data/trimmed/qc/read2_paired_fastqc.html",
-            s1="{PROJECT}/runs/{run}/{sample}_data/trimmed/qc/read1_paired_fastqc/summary.txt",
-            s2="{PROJECT}/runs/{run}/{sample}_data/trimmed/qc/read2_paired_fastqc/summary.txt",
-            r=report(directory("{PROJECT}/runs/{run}/{sample}_data/trimmed/qc/"), patterns=["{name}_fastqc.html"], category="2. Quality", subcategory="Trimmed reads",labels={"sample":"{sample}","Tool":"FastQC", "Read":"{name}"},)
-        params:
-            "{PROJECT}/runs/{run}/{sample}_data/trimmed/qc/"
-        benchmark:
-            "{PROJECT}/runs/{run}/{sample}_data/trimmed/qc/fq.benchmark"
-        threads:
-            int(config["FastQC"]["threads"])
-        shell:
-            "fastqc {input.r1} {input.r2} --extract -t {config[FastQC][threads]} -o {params}"
-
-    rule validateQCTrimm:
-        input:
-            "{PROJECT}/runs/{run}/{sample}_data/trimmed/qc/read1_paired_fastqc.html",
-            "{PROJECT}/runs/{run}/{sample}_data/trimmed/qc/read2_paired_fastqc.html",
-            "{PROJECT}/runs/{run}/{sample}_data/trimmed/qc/read1_paired_fastqc/summary.txt",
-            "{PROJECT}/runs/{run}/{sample}_data/trimmed/qc/read2_paired_fastqc/summary.txt",
-            "{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_paired.fq",
-            "{PROJECT}/runs/{run}/{sample}_data/trimmed/read2_paired.fq"
-        output:
-            "{PROJECT}/runs/{run}/{sample}_data/trimmed/fq_fw_internal_validation.txt",
-            "{PROJECT}/runs/{run}/{sample}_data/trimmed/fq_rv_internal_validation.txt"
-        benchmark:
-            "{PROJECT}/runs/{run}/{sample}_data/trimmed/qc_validation.benchmark"
-        script:
-            "Scripts/validateQC.py"
-
     rule sequali_trimmed_reads:
         input:
             r1="{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_paired.fq",
@@ -225,17 +140,9 @@ if config["QC"]["onTrimmedReads"].lower() == "t":
         benchmark:
             "{PROJECT}/runs/{run}/{sample}_data/trimmed/sequali.benchmark"
         threads:
-            int(config["sequali"]["threads"])
+            int(config["QC"]["threads"])
         shell:
-            "sequali --outdir {params.outdir} --html  sequali.html --json sequali.json -t {config[sequali][threads]}  {config[sequali][extra_params]}  {input}"
-        
-else:
-    rule skip_trimm_fastqc:
-        output:
-            "{PROJECT}/runs/{run}/{sample}_data/trimmed/fq_fw_internal_validation.txt",
-            "{PROJECT}/runs/{run}/{sample}_data/trimmed/fq_rv_internal_validation.txt"
-        shell:
-            "echo \"User omitted raw reads quality control\" > {output[0]} && echo \"User omitted raw reads quality control\" > {output[1]}"
+            "sequali --outdir {params.outdir} --html  sequali.html --json sequali.json -t {config[QC][threads]}  {config[QC][extra_params]}  {input}"
 
 if config["TAXONOMY"]["PROFILING"] == "KRAKEN" or config["TAXONOMY"]["PROFILING"] == "ALL":
     rule kraken:
@@ -378,9 +285,7 @@ if config["ASSEMBLER"] == "SPADES":
         input:
             read1_single="{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_singles.fq",
             read2_single="{PROJECT}/runs/{run}/{sample}_data/trimmed/read2_singles.fq",
-            tmp_flw="{PROJECT}/runs/{run}/{sample}_data/trimmed/fq_rv_internal_validation.txt",
-            tmp_seq="{PROJECT}/runs/{run}/{sample}_data/trimmed/sequali/sequali.html" if config["QC"]["onTrimmedReads"].lower() == "t" and (config["QC"]["tool"].lower()=="both" or config["QC"]["tool"].lower()=="sequali")
-            else []
+            tmp_seq="{PROJECT}/runs/{run}/{sample}_data/trimmed/sequali/sequali.html"
               
         output:
             "{PROJECT}/runs/{run}/{sample}_data/trimmed/all_singles.fq"
@@ -443,9 +348,7 @@ if config["ASSEMBLER"] == "MEGAHIT":
         input:
             read1_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_paired.fq",
             read2_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read2_paired.fq",
-            tmp_flw="{PROJECT}/runs/{run}/{sample}_data/trimmed/fq_rv_internal_validation.txt",
-            tmp_seq="{PROJECT}/runs/{run}/{sample}_data/trimmed/sequali/sequali.html" if config["QC"]["onTrimmedReads"].lower() == "t" and (config["QC"]["tool"].lower()=="both" or config["QC"]["tool"].lower()=="sequali")
-            else []
+            tmp_seq="{PROJECT}/runs/{run}/{sample}_data/trimmed/sequali/sequali.html"
             
         output:
             "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/final.contigs.fa"
@@ -478,9 +381,7 @@ if config["ASSEMBLER"] == "IDBA":
         input:
             read1_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_paired.fq",
             read2_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read2_paired.fq",
-            tmp_flw="{PROJECT}/runs/{run}/{sample}_data/trimmed/fq_rv_internal_validation.txt",
-            tmp_seq="{PROJECT}/runs/{run}/{sample}_data/trimmed/sequali/sequali.html" if config["QC"]["onTrimmedReads"].lower() == "t" and (config["QC"]["tool"].lower()=="both" or config["QC"]["tool"].lower()=="sequali")
-            else []
+            tmp_seq="{PROJECT}/runs/{run}/{sample}_data/trimmed/sequali/sequali.html"
             
         output:
             "{PROJECT}/runs/{run}/{sample}_data/trimmed/reads_merged.fasta"
