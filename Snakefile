@@ -135,8 +135,10 @@ else:
         output:
             read1_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_paired.fq",
             read2_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read2_paired.fq",
+            no_trimm="{PROJECT}/runs/{run}/{sample}_data/no_trimm.txt"
         shell:
             """
+            touch {output.no_trimm}
             if [[ "{config[gzip_input]}" == "T" ]]; then
                 gzip -cd  {input.fw} {output.read1_paired}
                 gzip -cd  {input.rv} {output.read2_paired}
@@ -307,7 +309,7 @@ if config["ASSEMBLER"] == "SPADES":
             read2_single="{PROJECT}/runs/{run}/{sample}_data/trimmed/read2_singles.fq",
             tmp_seq="{PROJECT}/runs/{run}/{sample}_data/trimmed/sequali/sequali.html" if config["QC"]["onTrimmedReads"].lower() == "t"
             else []
-              
+            
         output:
             "{PROJECT}/runs/{run}/{sample}_data/trimmed/all_singles.fq"
         benchmark:
@@ -993,7 +995,6 @@ if config["BINNING"] == "DAS":
             bs_l=",binsanity" if config["das"]["binsanity"]["run"]=="T" else "",
             mx_l=",maxbin"  if config["das"]["maxbin"]["run"]=="T" else "",
             cc_l=",concoct"  if config["das"]["concoct"]["run"]=="T" else ""
-
         output:
             log="{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log",
             t2bin="{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/DasOut_DASTool_summary.tsv"
@@ -1709,7 +1710,9 @@ rule report:
          "{PROJECT}/runs/{run}/{sample}_data/unbinned/unbinned.txt",
          "{PROJECT}/runs/{run}/{sample}_data/binning/FinalBins.summary.tsv",
          "{PROJECT}/runs/{run}/{sample}_data/binning/FinalBins/contig_coverage.txt",
-         "{PROJECT}/runs/{run}/tables/trimmomatic",
+         "{PROJECT}/runs/{run}/tables/trimmomatic"
+         if config["trimm"]["trimmed"] == "T" else
+         "{PROJECT}/runs/{run}/{sample}_data/no_trimm.txt",
          "{PROJECT}/runs/{run}/tables/bwa",
          "{PROJECT}/runs/{run}/tables/bins/{sample}"
     output:
