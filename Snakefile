@@ -58,32 +58,32 @@ if config["QC"]["onRawReads"].lower() == "t":
 # run trimmomatic to remove adapter contamination and trim very low quality parts (ends) of the reads.
 # trimmomatic-0.35.jar PE -threads 2 $inFile1 $inFile2 $fol/read1_paired.fq $fol/read1_singles.fq $fol/read2_paired.fq $fol/read2_singles.fq
 # ILLUMINACLIP:/usr/local/bioinf/trimmomatic/adapters/TruSeq3-PE-2.fa:2:30:12:2:TRUE MAXINFO:40:0.6 MINLEN:40
-rule trimmomatic:
-    input:
-        fw="{PROJECT}/samples/{sample}/rawdata/fw.fastq" if config["gzip_input"] == "F" else "{PROJECT}/samples/{sample}/rawdata/fw.fastq.gz",
-        rv="{PROJECT}/samples/{sample}/rawdata/rv.fastq" if config["gzip_input"] == "F" else "{PROJECT}/samples/{sample}/rawdata/rv.fastq.gz",
-        tmp_seq="{PROJECT}/samples/{sample}/qc/sequali/sequali.html" if config["QC"]["onRawReads"].lower() == "t"
-        else []
-
-    output:
-        read1_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_paired.fq",
-        read1_single="{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_singles.fq",
-        read2_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read2_paired.fq",
-        read2_single="{PROJECT}/runs/{run}/{sample}_data/trimmed/read2_singles.fq",
-        log="{PROJECT}/runs/{run}/{sample}_data/trimmed/trimmomatic.log"
-    benchmark:
-        "{PROJECT}/runs/{run}/{sample}_data/trimmed/trimmomatic.benchmark"
-    threads:
-        int(config["trimm"]["threads"])
-    shell:
-        #"java -jar /opt/biolinux/Trinity/trinity-plugins/Trimmomatic-0.36/trimmomatic-0.36.jar {config[trimm][mode]} -threads {config[trimm][threads]} {input.fw} {input.rv} "
-        "trimmomatic {config[trimm][mode]} -threads {config[trimm][threads]} {input.fw} {input.rv} "
-        "{output.read1_paired} {output.read1_single} {output.read2_paired} {output.read2_single} "
-        "{config[trimm][clip][type]}:{config[trimm][clip][adapter]}:{config[trimm][clip][seed]}:{config[trimm][clip][palindrome_ct]}:"
-        "{config[trimm][clip][simple_ct]}:{config[trimm][clip][minAdpLength]}:{config[trimm][clip][keepBoth]} "
-        "{config[trimm][sliding][type]} "
-        "{config[trimm][maxinfo][type]}:{config[trimm][maxinfo][targetLength]}:{config[trimm][maxinfo][strictness]} "
-        "{config[trimm][minlen][type]}:{config[trimm][minlen][len]} > {output.log} 2>&1"
+if config["trimm"]["trimming"].lower() == "t":
+    rule trimmomatic:
+        input:
+            fw="{PROJECT}/samples/{sample}/rawdata/fw.fastq" if config["gzip_input"] == "F" else "{PROJECT}/samples/{sample}/rawdata/fw.fastq.gz",
+            rv="{PROJECT}/samples/{sample}/rawdata/rv.fastq" if config["gzip_input"] == "F" else "{PROJECT}/samples/{sample}/rawdata/rv.fastq.gz",
+            tmp_seq="{PROJECT}/samples/{sample}/qc/sequali/sequali.html" if config["QC"]["onRawReads"].lower() == "t"
+            else []
+        output:
+            read1_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_paired.fq",
+            read1_single="{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_singles.fq",
+            read2_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read2_paired.fq",
+            read2_single="{PROJECT}/runs/{run}/{sample}_data/trimmed/read2_singles.fq",
+            log="{PROJECT}/runs/{run}/{sample}_data/trimmed/trimmomatic.log"
+        benchmark:
+            "{PROJECT}/runs/{run}/{sample}_data/trimmed/trimmomatic.benchmark"
+        threads:
+            int(config["trimm"]["threads"])
+        shell:
+            #"java -jar /opt/biolinux/Trinity/trinity-plugins/Trimmomatic-0.36/trimmomatic-0.36.jar {config[trimm][mode]} -threads {config[trimm][threads]} {input.fw} {input.rv} "
+            "trimmomatic {config[trimm][mode]} -threads {config[trimm][threads]} {input.fw} {input.rv} "
+            "{output.read1_paired} {output.read1_single} {output.read2_paired} {output.read2_single} "
+            "{config[trimm][clip][type]}:{config[trimm][clip][adapter]}:{config[trimm][clip][seed]}:{config[trimm][clip][palindrome_ct]}:"
+            "{config[trimm][clip][simple_ct]}:{config[trimm][clip][minAdpLength]}:{config[trimm][clip][keepBoth]} "
+            "{config[trimm][sliding][type]} "
+            "{config[trimm][maxinfo][type]}:{config[trimm][maxinfo][targetLength]}:{config[trimm][maxinfo][strictness]} "
+            "{config[trimm][minlen][type]}:{config[trimm][minlen][len]} > {output.log} 2>&1"
 
 rule merge_trimmomatic_stats:
     input:

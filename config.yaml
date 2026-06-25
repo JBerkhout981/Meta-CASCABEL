@@ -150,6 +150,8 @@ QC:
 # adapter               path to a fasta file containing all the adapters, PCR  #
 #                       sequences etc.                                         #
 #=======================PARAMS=================================================#
+# trimming              'Y' if you want to trim the reads, 'N' if you don't    #
+#                       want to trim your reads
 # seed                  specifies the maximum mismatch count which will still  #
 #                       allow                                                  #
 #                       a full match to be performed                           #
@@ -210,6 +212,7 @@ QC:
 
 # Blokje bij 'sliding type' opdelen in windowzise & required quality
 trimm:
+  trimming: "Y"
   mode: "PE"
   threads: 15
   clip:
@@ -499,7 +502,7 @@ jgi_summ:
 #                       Does not work with DAS                                 #
 #                                                                              #
 # After selecting the target method, you can fine tune the options for each    #
-# tool, using the options below                                                #                                       
+# tool, using the options below                                                #                           
 #------------------------------------------------------------------------------#
 BINNING: "DAS"
 
