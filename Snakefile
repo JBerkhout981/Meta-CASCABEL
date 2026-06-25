@@ -85,46 +85,66 @@ if config["trimm"]["trimming"].lower() == "t":
             "{config[trimm][maxinfo][type]}:{config[trimm][maxinfo][targetLength]}:{config[trimm][maxinfo][strictness]} "
             "{config[trimm][minlen][type]}:{config[trimm][minlen][len]} > {output.log} 2>&1"
 
-rule merge_trimmomatic_stats:
-    input:
-        expand("{PROJECT}/runs/{run}/{sample}_data/trimmed/trimmomatic.log", PROJECT=config["PROJECT"],sample=config["SAMPLES"], run=run)
-    output:
-        #"{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/quast/stats_assembly.tsv"
-        "{PROJECT}/runs/{run}/tables/stats_trimmomatic.tsv"
-    params:
-        report_dir="{PROJECT}/runs/{run}/*_data/trimmed/trimmomatic.log"
-    shell:
-        #" echo -e \"Sample\\tAssembly\\tNum. contigs (>= 0 bp)\\tNum. contigs (>= 1000 bp)\\tNum. contigs (>= 5000 bp)\\tNum. contigs (>= 10000 bp)\\tNum. contigs (>= 25000 bp)\\tNum. contigs (>= 50000 bp)\\tTotal length (>= 0 bp)\\tTotal length (>= 1000 bp)\\tTotal length (>= 5000 bp)\\tTotal length (>= 10000 bp)\\tTotal length (>= 25000 bp)\\tTotal length (>= 50000 bp)\\tNum. contigs\\tLargest contig\\tTotal length\\tGC (%)\\tN50\\tN90\\tauN\\tL50\\tL90\\tNum. N's per 100 kbp\" > {output} ;"
-        " echo -e \"Sample\\tInput Read Pairs\\tBoth Surviving\\tBoth %\\tForward Only Surviving\\tForward Only %\\tReverse Only Surviving\\tReverse Only %\\tDropped\\tDropped %\" > {output} ;"
-        " for file in {params.report_dir} ; "
-        " do "
-        "   sample=$(echo $file | awk -F\"/\" '{{gsub(\"_data\",\"\",$4); print $4}}');"
-        "   cat $file | grep  \"^Input Read\" | sed 's/(//g ; s/)//g' | awk -v samp=${{sample}} 'BEGIN{{OFS=\"\\t\"}} {{print samp,$4,$7,$8,$12,$13,$17,$18,$20,$21 >> \"{output}\"}}';"
-        " done " 
+    rule merge_trimmomatic_stats:
+        input:
+            expand("{PROJECT}/runs/{run}/{sample}_data/trimmed/trimmomatic.log", PROJECT=config["PROJECT"],sample=config["SAMPLES"], run=run)
+        output:
+            #"{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/quast/stats_assembly.tsv"
+            "{PROJECT}/runs/{run}/tables/stats_trimmomatic.tsv"
+        params:
+            report_dir="{PROJECT}/runs/{run}/*_data/trimmed/trimmomatic.log"
+        shell:
+            #" echo -e \"Sample\\tAssembly\\tNum. contigs (>= 0 bp)\\tNum. contigs (>= 1000 bp)\\tNum. contigs (>= 5000 bp)\\tNum. contigs (>= 10000 bp)\\tNum. contigs (>= 25000 bp)\\tNum. contigs (>= 50000 bp)\\tTotal length (>= 0 bp)\\tTotal length (>= 1000 bp)\\tTotal length (>= 5000 bp)\\tTotal length (>= 10000 bp)\\tTotal length (>= 25000 bp)\\tTotal length (>= 50000 bp)\\tNum. contigs\\tLargest contig\\tTotal length\\tGC (%)\\tN50\\tN90\\tauN\\tL50\\tL90\\tNum. N's per 100 kbp\" > {output} ;"
+            " echo -e \"Sample\\tInput Read Pairs\\tBoth Surviving\\tBoth %\\tForward Only Surviving\\tForward Only %\\tReverse Only Surviving\\tReverse Only %\\tDropped\\tDropped %\" > {output} ;"
+            " for file in {params.report_dir} ; "
+            " do "
+            "   sample=$(echo $file | awk -F\"/\" '{{gsub(\"_data\",\"\",$4); print $4}}');"
+            "   cat $file | grep  \"^Input Read\" | sed 's/(//g ; s/)//g' | awk -v samp=${{sample}} 'BEGIN{{OFS=\"\\t\"}} {{print samp,$4,$7,$8,$12,$13,$17,$18,$20,$21 >> \"{output}\"}}';"
+            " done " 
 
-rule create_yaml_trimmomatic_stats_tbl:
-    output:
-        "{PROJECT}/runs/{run}/tables/trimmomatic.yaml"
-    shell:
-        "cp resources/datavzrd/trimmomatic.yaml {output}"
+    rule create_yaml_trimmomatic_stats_tbl:
+        output:
+            "{PROJECT}/runs/{run}/tables/trimmomatic.yaml"
+        shell:
+            "cp resources/datavzrd/trimmomatic.yaml {output}"
 
-rule datavzrd_trimmomatic:
-    input:
-        config="{PROJECT}/runs/{run}/tables/trimmomatic.yaml",
-        table="{PROJECT}/runs/{run}/tables/stats_trimmomatic.tsv"
-        #table="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/quast/stats_assembly.tsv"
-    output:
-        report(
-            directory("{PROJECT}/runs/{run}/tables/trimmomatic"),
-            #directory("{PROJECT}/runs/{run}/tables/assembly_"+config["ASSEMBLER"]+"/quast/tbl/"),
-            htmlindex="index.html",
-            #category="1. Project Information",
-            category="3. Read trimming",
-            #subcategory="Assembler: " + config["ASSEMBLER"],
-            labels={"table":"Trimming results"},
-        ),
-    wrapper:
-        "v4.7.2/utils/datavzrd"
+    rule datavzrd_trimmomatic:
+        input:
+            config="{PROJECT}/runs/{run}/tables/trimmomatic.yaml",
+            table="{PROJECT}/runs/{run}/tables/stats_trimmomatic.tsv"
+            #table="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/quast/stats_assembly.tsv"
+        output:
+            report(
+                directory("{PROJECT}/runs/{run}/tables/trimmomatic"),
+                #directory("{PROJECT}/runs/{run}/tables/assembly_"+config["ASSEMBLER"]+"/quast/tbl/"),
+                htmlindex="index.html",
+                #category="1. Project Information",
+                category="3. Read trimming",
+                #subcategory="Assembler: " + config["ASSEMBLER"],
+                labels={"table":"Trimming results"},
+            ),
+        wrapper:
+            "v4.7.2/utils/datavzrd"
+else:
+    rule skip_trimmomatic:
+        input:
+            fw="{PROJECT}/samples/{sample}/rawdata/fw.fastq" if config["gzip_input"] == "F" else "{PROJECT}/samples/{sample}/rawdata/fw.fastq.gz",
+            rv="{PROJECT}/samples/{sample}/rawdata/rv.fastq" if config["gzip_input"] == "F" else "{PROJECT}/samples/{sample}/rawdata/rv.fastq.gz",
+            tmp_seq="{PROJECT}/samples/{sample}/qc/sequali/sequali.html" if config["QC"]["onRawReads"].lower() == "t"
+            else []
+        output:
+            read1_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_paired.fq",
+            read2_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read2_paired.fq",
+        shell:
+            """
+            if [[ "{config[gzip_input]}" == "T" ]]; then
+                gzip -cd  {input.fw} {output.read1_paired}
+                gzip -cd  {input.rv} {output.read2_paired}
+            else
+                cp {input.fw} {output.read1_paired}
+                cp {input.rv} {output.read2_paired}
+            fi    
+            """
 
 if config["QC"]["onTrimmedReads"].lower() == "t":
     rule sequali_trimmed_reads:
