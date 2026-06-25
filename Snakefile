@@ -91,8 +91,6 @@ rule merge_trimmomatic_stats:
     output:
         #"{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/quast/stats_assembly.tsv"
         "{PROJECT}/runs/{run}/tables/stats_trimmomatic.tsv"
-    benchmark:
-        "{PROJECT}/runs/{run}/tables/stats_trimmomatic.benchmark"
     params:
         report_dir="{PROJECT}/runs/{run}/*_data/trimmed/trimmomatic.log"
     shell:
