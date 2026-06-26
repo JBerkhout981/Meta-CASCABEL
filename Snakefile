@@ -1711,7 +1711,7 @@ rule report:
          "{PROJECT}/runs/{run}/{sample}_data/binning/FinalBins.summary.tsv",
          "{PROJECT}/runs/{run}/{sample}_data/binning/FinalBins/contig_coverage.txt",
          "{PROJECT}/runs/{run}/tables/trimmomatic"
-         if config["trimm"]["trimmed"] == "T" else
+         if config["trimm"]["trimming"] == "T" else
          "{PROJECT}/runs/{run}/{sample}_data/no_trimm.txt",
          "{PROJECT}/runs/{run}/tables/bwa",
          "{PROJECT}/runs/{run}/tables/bins/{sample}"

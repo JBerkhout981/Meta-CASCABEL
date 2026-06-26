@@ -211,6 +211,7 @@ QC:
 #------------------------------------------------------------------------------#
 
 # Blokje bij 'sliding type' opdelen in windowzise & required quality
+# trimming = 'N' -> Je kan dan geen SPADES gebruiken ivm singles file gegenereerd door trimmomatic
 trimm:
   trimming: "Y"
   mode: "PE"
@@ -670,7 +671,7 @@ binsanity:
 
 das:
   threads: "20"
-  db: "/export/lv13/databases/DAS_tool/release-1.1.7"
+  db: "/export/lv13/databases/DAS_tool/release-1.1.7/"
   # db: "/.conda/envs/metac4/share/das_tool-1.1.7-1/db/
   search_engine: diamond
   extra_params: ""
