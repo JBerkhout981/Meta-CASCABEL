@@ -79,7 +79,7 @@ if config["trimm"]["trimming"].lower() == "t":
             "{output.read1_paired} {output.read1_single} {output.read2_paired} {output.read2_single} "
             "{config[trimm][clip][type]}:{config[trimm][clip][adapter]}:{config[trimm][clip][seed]}:{config[trimm][clip][palindrome_ct]}:"
             "{config[trimm][clip][simple_ct]}:{config[trimm][clip][minAdpLength]}:{config[trimm][clip][keepBoth]} "
-            "{config[trimm][sliding][type]} "
+            "{config[trimm][sliding][type]}:{config[trimm][sliding][windowSize]}:{config[trimm][sliding][requiredQuality]} "
             "{config[trimm][maxinfo][type]}:{config[trimm][maxinfo][targetLength]}:{config[trimm][maxinfo][strictness]} "
             "{config[trimm][minlen][type]}:{config[trimm][minlen][len]} > {output.log} 2>&1"
     rule merge_trimmomatic_stats:
@@ -129,7 +129,7 @@ else:
         shell:
             """
             touch {output.no_trimm}
-            if [[ "{config[gzip_input]}" == "T" ]]; then
+            if [[ {config[gzip_input]} == "T" ]]; then
                 gzip -cd  {input.fw} {output.read1_paired}
                 gzip -cd  {input.rv} {output.read2_paired}
             else
@@ -751,6 +751,13 @@ if config["BINNING"] == "METABAT" or config["BINNING"] == "DAS":
             "--maxEdges {config[metabat2][maxEdge]} -s {config[metabat2][min_bin_size]} "
             "{config[metabat2][extra_params]}  > {output}"
 
+if config["BINNING"] != "METABAT":
+    rule skip_maxbin:
+        output:
+            log="{PROJECT}/runs/{run}/{sample}_data/binning/metabat2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/metabat.log"
+        shell:
+            "touch {output}"
+
 if config["BINNING"] == "MAXBIN" or (config["BINNING"] == "DAS" and config["das"]["maxbin"]["run"]=="T" ):
     rule maxbin:
         """
@@ -778,7 +785,7 @@ if config["BINNING"] == "MAXBIN" or (config["BINNING"] == "DAS" and config["das"
             "-min_contig_length {config[maxbin][min_contig_length]}  "
             "{config[maxbin][plotmarker]} {config[maxbin][extra_params]} > {output.log}"
 
-elif config["BINNING"] == "DAS" and config["das"]["maxbin"]["run"]!="T":
+if (config["BINNING"] == "DAS" and config["das"]["maxbin"]["run"]!="T") or config["BINNING"] != "MAXBIN":
     rule skip_maxbin:
         output:
             log="{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/maxbin.log"
@@ -826,7 +833,7 @@ if config["BINNING"] == "CONCOCT" or ( config["BINNING"] == "DAS" and config["da
         shell:
             "extract_fasta_bins.py --output_path  {params} {input.assembly} {input.clustering} > {output.log}"
 
-elif config["BINNING"] == "DAS" and config["das"]["concoct"]["run"]!="T":
+if (config["BINNING"] == "DAS" and config["das"]["concoct"]["run"]!="T") or config["BINNING"] != "CONCOCT":
     rule skip_concoct:
         output:
             log="{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/concoct.log",
@@ -878,37 +885,38 @@ if config["BINNING"] == "BINSANITY" or (config["BINNING"] == "DAS" and config["d
             "-p {config[binsanity][preference]} -x {config[binsanity][min_contig_length]} --threads {config[binsanity][threads]} "
             "{config[binsanity][extra_params]}"
 
-elif config["BINNING"] == "DAS" and config["das"]["binsanity"]["run"]!="T":
+if (config["BINNING"] == "DAS" and config["das"]["binsanity"]["run"]!="T") or config["BINNING"] != "BINSANITY":
     rule skip_bin_sanity:
         output:
             log="{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanityWf.log"
         shell:
             "touch {output}"
 
+rule bins_to_table:
+    input:
+        maxbin="{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/maxbin.log",
+        metabat="{PROJECT}/runs/{run}/{sample}_data/binning/metabat2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/metabat.log",
+        #concoct="{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/concoct.log"
+        concoct="{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/bin_clustering_gt"+config["concoct"]["min_contig_length"]+".csv",
+        binsanity="{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanityWf.log" 
+    output:
+        metabat_out="{PROJECT}/runs/{run}/{sample}_data/binning/metabat2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/binTable.tsv",
+        maxbin_out="{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/binTable.tsv",
+        concoct_out="{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/binTable.tsv",
+        binsanity_out="{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/binTable.tsv"
+    params:
+        output_dir_metabat="{PROJECT}/runs/{run}/{sample}_data/binning/metabat2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"],
+        output_dir_maxbin="{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"],
+        output_dir_concoct="{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"],
+        output_dir_binsanity="{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanity-Final-bins/",
+        file_ext_metabat="fa",
+        file_ext_maxbin="fasta",
+        file_ext_concoct="fa",
+        file_ext_binsanity="fna"
+    script:
+        "Scripts/tableBins.py"
+
 if config["BINNING"] == "DAS":
-    rule bins_to_table:
-        input:
-            maxbin="{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/maxbin.log",
-            metabat="{PROJECT}/runs/{run}/{sample}_data/binning/metabat2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/metabat.log",
-            #concoct="{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/concoct.log"
-            concoct="{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/bin_clustering_gt"+config["concoct"]["min_contig_length"]+".csv",
-            binsanity="{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanityWf.log" 
-        output:
-            metabat_out="{PROJECT}/runs/{run}/{sample}_data/binning/metabat2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/binTable.tsv",
-            maxbin_out="{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/binTable.tsv",
-            concoct_out="{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/binTable.tsv",
-            binsanity_out="{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/binTable.tsv"
-        params:
-            output_dir_metabat="{PROJECT}/runs/{run}/{sample}_data/binning/metabat2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"],
-            output_dir_maxbin="{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"],
-            output_dir_concoct="{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"],
-            output_dir_binsanity="{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanity-Final-bins/",
-            file_ext_metabat="fa",
-            file_ext_maxbin="fasta",
-            file_ext_concoct="fa",
-            file_ext_binsanity="fna"
-        script:
-            "Scripts/tableBins.py"
     rule das:
         input:#https://stackoverflow.com/questions/51362210/snakemake-optional-input-for-rules
             metabat_bin2t="{PROJECT}/runs/{run}/{sample}_data/binning/metabat2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/binTable.tsv",
@@ -1253,7 +1261,7 @@ rule bin_cvg_binsanity:
         "Scripts/summary_coverage_bs.sh {params.bin_folder} {params.bin_ext} {params.coverage} {output}" 
  
 rule bin_cvg_das:
-    inppt:
+    input:
         "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log",
         "{PROJECT}/runs/{run}/{sample}_data/binning/abundance.metabat.tsv",
         "{PROJECT}/runs/{run}/{sample}_data/binning/abundance.maxbin.tsv",

@@ -75,7 +75,7 @@ gzip_input: "T"
 # The RUN variable can be set here or remain empty, in the latter case, the    #
 # user must assign this value via the command line --config RUN=User_run_name  #
 #------------------------------------------------------------------------------#
-RUN: "Test05"
+RUN: "Test06"
 
 #------------------------------------------------------------------------------#
 #                            Description                                       #
@@ -84,7 +84,7 @@ RUN: "Test05"
 # included on the final report. This field is not mandatory so it can remain   #
 # empty                                                                        #
 #------------------------------------------------------------------------------#
-description: "Testing trimmomatic sliding window, IDBA, unique header names and gtdbtk rule specific environments"
+description: "Testing new changes to script and binning without DAS"
 
 #------------------------------------------------------------------------------#
 #                             Execution mode                                   #
@@ -150,7 +150,7 @@ QC:
 # adapter               path to a fasta file containing all the adapters, PCR  #
 #                       sequences etc.                                         #
 #=======================PARAMS=================================================#
-# trimming              'Y' if you want to trim the reads, 'N' if you don't    #
+# trimming              'T' if you want to trim the reads, 'F' if you don't    #
 #                       want to trim your reads
 # seed                  specifies the maximum mismatch count which will still  #
 #                       allow                                                  #
@@ -213,7 +213,7 @@ QC:
 # Blokje bij 'sliding type' opdelen in windowzise & required quality
 # trimming = 'N' -> Je kan dan geen SPADES gebruiken ivm singles file gegenereerd door trimmomatic
 trimm:
-  trimming: "Y"
+  trimming: "T"
   mode: "PE"
   threads: 15
   clip:
@@ -226,10 +226,10 @@ trimm:
     minAdpLength: 5
     keepBoth: "TRUE"
   sliding:
-    type: "SLIDINGWINDOW:5:22"
-#    type: "SLIDINGWINDOW"
-#    windowSize: 5
-#    requiredQuality: 22
+#    type: "SLIDINGWINDOW:5:22"
+    type: "SLIDINGWINDOW"
+    windowSize: 5
+    requiredQuality: 22
   maxinfo:
     type: "MAXINFO"
     targetLength: 40
@@ -323,7 +323,7 @@ TAXONOMY:
 # contigs               If ASSEMBLER = "ASSEMBLED" supply file pointing to     #
 #                       contigs/scaffolds.                                     #
 #------------------------------------------------------------------------------#
-ASSEMBLER: "IDBA"
+ASSEMBLER: "MEGAHIT"
 contigs: ""
 
 #------------------------------------------------------------------------------#
@@ -342,7 +342,7 @@ contigs: ""
 # SPLIT_SIZE             Chunk size (in bases) for splitting. Option -c within #
 #                        CONCOCT's script cut_up_fasta.py -c.                  #
 #------------------------------------------------------------------------------#
-SPLIT_ASSEMBLY: "T"
+SPLIT_ASSEMBLY: "F"
 SPLIT_SIZE: 10000
 
 #------------------------------------------------------------------------------#
@@ -457,7 +457,6 @@ quast:
 #------------------------------------------------------------------------------#
 ANALYSIS: "CONTIGS"
 
-
 #------------------------------------------------------------------------------#
 #                       BWA MEM                                                #
 # rule: bwa_mem                                                                #
@@ -514,7 +513,7 @@ BINNING: "DAS"
 # If this option is set to "T" (true) , a file with all the unbinned contigs   #
 # will be created.
 #------------------------------------------------------------------------------#
-CREATE_UNBINNED: "T"
+CREATE_UNBINNED: "F"
 
 #------------------------------------------------------------------------------#
 #                       Semibin Tool                                           #
@@ -687,10 +686,9 @@ das:
    gtdbtk_analysis: "F"
    checkm_analysis: "F"
   maxbin: 
-    run: "T"
-    gtdbtk_analysis: "T"
-    checkm_analysis: "T"
-
+    run: "F"
+    gtdbtk_analysis: "F"
+    checkm_analysis: "F"
 
 #------------------------------------------------------------------------------#
 #                       chekM                                                  #
@@ -705,7 +703,6 @@ das:
 checkM:
   threads: "15" 
   extra_params: ""
-
 
 #------------------------------------------------------------------------------#
 #                       GTDB-Tk                                                #
