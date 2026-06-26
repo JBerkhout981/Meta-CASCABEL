@@ -504,7 +504,7 @@ jgi_summ:
 # After selecting the target method, you can fine tune the options for each    #
 # tool, using the options below                                                #                           
 #------------------------------------------------------------------------------#
-BINNING: "DAS"
+BINNING: "METABAT"
 
 #------------------------------------------------------------------------------#
 #                       Unbinned conntigs                                      #
