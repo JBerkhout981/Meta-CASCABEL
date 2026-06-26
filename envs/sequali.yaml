@@ -1,0 +1,8 @@
+name: sequali
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+
+dependencies:
+  - sequali

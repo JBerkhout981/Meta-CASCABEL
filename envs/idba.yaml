@@ -1,0 +1,8 @@
+name: idba
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+
+dependencies:
+  - idba
