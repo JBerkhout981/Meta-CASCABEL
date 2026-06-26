@@ -2,7 +2,7 @@
 Metagenomics Workflow for NIOZ MMBL.
 @Company: NIOZ                 
 @Author: Alejandro Abdala and Julia Engelmann
-@Version: 4.0     
+@Version: 4.5     
 @Last update: 16/04/2026                
 """
 
@@ -20,8 +20,7 @@ if len(config["SAMPLES"])==1 and len(config["fw_reads"])>0 and len(config["rv_re
             r1="{PROJECT}/samples/{sample}/rawdata/fw.fastq" if config["gzip_input"] == "F" else "{PROJECT}/samples/{sample}/rawdata/fw.fastq.gz",
             r2="{PROJECT}/samples/{sample}/rawdata/rv.fastq" if config["gzip_input"] == "F" else "{PROJECT}/samples/{sample}/rawdata/rv.fastq.gz"
         shell:
-            "Scripts/init_sample.sh "+config["PROJECT"]+" "+config["SAMPLES"][0]+"  {input.fw} {input.rv}"
-
+            "Scripts/init_sample.sh "+config["PROJECT"]+" "+config["SAMPLES"][0]+" {input.fw} {input.rv}"
 elif len(config["input_files"])>2 and len(config["SAMPLES"])>=1:
     rule init_structure:
         input:
@@ -76,7 +75,6 @@ if config["trimm"]["trimming"].lower() == "t":
         threads:
             int(config["trimm"]["threads"])
         shell:
-            #"java -jar /opt/biolinux/Trinity/trinity-plugins/Trimmomatic-0.36/trimmomatic-0.36.jar {config[trimm][mode]} -threads {config[trimm][threads]} {input.fw} {input.rv} "
             "trimmomatic {config[trimm][mode]} -threads {config[trimm][threads]} {input.fw} {input.rv} "
             "{output.read1_paired} {output.read1_single} {output.read2_paired} {output.read2_single} "
             "{config[trimm][clip][type]}:{config[trimm][clip][adapter]}:{config[trimm][clip][seed]}:{config[trimm][clip][palindrome_ct]}:"
@@ -84,12 +82,10 @@ if config["trimm"]["trimming"].lower() == "t":
             "{config[trimm][sliding][type]} "
             "{config[trimm][maxinfo][type]}:{config[trimm][maxinfo][targetLength]}:{config[trimm][maxinfo][strictness]} "
             "{config[trimm][minlen][type]}:{config[trimm][minlen][len]} > {output.log} 2>&1"
-
     rule merge_trimmomatic_stats:
         input:
             expand("{PROJECT}/runs/{run}/{sample}_data/trimmed/trimmomatic.log", PROJECT=config["PROJECT"],sample=config["SAMPLES"], run=run)
         output:
-            #"{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/quast/stats_assembly.tsv"
             "{PROJECT}/runs/{run}/tables/stats_trimmomatic.tsv"
         params:
             report_dir="{PROJECT}/runs/{run}/*_data/trimmed/trimmomatic.log"
@@ -101,26 +97,20 @@ if config["trimm"]["trimming"].lower() == "t":
             "   sample=$(echo $file | awk -F\"/\" '{{gsub(\"_data\",\"\",$4); print $4}}');"
             "   cat $file | grep  \"^Input Read\" | sed 's/(//g ; s/)//g' | awk -v samp=${{sample}} 'BEGIN{{OFS=\"\\t\"}} {{print samp,$4,$7,$8,$12,$13,$17,$18,$20,$21 >> \"{output}\"}}';"
             " done " 
-
     rule create_yaml_trimmomatic_stats_tbl:
         output:
             "{PROJECT}/runs/{run}/tables/trimmomatic.yaml"
         shell:
             "cp resources/datavzrd/trimmomatic.yaml {output}"
-
     rule datavzrd_trimmomatic:
         input:
             config="{PROJECT}/runs/{run}/tables/trimmomatic.yaml",
             table="{PROJECT}/runs/{run}/tables/stats_trimmomatic.tsv"
-            #table="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/quast/stats_assembly.tsv"
         output:
             report(
                 directory("{PROJECT}/runs/{run}/tables/trimmomatic"),
-                #directory("{PROJECT}/runs/{run}/tables/assembly_"+config["ASSEMBLER"]+"/quast/tbl/"),
                 htmlindex="index.html",
-                #category="1. Project Information",
                 category="3. Read trimming",
-                #subcategory="Assembler: " + config["ASSEMBLER"],
                 labels={"table":"Trimming results"},
             ),
         wrapper:
@@ -261,9 +251,6 @@ if config["TAXONOMY"]["PROFILING"] == "KAIJU" or config["TAXONOMY"]["PROFILING"]
         shell:
            "kaiju2table -t {config[TAXONOMY][KAIJU][nodes]} -n {config[TAXONOMY][KAIJU][names]} "
             " {config[TAXONOMY][taxonomy_path]}  -o {output} {input}"
-           #old kaiju version
-           # "kaijuReport -t {config[TAXONOMY][KAIJU][nodes]} -n {config[TAXONOMY][KAIJU][names]} "
-           # "-i {input} {config[TAXONOMY][taxonomy_path]}  -o {output}"
 
 if config["TAXONOMY"]["PROFILING"] not in "KRAKEN KAIJU ALL":
     rule create_taxo_out:
@@ -274,6 +261,7 @@ if config["TAXONOMY"]["PROFILING"] not in "KRAKEN KAIJU ALL":
             "{PROJECT}/runs/{run}/{sample}_data/no_tax.txt"
         shell:
             "touch {output}"
+
 elif config["TAXONOMY"]["PROFILING"] == "ALL":
     rule merge_taxonomy_outs:
         """
@@ -287,9 +275,6 @@ elif config["TAXONOMY"]["PROFILING"] == "ALL":
         shell:
             "touch {output}"
 
-
-
-
 if config["ASSEMBLER"] == "SPADES":
     rule fq2fasta:
         input:
@@ -302,14 +287,12 @@ if config["ASSEMBLER"] == "SPADES":
             "{PROJECT}/runs/{run}/{sample}_data/trimmed/fq2fasta.benchmark"
         shell:
             "fq2fa --merge {input.read1_paired} {input.read2_paired} {output}"
-
     rule concat_single_reads:
         input:
             read1_single="{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_singles.fq",
             read2_single="{PROJECT}/runs/{run}/{sample}_data/trimmed/read2_singles.fq",
             tmp_seq="{PROJECT}/runs/{run}/{sample}_data/trimmed/sequali/sequali.html" if config["QC"]["onTrimmedReads"].lower() == "t"
             else []
-            
         output:
             "{PROJECT}/runs/{run}/{sample}_data/trimmed/all_singles.fq"
         benchmark:
@@ -335,8 +318,6 @@ if config["ASSEMBLER"] == "SPADES":
             "nice -{config[spades][nice]} spades.py --meta -t {config[spades][threads]} -m {config[spades][memory]} "
             "-k {config[spades][kmers]} --12 {input.reads_paired} -s {input.read12_singles} "
             "{config[spades][extra_params]} -o {params}"
-
-
     rule meta_spades:
         input:
             read1_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_paired.fq",
@@ -355,7 +336,6 @@ if config["ASSEMBLER"] == "SPADES":
             "nice -{config[spades][nice]} spades.py --meta -t {config[spades][threads]} -m {config[spades][memory]} "
             "-k {config[spades][kmers]} --pe1-1 {input.read1_paired} --pe1-2 {input.read2_paired} --pe1-s {input.read12_singles} "
             "{config[spades][extra_params]} -o {params}"
-
     rule std_assembly_meta_spades:
         input:
             contigs="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/contigs.fasta",
@@ -373,7 +353,6 @@ if config["ASSEMBLER"] == "MEGAHIT":
             read2_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read2_paired.fq",
             tmp_seq="{PROJECT}/runs/{run}/{sample}_data/trimmed/sequali/sequali.html" if config["QC"]["onTrimmedReads"].lower() == "t"
             else []
-            
         output:
             "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/final.contigs.fa"
         params:
@@ -392,13 +371,6 @@ if config["ASSEMBLER"] == "MEGAHIT":
             scaffolds="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_scaffolds.fasta"
         shell:
             "mv {input.contig} {output.contigs} && ln -sr {output.contigs} {output.scaffolds}"
-    #rule std_assembly_megahit_step2:
-    #    input:
-    #        contig="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/contigs.fasta"
-    #    output:
-    #        scaffolds="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/scaffolds.fasta"
-    #    shell:
-    #        "ln -sr {input.contig} scaffolds.fasta"
 
 if config["ASSEMBLER"] == "IDBA":
     rule fq2fasta:
@@ -407,7 +379,6 @@ if config["ASSEMBLER"] == "IDBA":
             read2_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read2_paired.fq",
             tmp_seq="{PROJECT}/runs/{run}/{sample}_data/trimmed/sequali/sequali.html" if config["QC"]["onTrimmedReads"].lower() == "t"
             else []
-            
         output:
             "{PROJECT}/runs/{run}/{sample}_data/trimmed/reads_merged.fasta"
         benchmark:
@@ -459,8 +430,6 @@ if config["ASSEMBLER"] == "ASSEMBLED":
         shell:
             "ln -s {input.contigs} {output.contigs} && ln -s {input.contigs} {output.scaffolds}"
 
-
-
 rule quast_libs:
     input:
         "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.fasta"
@@ -472,7 +441,6 @@ rule quast_libs:
 rule quast_contigs:
     input:
         "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.fasta"
-        #"{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/quast/quast_lib_config.txt"
     output:
         "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/quast/contigs/report.txt"
     params:
@@ -487,7 +455,6 @@ rule quast_contigs:
 rule quast_scaffolds:
     input:
         scaffolds="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_scaffolds.fasta"
-        #tmp_i="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/quast/quast_lib_config.txt"
     output:
         "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/quast/scaffolds/report.txt"
     params:
@@ -498,8 +465,6 @@ rule quast_scaffolds:
         int(config["quast"]["threads"])
     shell:
         "quast.py -t {config[quast][threads]} -o {params} -s {config[quast][extra_params]}  {input.scaffolds}"
-
-
 
 if config["SPLIT_ASSEMBLY"] == "T":
     """
@@ -556,7 +521,6 @@ rule merge_assembly_stats:
     input:
         expand("{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/quast/validate_assembly.txt", PROJECT=config["PROJECT"],sample=config["SAMPLES"], run=run)
     output:
-        #"{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/quast/stats_assembly.tsv"
         "{PROJECT}/runs/{run}/tables/stats_assembly.tsv"
     benchmark:
         "{PROJECT}/runs/{run}/tables/stats_assembly.benchmark"
@@ -569,12 +533,6 @@ rule merge_assembly_stats:
         "    sample=$(echo $file | awk -F'/' '{{gsub(\"_data\",\"\",$4); print $4}}'); "
         "    cat $file | awk -F\"\\t\" -v s=$sample 'NR>1{{l=s;for(i=1;i<=NF;i++){{l=l\"\\t\"$i}}; print l >> \"{output}\"}}'; "
         " done "
-        #" echo -e \"Sample\\tAssembly\\tNum. contigs (>= 0 bp)\\tNum. contigs (>= 1000 bp)\\tNum. contigs (>= 5000 bp)\\tNum. contigs (>= 10000 bp)\\tNum. contigs (>= 25000 bp)\\tNum. contigs (>= 50000 bp)\\tTotal length (>= 0 bp)\\tTotal length (>= 1000 bp)\\tTotal length (>= 5000 bp)\\tTotal length (>= 10000 bp)\\tTotal length (>= 25000 bp)\\tTotal length (>= 50000 bp)\\tNum. contigs\\tLargest contig\\tTotal length\\tGC (%)\\tN50\\tN90\\tauN\\tL50\\tL90\\tNum. N's per 100 kbp\" > {output} ;"
-        #" for file in `ls Diff_matrix/runs/all_vs_all/*_data/assembly_SPADES/quast/*/transposed_report.tsv`;  "
-        #"  do "
-        #"    sample=$(echo $file | awk -F'/' '{{gsub(\"_data\",\"\",$4); print $4}}'); "
-        #"    cat $file | awk -F\"\\t\" -v s=$sample 'NR>1{{l=s;for(i=1;i<=NF;i++){{l=l\"\\t\"$i}}; print l >> \"{output}\"}}'; "
-        #" done "
 
 rule create_yaml_assembly_stats_tbl:
     output:
@@ -586,15 +544,11 @@ rule datavzrd_assembly:
     input:
         config="{PROJECT}/runs/{run}/tables/assembly.yaml",
         table="{PROJECT}/runs/{run}/tables/stats_assembly.tsv"
-        #table="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/quast/stats_assembly.tsv"
     output:
         report(
             directory("{PROJECT}/runs/{run}/tables/assembly_"+config["ASSEMBLER"]+"/quast/"),
-            #directory("{PROJECT}/runs/{run}/tables/assembly_"+config["ASSEMBLER"]+"/quast/tbl/"),
             htmlindex="index.html",
-            #category="1. Project Information",
             category="4. Assembly",
-            #subcategory="Assembler: " + config["ASSEMBLER"],
             labels={"Assembler": ""+ config["ASSEMBLER"]},
         ),
     wrapper:
@@ -603,7 +557,6 @@ rule datavzrd_assembly:
   #cp gm_key_64 ~/.gm_key
 rule bwa_index:
     input:
-        #tmp_flw="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/quast/validate_assembly.txt",
         tmp_flw="{PROJECT}/runs/{run}/tables/assembly_"+config["ASSEMBLER"]+"/quast/",
         assembly="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_scaffolds.fasta"
         if config["ANALYSIS"] == "SCAFFOLDS" else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.fasta"
@@ -641,7 +594,6 @@ rule bwa_mem_new:
         r1="{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_paired.fq",
         r2="{PROJECT}/runs/{run}/{sample}_data/trimmed/read2_paired.fq",
         allidx=expand("{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_assembly.bwt", PROJECT=config["PROJECT"],sample=config["SAMPLES"], run=run)
-        #tmp_flw="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_assembly.bwt"
     output:
         "{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_mapped_against_cross-assembly_sorted.bam___"
     benchmark:
@@ -662,7 +614,6 @@ rule bwa_mem_mtx:
         r1=expand("{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_paired.fq", PROJECT=config["PROJECT"],sample=config["SAMPLES"], run=run),
         r2=expand("{PROJECT}/runs/{run}/{sample}_data/trimmed/read2_paired.fq",  PROJECT=config["PROJECT"],sample=config["SAMPLES"], run=run),
         idx="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_assembly.bwt"
-        #tmp_flw="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_assembly.bwt"
     output:
         "{PROJECT}/runs/{run}/{sample}_data/bwa-mem/bwa-mem_cmds.log"
     benchmark:
@@ -721,7 +672,6 @@ rule merge_mapping_stats:
         if config["bwa"]["differential_coverage_matrix"].lower() == "f" else
         "{PROJECT}/runs/{run}/{sample}_data/bwa-mem/sam-flagstat_cmds.log", PROJECT=config["PROJECT"],sample=config["SAMPLES"], run=run)
     output:
-        #"{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/quast/stats_assembly.tsv"
         "{PROJECT}/runs/{run}/tables/stats_bwa.tsv"
     benchmark:
         "{PROJECT}/runs/{run}/tables/stats_bwa.benchmark"
@@ -749,20 +699,14 @@ rule datavzrd_bwa:
     input:
         config="{PROJECT}/runs/{run}/tables/bwa.yaml",
         table="{PROJECT}/runs/{run}/tables/stats_bwa.tsv"
-        #table="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/quast/stats_assembly.tsv"
     output:
         report(
             directory("{PROJECT}/runs/{run}/tables/bwa"),
-            #directory("{PROJECT}/runs/{run}/tables/assembly_"+config["ASSEMBLER"]+"/quast/tbl/"),
             htmlindex="index.html",
-            #category="1. Project Information",
             category="5. Read Mapping",
-            #subcategory="Assembler: " + config["ASSEMBLER"],
-            #labels={"table", "Trimming results"},
         ),
     wrapper:
         "v4.7.2/utils/datavzrd"
-
 
 rule total_coverage:
     '''
@@ -777,6 +721,7 @@ rule total_coverage:
         "awk -F'\\t' 'NR>1{{print $1\"\\t\"$4}}' {input} > {output}"
         if config["bwa"]["differential_coverage_matrix"].lower() == "f" else
         "awk -F'\\t' 'NR > 1 {{for(x=1;x<=NF;x++) if(x == 1 || (x >= 4 && x % 2 == 0)) printf \"%s\", $x (x == NF || x == (NF-1) ? \"\\n\":\"\\t\")}}'  {input} > {output}"
+
 rule maxbin_coverage:
     input:
         "{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_depth.txt"
@@ -785,7 +730,6 @@ rule maxbin_coverage:
     shell:
         "awk -F '\\t' -v col=\"CONTIGS_SPADESvs_{wildcards.sample}_mapped_against_cross-assembly_sorted.bam\" 'NR==1{{for (i=1; i<=NF; i++) if ($i == col){{c=i; break}}}} NR>1{{print $1\"\\t\"$c}}' {input} > {output}"
 
-
 if config["BINNING"] == "METABAT" or config["BINNING"] == "DAS":
     rule metabat:
         input:
@@ -793,11 +737,6 @@ if config["BINNING"] == "METABAT" or config["BINNING"] == "DAS":
             assembly="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_scaffolds.fasta"
             if config["ANALYSIS"] == "SCAFFOLDS" else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.fasta"
         output:
-        #"{PROJECT}/runs/{run}/{sample}_data/metabat2/bin/metabat2.log",
-        #"{PROJECT}/runs/{run}/{sample}_data/metabat2/bin{number}.fa",
-        #expand("{PROJECT}/runs/{run}/{sample}_data/metabat2/bin{{number}}.fa",PROJECT=config["PROJECT"],sample=config["SAMPLES"], run=run),
-        #dynamic("{PROJECT}/runs/{run}/{sample}_data/metabat2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/bin.{number}.fa")
-        #"{PROJECT}/runs/{run}/{sample}_data/metabat2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/bin.{number}.fa"
             "{PROJECT}/runs/{run}/{sample}_data/binning/metabat2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/metabat.log"
         params:
             "{PROJECT}/runs/{run}/{sample}_data/binning/metabat2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/bin"
@@ -811,6 +750,7 @@ if config["BINNING"] == "METABAT" or config["BINNING"] == "DAS":
             "--minS {config[metabat2][min_score]} --maxP {config[metabat2][maxP]} "
             "--maxEdges {config[metabat2][maxEdge]} -s {config[metabat2][min_bin_size]} "
             "{config[metabat2][extra_params]}  > {output}"
+
 if config["BINNING"] == "MAXBIN" or (config["BINNING"] == "DAS" and config["das"]["maxbin"]["run"]=="T" ):
     rule maxbin:
         """
@@ -839,14 +779,13 @@ if config["BINNING"] == "MAXBIN" or (config["BINNING"] == "DAS" and config["das"
             "{config[maxbin][plotmarker]} {config[maxbin][extra_params]} > {output.log}"
 
 elif config["BINNING"] == "DAS" and config["das"]["maxbin"]["run"]!="T":
-   rule skip_maxbin:
+    rule skip_maxbin:
         output:
             log="{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/maxbin.log"
         shell:
             "touch {output}"
 
-if config["BINNING"] == "CONCOCT" or ( config["BINNING"] == "DAS"  and config["das"]["concoct"]["run"]=="T"):
-
+if config["BINNING"] == "CONCOCT" or ( config["BINNING"] == "DAS" and config["das"]["concoct"]["run"]=="T"):
     rule activate_concoct:
         output:
             concoct_activation="{PROJECT}/runs/{run}/concoct_activation.log"
@@ -861,9 +800,7 @@ if config["BINNING"] == "CONCOCT" or ( config["BINNING"] == "DAS"  and config["d
             depth="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_depth_avg.txt",
             assembly="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_scaffolds.fasta"
             if config["ANALYSIS"] == "SCAFFOLDS" else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.fasta"
-            #concoct_activation="{PROJECT}/runs/{run}/concoct_activation.log"
         output:
-            #log="{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/concoct.log",
             clustering="{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/bin_clustering_gt"+config["concoct"]["min_contig_length"]+".csv"
         params:
             "{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/bin"
@@ -877,7 +814,6 @@ if config["BINNING"] == "CONCOCT" or ( config["BINNING"] == "DAS"  and config["d
     we only use the clustering file to DAS to create new bins. NOT anymore! now we run 
     checkM for all the methods
     """
-#    if config["BINNING"] == "CONCOCT":
     rule extract_concoct_bins:
         input:
             assembly="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_scaffolds.fasta"
@@ -888,14 +824,10 @@ if config["BINNING"] == "CONCOCT" or ( config["BINNING"] == "DAS"  and config["d
         params:
             "{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/"
         shell:
-            #"/usr/local/bioinf/concoct-0.4/scripts/extract_fasta_bins.py  --output_path  {params} {input.assembly} {input.clustering} > {output.log}"
-            #"/export/data/aabdala/utils/CONCOCT/scripts/extract_fasta_bins.py  --output_path  {params} {input.assembly} {input.clustering} > {output.log}"
-            #"python /opt/biolinux/anaconda2.2019.07/pkgs/concoct-1.1.0-py27h88e4a8a_0/bin/extract_fasta_bins.py  --output_path  {params} {input.assembly} {input.clustering} > {output.log}"
-            #"python /export/data01/tools/concoct_scripts/concoct-0.4/extract_fasta_bins.py  --output_path  {params} {input.assembly} {input.clustering} > {output.log}"
-            #"/opt/biolinux/anaconda/73/3.2020.11/envs/concoct/bin/extract_fasta_bins.py --output_path  {params} {input.assembly} {input.clustering} > {output.log}"
             "extract_fasta_bins.py --output_path  {params} {input.assembly} {input.clustering} > {output.log}"
+
 elif config["BINNING"] == "DAS" and config["das"]["concoct"]["run"]!="T":
-   rule skip_concoct:
+    rule skip_concoct:
         output:
             log="{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/concoct.log",
             log2="{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/bin_clustering_gt"+config["concoct"]["min_contig_length"]+".csv"
@@ -915,8 +847,6 @@ if config["BINNING"] == "BINSANITY" or (config["BINNING"] == "DAS" and config["d
             "cat {input} | awk 'NR>1 && $4>1{{ if($4 <= 1) a = 0; else  a = log($4)/log(10); printf(\"%s\\t%0.4f\\n\",$1,a)}}' > {output}"
             if config["bwa"]["differential_coverage_matrix"].lower() == "f" else
             "cat {input} | awk -F '\\t' 'NR > 1 {{for(x=1;x<=NF;x++) if(x == 1 || (x >= 4 && x % 2 == 0)) {{if($x <= 1) a = 0; else if(x == 1) a = $x; else  a = log($x)/log(10);  printf \"%s\", a (x == NF || x == (NF-1) ? \"\\n\":\"\\t\")}}}}' > {output}"
-            #"cat {input} | awk 'NR>1 {{print $1,log($3+1)/log(10)}}' > {output}"
-
     rule filter_fasta_by_coverage:
         input:
             depth="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_depth_avg_log.txt",
@@ -926,7 +856,6 @@ if config["BINNING"] == "BINSANITY" or (config["BINNING"] == "DAS" and config["d
             temp("{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/assembly_coverage_gt0.fasta")
         shell:
             "cat {input.depth} | cut -f1 | grep -w -A1 --no-group-separator -F -f - {input.fasta}  > {output}" 
-
     rule bin_sanity:
         input:
             depth="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_depth_avg_log.txt",
@@ -948,8 +877,9 @@ if config["BINNING"] == "BINSANITY" or (config["BINNING"] == "DAS" and config["d
             #"/export/data/aabdala/utils/BInSanity/BinSanity-master/bin/Binsanity-wf -f {params.contig_directory} -l {params.assembly} -c {input.depth} -o {params.bin_directory} --binPrefix  final "
             "-p {config[binsanity][preference]} -x {config[binsanity][min_contig_length]} --threads {config[binsanity][threads]} "
             "{config[binsanity][extra_params]}"
+
 elif config["BINNING"] == "DAS" and config["das"]["binsanity"]["run"]!="T":
-   rule skip_bin_sanity:
+    rule skip_bin_sanity:
         output:
             log="{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanityWf.log"
         shell:
@@ -1001,10 +931,6 @@ if config["BINNING"] == "DAS":
         threads:
             int(config["das"]["threads"])
         shell:
-            #"DAS_Tool -i {input.metabat_bin2t},{input.maxbin_bin2t},{input.concoct_bin2t},{input.binsanity_bin2t} "
-            #"-l metabat,maxbin,concoct,binsanity -c {input.assembly} -t {config[das][threads]} "
-            #"--write_bins 1 --db_directory {config[das][db]} --search_engine {config[das][search_engine]} "
-            #"--create_plots 1 {config[das][extra_params]} -o {params} > {output.log}"
             "DAS_Tool -i {input.metabat_bin2t}{params.mx_input}{params.cc_input}{params.bs_input} "
             "-l metabat{params.mx_l}{params.cc_l}{params.bs_l} -c {input.assembly} -t {config[das][threads]} "
             "--write_bins  --dbDirectory {config[das][db]} --search_engine {config[das][search_engine]} "
@@ -1018,79 +944,78 @@ else:
         shell:
             "touch {output}"
 
-
 rule checkM_metabat2:
-   input:
-       "{PROJECT}/runs/{run}/{sample}_data/binning/metabat2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/metabat.log"
-   params:
-       bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/metabat2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/",
-       out_folder="{PROJECT}/runs/{run}/{sample}_data/binning/checkM_metabat2/",
-       bin_ext="fa"
-   output:
-       out_file="{PROJECT}/runs/{run}/{sample}_data/binning/checkM_metabat2/summary.txt"
-   threads:
-       int(config["checkM"]["threads"])
-   shell:
-       "checkm lineage_wf -f {output.out_file} -t  {config[checkM][threads]} -x {params.bin_ext} {config[checkM][extra_params]} {params.bin_folder} {params.out_folder} "
+    input:
+        "{PROJECT}/runs/{run}/{sample}_data/binning/metabat2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/metabat.log"
+    params:
+        bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/metabat2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/",
+        out_folder="{PROJECT}/runs/{run}/{sample}_data/binning/checkM_metabat2/",
+        bin_ext="fa"
+    output:
+        out_file="{PROJECT}/runs/{run}/{sample}_data/binning/checkM_metabat2/summary.txt"
+    threads:
+        int(config["checkM"]["threads"])
+    shell:
+        "checkm lineage_wf -f {output.out_file} -t  {config[checkM][threads]} -x {params.bin_ext} {config[checkM][extra_params]} {params.bin_folder} {params.out_folder} "
 
 rule checkM_maxbin:
-   input:
-       "{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/maxbin.log"
-   params:
-       bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/",
-       out_folder="{PROJECT}/runs/{run}/{sample}_data/binning/checkM_maxbin/",
-       bin_ext="fasta"
-   output:
-       out_file="{PROJECT}/runs/{run}/{sample}_data/binning/checkM_maxbin/summary.txt"
-   threads:
-       int(config["checkM"]["threads"])
-   shell:
-       "checkm lineage_wf -f {output.out_file} -t  {config[checkM][threads]} -x {params.bin_ext} {config[checkM][extra_params]} {params.bin_folder} {params.out_folder} "
+    input:
+        "{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/maxbin.log"
+    params:
+        bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/",
+        out_folder="{PROJECT}/runs/{run}/{sample}_data/binning/checkM_maxbin/",
+        bin_ext="fasta"
+    output:
+        out_file="{PROJECT}/runs/{run}/{sample}_data/binning/checkM_maxbin/summary.txt"
+    threads:
+        int(config["checkM"]["threads"])
+    shell:
+        "checkm lineage_wf -f {output.out_file} -t  {config[checkM][threads]} -x {params.bin_ext} {config[checkM][extra_params]} {params.bin_folder} {params.out_folder} "
 
 rule checkM_concoct:
-   input:
-       "{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/concoct.log"
-   params:
-       bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/",
-       out_folder="{PROJECT}/runs/{run}/{sample}_data/binning/checkM_concoct/",
-       bin_ext="fa",
-       res_folder="/export/lv3/scratch/workshop_2021/S12_Pipelines/{sample}/checkM_concoct/"
-   output:
-       out_file="{PROJECT}/runs/{run}/{sample}_data/binning/checkM_concoct/summary.txt"
-   shell:
-       "checkm lineage_wf -f {output.out_file} -t  {config[checkM][threads]} -x {params.bin_ext} {config[checkM][extra_params]} {params.bin_folder} {params.out_folder} "
+    input:
+        "{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/concoct.log"
+    params:
+        bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/",
+        out_folder="{PROJECT}/runs/{run}/{sample}_data/binning/checkM_concoct/",
+        bin_ext="fa",
+        res_folder="/export/lv3/scratch/workshop_2021/S12_Pipelines/{sample}/checkM_concoct/"
+    output:
+        out_file="{PROJECT}/runs/{run}/{sample}_data/binning/checkM_concoct/summary.txt"
+    shell:
+        "checkm lineage_wf -f {output.out_file} -t  {config[checkM][threads]} -x {params.bin_ext} {config[checkM][extra_params]} {params.bin_folder} {params.out_folder} "
 
 rule checkM_binsanity:
-   input:
-       "{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanityWf.log"
-   params:
-       bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanity-Final-bins/",
-       out_folder="{PROJECT}/runs/{run}/{sample}_data/binning/checkM_binsanity/",
-       bin_ext="fna"
-   threads:
-       int(config["checkM"]["threads"])         
-   output:
-       out_file="{PROJECT}/runs/{run}/{sample}_data/binning/checkM_binsanity/summary.txt"
-   shell:
-       "checkm lineage_wf -f {output.out_file} -t  {config[checkM][threads]} -x {params.bin_ext} {config[checkM][extra_params]} {params.bin_folder} {params.out_folder} "
+    input:
+        "{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanityWf.log"
+    params:
+        bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanity-Final-bins/",
+        out_folder="{PROJECT}/runs/{run}/{sample}_data/binning/checkM_binsanity/",
+        bin_ext="fna"
+    threads:
+        int(config["checkM"]["threads"])         
+    output:
+        out_file="{PROJECT}/runs/{run}/{sample}_data/binning/checkM_binsanity/summary.txt"
+    shell:
+        "checkm lineage_wf -f {output.out_file} -t  {config[checkM][threads]} -x {params.bin_ext} {config[checkM][extra_params]} {params.bin_folder} {params.out_folder} "
 
 rule checkM_das:
-   input:
-       "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log",
-       "{PROJECT}/runs/{run}/{sample}_data/binning/checkM_metabat2/summary.txt",
-       "{PROJECT}/runs/{run}/{sample}_data/binning/checkM_maxbin/summary.txt" if config["das"]["maxbin"]["run"]=="T" and  config["das"]["maxbin"]["checkm_analysis"]=="T"  else "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log",
-       "{PROJECT}/runs/{run}/{sample}_data/binning/checkM_concoct/summary.txt" if config["das"]["concoct"]["run"]=="T" and config["das"]["concoct"]["checkm_analysis"]=="T"  else "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log",
-       "{PROJECT}/runs/{run}/{sample}_data/binning/checkM_binsanity/summary.txt" if config["das"]["binsanity"]["run"]=="T" and config["das"]["binsanity"]["checkm_analysis"]=="T" else "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log"
-   params:
-       bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/DasOut_DASTool_bins/",
-       out_folder="{PROJECT}/runs/{run}/{sample}_data/binning/checkM_das/",
-       bin_ext="fa"
-   output:
-       out_file="{PROJECT}/runs/{run}/{sample}_data/binning/checkM_das/summary.txt"
-   threads:
-       int(config["checkM"]["threads"])
-   shell:
-      "checkm lineage_wf -f {output.out_file} -t  {config[checkM][threads]} -x {params.bin_ext} {config[checkM][extra_params]} {params.bin_folder} {params.out_folder} "
+    input:
+        "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log",
+        "{PROJECT}/runs/{run}/{sample}_data/binning/checkM_metabat2/summary.txt",
+        "{PROJECT}/runs/{run}/{sample}_data/binning/checkM_maxbin/summary.txt" if config["das"]["maxbin"]["run"]=="T" and  config["das"]["maxbin"]["checkm_analysis"]=="T"  else "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log",
+        "{PROJECT}/runs/{run}/{sample}_data/binning/checkM_concoct/summary.txt" if config["das"]["concoct"]["run"]=="T" and config["das"]["concoct"]["checkm_analysis"]=="T"  else "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log",
+        "{PROJECT}/runs/{run}/{sample}_data/binning/checkM_binsanity/summary.txt" if config["das"]["binsanity"]["run"]=="T" and config["das"]["binsanity"]["checkm_analysis"]=="T" else "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log"
+    params:
+        bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/DasOut_DASTool_bins/",
+        out_folder="{PROJECT}/runs/{run}/{sample}_data/binning/checkM_das/",
+        bin_ext="fa"
+    output:
+        out_file="{PROJECT}/runs/{run}/{sample}_data/binning/checkM_das/summary.txt"
+    threads:
+        int(config["checkM"]["threads"])
+    shell:
+        "checkm lineage_wf -f {output.out_file} -t  {config[checkM][threads]} -x {params.bin_ext} {config[checkM][extra_params]} {params.bin_folder} {params.out_folder} "
 
 rule checkM_bins:
     input:
@@ -1228,8 +1153,6 @@ rule gtdbtk_bins:
     shell:
         "ln -s ../{params.dir}/summary.txt {output}"
 
-
-
 rule summarize_gtdbtk:
     input:
         "{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_metabat2/summary.txt"
@@ -1303,7 +1226,6 @@ rule bin_cvg_concoct:
     shell:
         "Scripts/summary_coverage_concoct.sh {params.bin_folder} {params.bin_ext} {params.coverage} {output}" 
        
-       
 rule bin_cvg_maxbin:
     input:
         "{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/maxbin.log"
@@ -1317,7 +1239,6 @@ rule bin_cvg_maxbin:
     shell:
         "Scripts/summary_coverage_maxbin.sh {params.bin_folder} {params.bin_ext} {params.coverage} {output}" 
  
-       
 rule bin_cvg_binsanity:
     input:
         "{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanityWf.log"
@@ -1331,22 +1252,21 @@ rule bin_cvg_binsanity:
     shell:
         "Scripts/summary_coverage_bs.sh {params.bin_folder} {params.bin_ext} {params.coverage} {output}" 
  
-
 rule bin_cvg_das:
-     input:
+    inppt:
         "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log",
         "{PROJECT}/runs/{run}/{sample}_data/binning/abundance.metabat.tsv",
         "{PROJECT}/runs/{run}/{sample}_data/binning/abundance.maxbin.tsv",
         "{PROJECT}/runs/{run}/{sample}_data/binning/abundance.concoct.tsv",
         "{PROJECT}/runs/{run}/{sample}_data/binning/abundance.binsanity.tsv"
-     params:
+    params:
         bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/DasOut_DASTool_bins/",
         out_folder="{PROJECT}/runs/{run}/{sample}_data/binning/",
         bin_ext="fa",
         coverage="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_depth.txt"
-     output:
+    output:
         "{PROJECT}/runs/{run}/{sample}_data/binning/abundance.das.tsv"
-     shell:
+    shell:
         "Scripts/summary_coverage_das.sh {params.bin_folder} {params.bin_ext} {params.coverage} {output}" 
  
 rule summarize_coverage:
@@ -1396,7 +1316,6 @@ rule gc_prc_concoct:
     shell:
         "Scripts/computeGC.sh {params.bin_folder} {params.bin_ext}  {output}"
 
-
 rule gc_prc_maxbin:
     input:
         "{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/maxbin.log"
@@ -1409,7 +1328,6 @@ rule gc_prc_maxbin:
         "{PROJECT}/runs/{run}/{sample}_data/binning/gc_prc.maxbin.tsv"
     shell:
         "Scripts/computeGC.sh {params.bin_folder} {params.bin_ext} {output}"
-
 
 rule gc_prc_binsanity:
     input:
@@ -1425,20 +1343,20 @@ rule gc_prc_binsanity:
         "Scripts/computeGC.sh {params.bin_folder} {params.bin_ext} {output}"
         
 rule gc_prc_das:
-     input:
+    input:
         "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log",
         "{PROJECT}/runs/{run}/{sample}_data/binning/gc_prc.metabat.tsv",
         "{PROJECT}/runs/{run}/{sample}_data/binning/gc_prc.maxbin.tsv",
         "{PROJECT}/runs/{run}/{sample}_data/binning/gc_prc.concoct.tsv",
         "{PROJECT}/runs/{run}/{sample}_data/binning/gc_prc.binsanity.tsv"
-     params:
+    params:
         bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/DasOut_DASTool_bins/",
         out_folder="{PROJECT}/runs/{run}/{sample}_data/binning/",
         bin_ext="fa",
         coverage="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_depth.txt"
-     output:
+    output:
         "{PROJECT}/runs/{run}/{sample}_data/binning/gc_prc.das.tsv"
-     shell:
+    shell:
         "Scripts/computeGC.sh {params.bin_folder} {params.bin_ext} {output}"
 
 rule summarize_gc_prc:
@@ -1481,7 +1399,6 @@ if config["CREATE_UNBINNED"] == "T":
             "{PROJECT}/runs/{run}/{sample}_data/unbinned/unbinned_contigs_list.txt"
         shell:
             "cat {input.bin_table} | cut -f1 | grep -v -F -w -f - {input.assembly} | grep \"^>\" | sed 's/^>//' > {output}"
-    
     rule create_unbinned_fasta:
         input:
             unbinned_list="{PROJECT}/runs/{run}/{sample}_data/unbinned/unbinned_contigs_list.txt",
@@ -1491,7 +1408,6 @@ if config["CREATE_UNBINNED"] == "T":
             "{PROJECT}/runs/{run}/{sample}_data/unbinned/unbinned.fasta"
         shell:
             "seqtk subseq {input.assembly} {input.unbinned_list} > {output}"
-
 else:
     rule skip_create_unbinned:
         output:
@@ -1537,17 +1453,12 @@ rule prokka_bins:
         if config["BINNING"] == "BINSANITY" else
         "fna"
     benchmark:
-        #"{PROJECT}/runs/{run}/{sample}_data/binning/metabat2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/prokka.benchmark"
-        #if config["BINNING"] == "METABAT" else
-        #"{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/prokka.benchmark"
         "{PROJECT}/runs/{run}/{sample}_data/binning/prokka"+config["BINNING"]+"_bins.benchmark"
     script:
             "Scripts/annotateProkkaBins.py"
+
 rule diamond_bins:
     input:
-        #"{PROJECT}/runs/{run}/{sample}_data/binning/metabat2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/prokka.log"
-        #if config["BINNING"] == "METABAT" else
-        #"{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/prokka.log"
         "{PROJECT}/runs/{run}/{sample}_data/binning/metabat2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/prokka.log"
         if config["BINNING"] == "METABAT" else
         "{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/prokka.log"
@@ -1591,7 +1502,6 @@ rule diamond_bins:
     script:
         "Scripts/diamondProkkaBins.py"
 
-
 rule rename_Final_bins:
     input:
         bin_table="{PROJECT}/runs/{run}/{sample}_data/binning/metabat2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/binTable.tsv"
@@ -1619,7 +1529,7 @@ rule rename_Final_bins:
     output:
         "{PROJECT}/runs/{run}/{sample}_data/binning/FinalBins/new_names.txt"
     shell:
-        "Scripts/renameFinalBins.sh {params.bin_folder}  {params.bin_ext} {params.smp} {params.out_dir} {output}"  
+        "Scripts/renameFinalBins.sh {params.bin_folder} {params.bin_ext} {params.smp} {params.out_dir} {output}"  
 
 rule coverage_contigs_final_bins:
     input:
@@ -1660,20 +1570,16 @@ rule datavzrd_bins:
     input:
         config="{PROJECT}/runs/{run}/tables/bins.yaml",
         table=expand("{PROJECT}/runs/{run}/{sample}_data/binning/FinalBins.summary.tsv", PROJECT=config["PROJECT"],sample=config["SAMPLES"], run=run)
-        #table="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/quast/stats_assembly.tsv"
     output:
         report(
             directory("{PROJECT}/runs/{run}/tables/bins/{sample}"),
             htmlindex="index.html",
-            #category="1. Project Information",
             category="6. Binning",
             subcategory="{sample}",
             labels={"sample":"{sample}"}, 
-            #labels={"table", "Trimming results"},
         ),
     wrapper:
         "v4.7.2/utils/datavzrd"
-
 
 rule report:
     input:
