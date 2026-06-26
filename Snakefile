@@ -750,9 +750,8 @@ if config["BINNING"] == "METABAT" or config["BINNING"] == "DAS":
             "--minS {config[metabat2][min_score]} --maxP {config[metabat2][maxP]} "
             "--maxEdges {config[metabat2][maxEdge]} -s {config[metabat2][min_bin_size]} "
             "{config[metabat2][extra_params]}  > {output}"
-
-if config["BINNING"] != "METABAT":
-    rule skip_maxbin:
+elif config["BINNING"] != "METABAT":
+    rule skip_metabat:
         output:
             log="{PROJECT}/runs/{run}/{sample}_data/binning/metabat2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/metabat.log"
         shell:
@@ -784,8 +783,7 @@ if config["BINNING"] == "MAXBIN" or (config["BINNING"] == "DAS" and config["das"
             "-prob_threshold {config[maxbin][prob_threshold]} -markerset {config[maxbin][markerset]} "
             "-min_contig_length {config[maxbin][min_contig_length]}  "
             "{config[maxbin][plotmarker]} {config[maxbin][extra_params]} > {output.log}"
-
-if (config["BINNING"] == "DAS" and config["das"]["maxbin"]["run"]!="T") or config["BINNING"] != "MAXBIN":
+elif (config["BINNING"] == "DAS" and config["das"]["maxbin"]["run"]!="T") or config["BINNING"] != "MAXBIN":
     rule skip_maxbin:
         output:
             log="{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/maxbin.log"
@@ -832,8 +830,7 @@ if config["BINNING"] == "CONCOCT" or ( config["BINNING"] == "DAS" and config["da
             "{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/"
         shell:
             "extract_fasta_bins.py --output_path  {params} {input.assembly} {input.clustering} > {output.log}"
-
-if (config["BINNING"] == "DAS" and config["das"]["concoct"]["run"]!="T") or config["BINNING"] != "CONCOCT":
+elif (config["BINNING"] == "DAS" and config["das"]["concoct"]["run"]!="T") or config["BINNING"] != "CONCOCT":
     rule skip_concoct:
         output:
             log="{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/concoct.log",
@@ -884,8 +881,7 @@ if config["BINNING"] == "BINSANITY" or (config["BINNING"] == "DAS" and config["d
             #"/export/data/aabdala/utils/BInSanity/BinSanity-master/bin/Binsanity-wf -f {params.contig_directory} -l {params.assembly} -c {input.depth} -o {params.bin_directory} --binPrefix  final "
             "-p {config[binsanity][preference]} -x {config[binsanity][min_contig_length]} --threads {config[binsanity][threads]} "
             "{config[binsanity][extra_params]}"
-
-if (config["BINNING"] == "DAS" and config["das"]["binsanity"]["run"]!="T") or config["BINNING"] != "BINSANITY":
+elif (config["BINNING"] == "DAS" and config["das"]["binsanity"]["run"]!="T") or config["BINNING"] != "BINSANITY":
     rule skip_bin_sanity:
         output:
             log="{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanityWf.log"
