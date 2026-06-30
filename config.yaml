@@ -218,7 +218,8 @@ trimm:
   threads: 15
   clip:
     type: "ILLUMINACLIP"
-    adapter: "/export/lv1/user/aabdala/.conda/envs/metac4/share/trimmomatic/adapters/TruSeq3-PE-2.fa"
+    # adapter: "resources/adapters/TruSeq3-PE-2.fa"
+    # adapter: "/export/lv1/user/aabdala/.conda/envs/metac4/share/trimmomatic/adapters/TruSeq3-PE-2.fa"
     # adapter: "/.conda/envs/metac4/share/trimmomatic/adapters/TruSeq3-PE-2.fa"
     seed: 1
     palindrome_ct: 30
