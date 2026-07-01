@@ -212,6 +212,7 @@ QC:
 
 # Blokje bij 'sliding type' opdelen in windowzise & required quality
 # trimming = 'N' -> Je kan dan geen SPADES gebruiken ivm singles file gegenereerd door trimmomatic
+# Make an option in spades without singles
 trimm:
   trimming: "T"
   mode: "PE"
@@ -505,6 +506,8 @@ jgi_summ:
 # After selecting the target method, you can fine tune the options for each    #
 # tool, using the options below                                                #                           
 #------------------------------------------------------------------------------#
+
+# The settings are more sensitive for DAS, if you don't use DAS make sure you change the settings to less sensitive
 BINNING: "METABAT"
 
 #------------------------------------------------------------------------------#

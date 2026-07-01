@@ -320,7 +320,8 @@ if config["ASSEMBLER"] == "SPADES":
         input:
             reads_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/reads_merged.fasta" if config["gzip_input"] == "F"
             else "{PROJECT}/runs/{run}/{sample}_data/trimmed/reads_merged.fastq.gz",
-            read12_singles="{PROJECT}/runs/{run}/{sample}_data/trimmed/all_singles.fq"
+            read12_singles="{PROJECT}/runs/{run}/{sample}_data/trimmed/all_singles.fq" if config["trimm"]["trimming"] == "T"
+            else []
         output:
             "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/contigs.fasta_tmp",
             "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/scaffolds.fasta_tmp"
@@ -331,14 +332,23 @@ if config["ASSEMBLER"] == "SPADES":
         conda:
             "envs/spades.yaml"
         shell:
-            "nice -{config[spades][nice]} spades.py --meta -t {config[spades][threads]} -m {config[spades][memory]} "
-            "-k {config[spades][kmers]} --12 {input.reads_paired} -s {input.read12_singles} "
-            "{config[spades][extra_params]} -o {params}"
+            """
+            if [[ {config[trimm][trimming]} == "T"]]; then
+                nice -{config[spades][nice]} spades.py --meta -t {config[spades][threads]} -m {config[spades][memory]} 
+                -k {config[spades][kmers]} --12 {input.reads_paired} -s {input.read12_singles} 
+                {config[spades][extra_params]} -o {params}
+            else
+                nice -{config[spades][nice]} spades.py --meta -t {config[spades][threads]} -m {config[spades][memory]} 
+                -k {config[spades][kmers]} --12 {input.reads_paired} 
+                {config[spades][extra_params]} -o {params}
+            fi
+            """
     rule meta_spades:
         input:
             read1_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_paired.fq",
             read2_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read2_paired.fq",
-            read12_singles="{PROJECT}/runs/{run}/{sample}_data/trimmed/all_singles.fq"
+            read12_singles="{PROJECT}/runs/{run}/{sample}_data/trimmed/all_singles.fq" if config["trimm"]["trimming"] == "T"
+            else []
         output:
             "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/contigs.fasta",
             "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/scaffolds.fasta"
@@ -351,9 +361,17 @@ if config["ASSEMBLER"] == "SPADES":
         conda:
             "envs/spades.yaml"
         shell:
-            "nice -{config[spades][nice]} spades.py --meta -t {config[spades][threads]} -m {config[spades][memory]} "
-            "-k {config[spades][kmers]} --pe1-1 {input.read1_paired} --pe1-2 {input.read2_paired} --pe1-s {input.read12_singles} "
-            "{config[spades][extra_params]} -o {params}"
+            """
+            if [[ {config[trimm][trimming]} == "T"]]; then
+                nice -{config[spades][nice]} spades.py --meta -t {config[spades][threads]} -m {config[spades][memory]} 
+                -k {config[spades][kmers]} --pe1-1 {input.read1_paired} --pe1-2 {input.read2_paired} --pe1-s {input.read12_singles} 
+                {config[spades][extra_params]} -o {params}
+            else
+                nice -{config[spades][nice]} spades.py --meta -t {config[spades][threads]} -m {config[spades][memory]} 
+                -k {config[spades][kmers]} --pe1-1 {input.read1_paired} --pe1-2 {input.read2_paired}
+                {config[spades][extra_params]} -o {params}
+            fi
+            """
     rule std_assembly_meta_spades:
         input:
             contigs="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/contigs.fasta",
