@@ -135,12 +135,11 @@ else:
         shell:
             """
             touch {output.no_trimm}
-            if [[ {config[gzip_input]} == "T" ]]; then
-                gzip -cd  {input.fw} {output.read1_paired}
-                gzip -cd  {input.rv} {output.read2_paired}
+            
+            if [[ "{config[gzip_input]}" == "T" ]]; then
+                zcat {input.fw} > {output.read1_paired} && zcat {input.rv} > {output.read2_paired}
             else
-                cp {input.fw} {output.read1_paired}
-                cp {input.rv} {output.read2_paired}
+                cp {input.fw} {output.read1_paired} && cp {input.rv} {output.read2_paired}
             fi
             """
 
@@ -333,13 +332,13 @@ if config["ASSEMBLER"] == "SPADES":
             "envs/spades.yaml"
         shell:
             """
-            if [[ {config[trimm][trimming]} == "T"]]; then
-                nice -{config[spades][nice]} spades.py --meta -t {config[spades][threads]} -m {config[spades][memory]} 
-                -k {config[spades][kmers]} --12 {input.reads_paired} -s {input.read12_singles} 
+            if [[ "{config[trimm][trimming]}" == "T" ]]; then
+                nice -{config[spades][nice]} spades.py --meta -t {config[spades][threads]} -m {config[spades][memory]} \
+                -k {config[spades][kmers]} --12 {input.reads_paired} -s {input.read12_singles} \
                 {config[spades][extra_params]} -o {params}
             else
-                nice -{config[spades][nice]} spades.py --meta -t {config[spades][threads]} -m {config[spades][memory]} 
-                -k {config[spades][kmers]} --12 {input.reads_paired} 
+                nice -{config[spades][nice]} spades.py --meta -t {config[spades][threads]} -m {config[spades][memory]} \
+                -k {config[spades][kmers]} --12 {input.reads_paired} \
                 {config[spades][extra_params]} -o {params}
             fi
             """
@@ -362,13 +361,13 @@ if config["ASSEMBLER"] == "SPADES":
             "envs/spades.yaml"
         shell:
             """
-            if [[ {config[trimm][trimming]} == "T"]]; then
-                nice -{config[spades][nice]} spades.py --meta -t {config[spades][threads]} -m {config[spades][memory]} 
-                -k {config[spades][kmers]} --pe1-1 {input.read1_paired} --pe1-2 {input.read2_paired} --pe1-s {input.read12_singles} 
+            if [[ "{config[trimm][trimming]}" == "T" ]]; then
+                nice -{config[spades][nice]} spades.py --meta -t {config[spades][threads]} -m {config[spades][memory]} \
+                -k {config[spades][kmers]} --pe1-1 {input.read1_paired} --pe1-2 {input.read2_paired} --pe1-s {input.read12_singles} \
                 {config[spades][extra_params]} -o {params}
             else
-                nice -{config[spades][nice]} spades.py --meta -t {config[spades][threads]} -m {config[spades][memory]} 
-                -k {config[spades][kmers]} --pe1-1 {input.read1_paired} --pe1-2 {input.read2_paired}
+                nice -{config[spades][nice]} spades.py --meta -t {config[spades][threads]} -m {config[spades][memory]} \
+                -k {config[spades][kmers]} --pe1-1 {input.read1_paired} --pe1-2 {input.read2_paired} \
                 {config[spades][extra_params]} -o {params}
             fi
             """
@@ -1646,7 +1645,7 @@ rule datavzrd_bins:
         table=expand("{PROJECT}/runs/{run}/{sample}_data/binning/FinalBins.summary.tsv", PROJECT=config["PROJECT"],sample=config["SAMPLES"], run=run)
     output:
         report(
-            directory("{PROJECT}/runs/{run}/tables/bins"),
+            directory("{PROJECT}/runs/{run}/tables/bins/{sample}"),
             htmlindex="index.html",
             category="6. Binning",
             subcategory="{sample}",
