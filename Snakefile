@@ -1640,7 +1640,8 @@ rule create_yaml_bins_tbl:
 rule datavzrd_bins:
     input:
         config="{PROJECT}/runs/{run}/tables/bins.yaml",
-        table=expand("{PROJECT}/runs/{run}/{sample}_data/binning/FinalBins.summary.tsv", PROJECT=config["PROJECT"],sample=config["SAMPLES"], run=run)
+        # table=expand("{PROJECT}/runs/{run}/{sample}_data/binning/FinalBins.summary.tsv", PROJECT=config["PROJECT"],sample=config["SAMPLES"], run=run)
+        table="{PROJECT}/runs/{run}/{sample}_data/binning/FinalBins.summary.tsv"
     output:
         report(
             directory("{PROJECT}/runs/{run}/tables/bins/{sample}"),
@@ -1691,9 +1692,10 @@ rule report:
          if config["trimm"]["trimming"] == "T" else
          "{PROJECT}/runs/{run}/{sample}_data/no_trimm.txt",
          "{PROJECT}/runs/{run}/tables/bwa",
-         "{PROJECT}/runs/{run}/tables/bins/{sample}"
+         # "{PROJECT}/runs/{run}/tables/bins/{sample}"
     output:
         temp("{PROJECT}/runs/{run}/{sample}_data/report_f.html")
+        # "{PROJECT}/runs/{run}/{sample}_data/report_f.html"
     shell:
         "touch {output}"
 #rule tune_report:
