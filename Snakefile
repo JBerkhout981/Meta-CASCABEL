@@ -72,8 +72,6 @@ if config["trimm"]["trimming"].lower() == "t":
             read2_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read2_paired.fq",
             read2_single="{PROJECT}/runs/{run}/{sample}_data/trimmed/read2_singles.fq",
             log="{PROJECT}/runs/{run}/{sample}_data/trimmed/trimmomatic.log"
-        params:
-            "resources/adapters/TruSeq3-PE-2.fa"
         benchmark:
             "{PROJECT}/runs/{run}/{sample}_data/trimmed/trimmomatic.benchmark"
         threads:
@@ -83,7 +81,7 @@ if config["trimm"]["trimming"].lower() == "t":
         shell:
             "trimmomatic {config[trimm][mode]} -threads {config[trimm][threads]} {input.fw} {input.rv} "
             "{output.read1_paired} {output.read1_single} {output.read2_paired} {output.read2_single} "
-            "{config[trimm][clip][type]}:{params}:{config[trimm][clip][seed]}:{config[trimm][clip][palindrome_ct]}:"
+            "{config[trimm][clip][type]}:{config[trimm][clip][adapter]}:{config[trimm][clip][seed]}:{config[trimm][clip][palindrome_ct]}:"
             "{config[trimm][clip][simple_ct]}:{config[trimm][clip][minAdpLength]}:{config[trimm][clip][keepBoth]} "
             "{config[trimm][sliding][type]}:{config[trimm][sliding][windowSize]}:{config[trimm][sliding][requiredQuality]} "
             "{config[trimm][maxinfo][type]}:{config[trimm][maxinfo][targetLength]}:{config[trimm][maxinfo][strictness]} "
