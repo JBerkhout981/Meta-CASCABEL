@@ -141,7 +141,7 @@ else:
             else
                 cp {input.fw} {output.read1_paired}
                 cp {input.rv} {output.read2_paired}
-            fi    
+            fi
             """
 
 if config["QC"]["onTrimmedReads"].lower() == "t":
@@ -1646,7 +1646,7 @@ rule datavzrd_bins:
         table=expand("{PROJECT}/runs/{run}/{sample}_data/binning/FinalBins.summary.tsv", PROJECT=config["PROJECT"],sample=config["SAMPLES"], run=run)
     output:
         report(
-            directory("{PROJECT}/runs/{run}/tables/bins/{sample}"),
+            directory("{PROJECT}/runs/{run}/tables/bins"),
             htmlindex="index.html",
             category="6. Binning",
             subcategory="{sample}",

@@ -75,7 +75,7 @@ gzip_input: "T"
 # The RUN variable can be set here or remain empty, in the latter case, the    #
 # user must assign this value via the command line --config RUN=User_run_name  #
 #------------------------------------------------------------------------------#
-RUN: "Test05"
+RUN: "Test_skiptrimm"
 
 #------------------------------------------------------------------------------#
 #                            Description                                       #
@@ -84,7 +84,7 @@ RUN: "Test05"
 # included on the final report. This field is not mandatory so it can remain   #
 # empty                                                                        #
 #------------------------------------------------------------------------------#
-description: "Testing new changes to script and binning without DAS"
+description: "Testing if the script works when trimmomatic is skipped (especially SPADES)"
 
 #------------------------------------------------------------------------------#
 #                             Execution mode                                   #
@@ -214,7 +214,7 @@ QC:
 # trimming = 'N' -> Je kan dan geen SPADES gebruiken ivm singles file gegenereerd door trimmomatic
 # Make an option in spades without singles
 trimm:
-  trimming: "T"
+  trimming: "F"
   mode: "PE"
   threads: 15
   clip:
@@ -325,7 +325,7 @@ TAXONOMY:
 # contigs               If ASSEMBLER = "ASSEMBLED" supply file pointing to     #
 #                       contigs/scaffolds.                                     #
 #------------------------------------------------------------------------------#
-ASSEMBLER: "MEGAHIT"
+ASSEMBLER: "SPADES"
 contigs: ""
 
 #------------------------------------------------------------------------------#
