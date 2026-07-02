@@ -1619,6 +1619,8 @@ rule prokka_bins:
         if config["BINNING"] == "CONCOCT" else
         "{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanityWf.log"
         if config["BINNING"] == "BINSANITY" else
+        "{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanityWf.log"
+        if config["BINNING"] == "SEMIBIN" else
         "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log",
         "{PROJECT}/runs/{run}/{sample}_data/binning/checkM/summary.txt"
     output:
@@ -1630,6 +1632,8 @@ rule prokka_bins:
         if config["BINNING"] == "CONCOCT" else
         "{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/prokka.log"
         if config["BINNING"] == "BINSANITY" else
+        "{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/prokka.log"
+        if config["BINNING"] == "SEMIBIN" else
         "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/prokka.log"
     params:
         output_dir="{PROJECT}/runs/{run}/{sample}_data/binning/metabat2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/"
@@ -1640,9 +1644,11 @@ rule prokka_bins:
         if config["BINNING"] == "CONCOCT" else
         "{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanity-Final-bins/"
         if config["BINNING"] == "BINSANITY" else
+        "{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/"
+        if config["BINNING"] == "SEMIBIN" else
         "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/DasOut_DASTool_bins/",
         file_ext= "fa"
-        if config["BINNING"] == "METABAT" or config["BINNING"] == "CONCOCT" or config["BINNING"] == "DAS" else
+        if config["BINNING"] == "METABAT" or config["BINNING"] == "CONCOCT" or config["BINNING"] == "SEMIBIN" or config["BINNING"] == "DAS" else
         "fasta"
         if config["BINNING"] == "BINSANITY" else
         "fna"
