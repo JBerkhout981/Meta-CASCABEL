@@ -1720,17 +1720,21 @@ rule rename_Final_bins:
         if config["BINNING"] == "CONCOCT" else
         "{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/binTable.tsv"
         if config["BINNING"] == "BINSANITY" else
+        "{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/binTable.tsv"
+        if config["BINNING"] == "SEMIBIN" else
         "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/DasOut_DASTool_summary.tsv"
     params:
         bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/metabat2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/" if config["BINNING"] == "METABAT" else
         "{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/" if config["BINNING"] == "MAXBIN" else
         "{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/" if config["BINNING"] == "CONCOCT" else 
         "{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanity-Final-bins/"  if config["BINNING"] == "BINSANITY" else
+        "{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/" if config["BINNING"] == "SEMIBIN" else 
         "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/DasOut_DASTool_bins/", 
         bin_ext="fa"  if config["BINNING"] == "METABAT" else
         "fasta"  if config["BINNING"] == "MAXBIN" else
         "fa" if config["BINNING"] == "CONCOCT" else
         "fna" if config["BINNING"] == "BINSANITY" else
+        "fa" if config["BINNING"] == "SEMIBIN" else
         "fa",
         smp="{sample}",
         out_dir="{PROJECT}/runs/{run}/{sample}_data/binning/FinalBins/" 
