@@ -1412,6 +1412,19 @@ rule bin_cvg_binsanity:
         "{PROJECT}/runs/{run}/{sample}_data/binning/abundance.binsanity.tsv"
     shell:
         "Scripts/summary_coverage_bs.sh {params.bin_folder} {params.bin_ext} {params.coverage} {output}" 
+
+rule bin_cvg_semibin2:
+    input:
+        "{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/SemiBinRun.log"
+    params:
+        bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/",
+        out_folder="{PROJECT}/runs/{run}/{sample}_data/binning/",
+        bin_ext="fa",
+        coverage="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_depth.txt"
+    output:
+        "{PROJECT}/runs/{run}/{sample}_data/binning/abundance.metabat.tsv"
+    shell:
+        "Scripts/summary_coverage_semibin.sh {params.bin_folder} {params.bin_ext} {params.coverage} {output}" 
  
 rule bin_cvg_das:
     input:
