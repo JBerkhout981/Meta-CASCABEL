@@ -1015,6 +1015,7 @@ if config["BINNING"] == "DAS":
             maxbin_bin2t="{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/binTable.tsv",
             concoct_bin2t="{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/binTable.tsv",
             binsanity_bin2t="{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/binTable.tsv",
+            semibin_bin2t="{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/binTable.tsv",
             assembly="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_scaffolds.fasta"
             if config["ANALYSIS"] == "SCAFFOLDS" else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.fasta"
         params:
@@ -1022,9 +1023,11 @@ if config["BINNING"] == "DAS":
             bs_input=",{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/binTable.tsv" if config["das"]["binsanity"]["run"]=="T" else "",
             mx_input=",{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/binTable.tsv" if config["das"]["maxbin"]["run"]=="T" else "",
             cc_input=",{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/binTable.tsv" if config["das"]["concoct"]["run"]=="T" else "",
+            sb_input=",{PROJECT}/runs/{run}/{sample}_data/binning/semibin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/binTable.tsv" if config["das"]["semibin"]["run"]=="T" else "",
             bs_l=",binsanity" if config["das"]["binsanity"]["run"]=="T" else "",
             mx_l=",maxbin"  if config["das"]["maxbin"]["run"]=="T" else "",
-            cc_l=",concoct"  if config["das"]["concoct"]["run"]=="T" else ""
+            cc_l=",concoct"  if config["das"]["concoct"]["run"]=="T" else "",
+            sb_l=",semibin"  if config["das"]["semibin"]["run"]=="T" else ""
         output:
             log="{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log",
             t2bin="{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/DasOut_DASTool_summary.tsv"
@@ -1033,8 +1036,8 @@ if config["BINNING"] == "DAS":
         conda:
             "envs/das.yaml"
         shell:
-            "DAS_Tool -i {input.metabat_bin2t}{params.mx_input}{params.cc_input}{params.bs_input} "
-            "-l metabat{params.mx_l}{params.cc_l}{params.bs_l} -c {input.assembly} -t {config[das][threads]} "
+            "DAS_Tool -i {input.metabat_bin2t}{params.mx_input}{params.cc_input}{params.bs_input}{params.sb_input} "
+            "-l metabat{params.mx_l}{params.cc_l}{params.bs_l}{params.sb_l} -c {input.assembly} -t {config[das][threads]} "
             "--write_bins  --dbDirectory {config[das][db]} --search_engine {config[das][search_engine]} "
             " {config[das][extra_params]} -o {params.das_out_dir} > {output.log} 2>&1"
 else:
@@ -1109,6 +1112,22 @@ rule checkM_binsanity:
     shell:
         "checkm lineage_wf -f {output.out_file} -t  {config[checkM][threads]} -x {params.bin_ext} {config[checkM][extra_params]} {params.bin_folder} {params.out_folder} "
 
+rule checkM_semibin2:
+    input:
+        "{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/SemiBinRun.log"
+    params:
+        bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/",
+        out_folder="{PROJECT}/runs/{run}/{sample}_data/binning/checkM_semibin2/",
+        bin_ext="fa"
+    output:
+        out_file="{PROJECT}/runs/{run}/{sample}_data/binning/checkM_semibin2/summary.txt"
+    threads:
+        int(config["checkM"]["threads"])
+    conda:
+        "envs/checkm.yaml"
+    shell:
+        "checkm lineage_wf -f {output.out_file} -t  {config[checkM][threads]} -x {params.bin_ext} {config[checkM][extra_params]} {params.bin_folder} {params.out_folder} "
+
 rule checkM_das:
     input:
         "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log",
@@ -1116,6 +1135,7 @@ rule checkM_das:
         "{PROJECT}/runs/{run}/{sample}_data/binning/checkM_maxbin/summary.txt" if config["das"]["maxbin"]["run"]=="T" and  config["das"]["maxbin"]["checkm_analysis"]=="T"  else "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log",
         "{PROJECT}/runs/{run}/{sample}_data/binning/checkM_concoct/summary.txt" if config["das"]["concoct"]["run"]=="T" and config["das"]["concoct"]["checkm_analysis"]=="T"  else "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log",
         "{PROJECT}/runs/{run}/{sample}_data/binning/checkM_binsanity/summary.txt" if config["das"]["binsanity"]["run"]=="T" and config["das"]["binsanity"]["checkm_analysis"]=="T" else "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log"
+        "{PROJECT}/runs/{run}/{sample}_data/binning/checkM_semibin2/summary.txt" if config["das"]["semibin"]["run"]=="T" and config["das"]["semibin"]["checkm_analysis"]=="T" else "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log"
     params:
         bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/DasOut_DASTool_bins/",
         out_folder="{PROJECT}/runs/{run}/{sample}_data/binning/checkM_das/",
@@ -1139,6 +1159,8 @@ rule checkM_bins:
         if config["BINNING"] == "CONCOCT" else
         "{PROJECT}/runs/{run}/{sample}_data/binning/checkM_binsanity/summary.txt"
         if config["BINNING"] == "BINSANITY" else
+        "{PROJECT}/runs/{run}/{sample}_data/binning/checkM_semibin2/summary.txt"
+        if config["BINNING"] == "SEMIBIN" else
         "{PROJECT}/runs/{run}/{sample}_data/binning/checkM_das/summary.txt"
     params:
         dir="checkM_metabat2"
@@ -1149,6 +1171,8 @@ rule checkM_bins:
         if config["BINNING"] == "CONCOCT" else
         "checkM_binsanity"
         if config["BINNING"] == "BINSANITY" else
+        "checkM_semibin"
+        if config["BINNING"] == "SEMIBIN" else
         "checkM_das"
     output:
         out_file="{PROJECT}/runs/{run}/{sample}_data/binning/checkM/summary.txt"
