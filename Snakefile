@@ -1422,7 +1422,7 @@ rule bin_cvg_semibin2:
         bin_ext="fa",
         coverage="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_depth.txt"
     output:
-        "{PROJECT}/runs/{run}/{sample}_data/binning/abundance.metabat.tsv"
+        "{PROJECT}/runs/{run}/{sample}_data/binning/abundance.semibin.tsv"
     shell:
         "Scripts/summary_coverage_semibin.sh {params.bin_folder} {params.bin_ext} {params.coverage} {output}" 
  
@@ -1432,7 +1432,8 @@ rule bin_cvg_das:
         "{PROJECT}/runs/{run}/{sample}_data/binning/abundance.metabat.tsv",
         "{PROJECT}/runs/{run}/{sample}_data/binning/abundance.maxbin.tsv",
         "{PROJECT}/runs/{run}/{sample}_data/binning/abundance.concoct.tsv",
-        "{PROJECT}/runs/{run}/{sample}_data/binning/abundance.binsanity.tsv"
+        "{PROJECT}/runs/{run}/{sample}_data/binning/abundance.binsanity.tsv",
+        "{PROJECT}/runs/{run}/{sample}_data/binning/abundance.semibin.tsv"
     params:
         bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/DasOut_DASTool_bins/",
         out_folder="{PROJECT}/runs/{run}/{sample}_data/binning/",
@@ -1453,6 +1454,8 @@ rule summarize_coverage:
         if config["BINNING"] == "CONCOCT" else
         "{PROJECT}/runs/{run}/{sample}_data/binning/abundance.binsanity.tsv"
         if config["BINNING"] == "BINSANITY" else
+        "{PROJECT}/runs/{run}/{sample}_data/binning/abundance.semibin.tsv"
+        if config["BINNING"] == "SEMIBIN" else
         "{PROJECT}/runs/{run}/{sample}_data/binning/abundance.das.tsv",
         summary="{PROJECT}/runs/{run}/{sample}_data/binning/summary.tsv"
     params:
@@ -1515,6 +1518,18 @@ rule gc_prc_binsanity:
         "{PROJECT}/runs/{run}/{sample}_data/binning/gc_prc.binsanity.tsv"
     shell:
         "Scripts/computeGC.sh {params.bin_folder} {params.bin_ext} {output}"
+
+rule gc_prc_semibin2:
+    input:
+        "{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/SemiBinRun.log"
+    params:
+        bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/",
+        out_folder="{PROJECT}/runs/{run}/{sample}_data/binning/",
+        bin_ext="fa"
+    output:
+        "{PROJECT}/runs/{run}/{sample}_data/binning/gc_prc.semibin.tsv"
+    shell:
+        "Scripts/computeGC.sh {params.bin_folder} {params.bin_ext} {output}"
         
 rule gc_prc_das:
     input:
@@ -1522,7 +1537,8 @@ rule gc_prc_das:
         "{PROJECT}/runs/{run}/{sample}_data/binning/gc_prc.metabat.tsv",
         "{PROJECT}/runs/{run}/{sample}_data/binning/gc_prc.maxbin.tsv",
         "{PROJECT}/runs/{run}/{sample}_data/binning/gc_prc.concoct.tsv",
-        "{PROJECT}/runs/{run}/{sample}_data/binning/gc_prc.binsanity.tsv"
+        "{PROJECT}/runs/{run}/{sample}_data/binning/gc_prc.binsanity.tsv",
+        "{PROJECT}/runs/{run}/{sample}_data/binning/gc_prc.semibin.tsv"
     params:
         bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/DasOut_DASTool_bins/",
         out_folder="{PROJECT}/runs/{run}/{sample}_data/binning/",
@@ -1543,6 +1559,8 @@ rule summarize_gc_prc:
         if config["BINNING"] == "CONCOCT" else
         "{PROJECT}/runs/{run}/{sample}_data/binning/gc_prc.binsanity.tsv"
         if config["BINNING"] == "BINSANITY" else
+        "{PROJECT}/runs/{run}/{sample}_data/binning/gc_prc.semibin.tsv"
+        if config["BINNING"] == "SEMIBIN" else
         "{PROJECT}/runs/{run}/{sample}_data/binning/gc_prc.das.tsv",
         summary="{PROJECT}/runs/{run}/{sample}_data/binning/summary_abundance.tsv"
     params:
