@@ -1706,7 +1706,7 @@ rule diamond_bins:
         if config["BINNING"] == "BINSANITY" else
         "{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/prokka.benchmark"
         if config["BINNING"] == "SEMIBIN" else
-        "{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/prokka.benchmark"
+        "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/prokka.benchmark"
     script:
         "Scripts/diamondProkkaBins.py"
 
