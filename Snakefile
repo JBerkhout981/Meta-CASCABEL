@@ -9,7 +9,8 @@ Metagenomics Workflow for NIOZ MMBL.
 run=config["RUN"]
 rule all:
     input:
-        expand("{PROJECT}/runs/{run}/{sample}_data/report_f.html", PROJECT=config["PROJECT"],sample=config["SAMPLES"], run=run)
+        # expand("{PROJECT}/runs/{run}/{sample}_data/report_f.html", PROJECT=config["PROJECT"],sample=config["SAMPLES"], run=run)
+        expand("{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/SemiBinRun.log", PROJECT=config["PROJECT"],sample=config["SAMPLES"], run=run)
 
 if len(config["SAMPLES"])==1 and len(config["fw_reads"])>0 and len(config["rv_reads"])>0:
     rule init_structure:
@@ -93,6 +94,8 @@ if config["trimm"]["trimming"].lower() == "t":
             "{PROJECT}/runs/{run}/tables/stats_trimmomatic.tsv"
         params:
             report_dir="{PROJECT}/runs/{run}/*_data/trimmed/trimmomatic.log"
+        benchmark:
+            "{PROJECT}/runs/{run}/tables/stats_trimmomatic.benchmark"
         shell:
             #" echo -e \"Sample\\tAssembly\\tNum. contigs (>= 0 bp)\\tNum. contigs (>= 1000 bp)\\tNum. contigs (>= 5000 bp)\\tNum. contigs (>= 10000 bp)\\tNum. contigs (>= 25000 bp)\\tNum. contigs (>= 50000 bp)\\tTotal length (>= 0 bp)\\tTotal length (>= 1000 bp)\\tTotal length (>= 5000 bp)\\tTotal length (>= 10000 bp)\\tTotal length (>= 25000 bp)\\tTotal length (>= 50000 bp)\\tNum. contigs\\tLargest contig\\tTotal length\\tGC (%)\\tN50\\tN90\\tauN\\tL50\\tL90\\tNum. N's per 100 kbp\" > {output} ;"
             " echo -e \"Sample\\tInput Read Pairs\\tBoth Surviving\\tBoth %\\tForward Only Surviving\\tForward Only %\\tReverse Only Surviving\\tReverse Only %\\tDropped\\tDropped %\" > {output} ;"
@@ -117,6 +120,8 @@ if config["trimm"]["trimming"].lower() == "t":
                 category="3. Read trimming",
                 labels={"table":"Trimming results"},
             ),
+        conda:
+            "envs/trimmomatic.yaml"
         wrapper:
             "v4.7.2/utils/datavzrd"
 else:
@@ -943,27 +948,63 @@ elif (config["BINNING"] == "DAS" and config["das"]["binsanity"]["run"]!="T") or 
         shell:
             "touch {output}"
 
+if config["BINNING"] == "SEMIBIN" or (config["BINNING"] == "DAS" and config["das"]["semibin"]["run"]=="T"):
+    rule semibin_single:
+        input:
+            depth="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_depth.txt",
+            assembly="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_scaffolds.fasta"
+            if config["ANALYSIS"] == "SCAFFOLDS" else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.fasta"
+        output:
+            "{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/SemiBinRun.log"
+        params: 
+            "{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/bin"
+        benchmark:
+            "{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/semibin.benchmark"
+        threads:
+            int(config["semibin"]["threads"])
+        conda:
+            "envs/semibin.yaml"
+        shell:
+            """
+            SemiBin2 single_easy_bin \
+                -i {input.assembly} \
+                -b {input.depth} \
+                -t {config[semibin][threads]} \
+                -o {params} \
+                --compression none
+            """
+elif (config["BINNING"] == "DAS" and config["das"]["semibin"]["run"]!="T") or config["BINNING"] != "SEMIBIN":
+    rule skip_semibin:
+        output:
+            log="{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/SemiBinRun.log"
+        shell:
+            "touch {output}"
+
 rule bins_to_table:
     input:
         maxbin="{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/maxbin.log",
         metabat="{PROJECT}/runs/{run}/{sample}_data/binning/metabat2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/metabat.log",
         #concoct="{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/concoct.log"
         concoct="{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/bin_clustering_gt"+config["concoct"]["min_contig_length"]+".csv",
-        binsanity="{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanityWf.log" 
+        binsanity="{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanityWf.log",
+        semibin="{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/SemiBinRun.log"
     output:
         metabat_out="{PROJECT}/runs/{run}/{sample}_data/binning/metabat2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/binTable.tsv",
         maxbin_out="{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/binTable.tsv",
         concoct_out="{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/binTable.tsv",
-        binsanity_out="{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/binTable.tsv"
+        binsanity_out="{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/binTable.tsv",
+        semibin_out="{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/binTable.tsv"
     params:
         output_dir_metabat="{PROJECT}/runs/{run}/{sample}_data/binning/metabat2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"],
         output_dir_maxbin="{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"],
         output_dir_concoct="{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"],
         output_dir_binsanity="{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanity-Final-bins/",
+        output_dir_semibin="{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"],
         file_ext_metabat="fa",
         file_ext_maxbin="fasta",
         file_ext_concoct="fa",
-        file_ext_binsanity="fna"
+        file_ext_binsanity="fna",
+        file_ext_semibin="fa"
     script:
         "Scripts/tableBins.py"
 

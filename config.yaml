@@ -75,7 +75,7 @@ gzip_input: "T"
 # The RUN variable can be set here or remain empty, in the latter case, the    #
 # user must assign this value via the command line --config RUN=User_run_name  #
 #------------------------------------------------------------------------------#
-RUN: "Test06"
+RUN: "Test_semibin"
 
 #------------------------------------------------------------------------------#
 #                            Description                                       #
@@ -84,7 +84,7 @@ RUN: "Test06"
 # included on the final report. This field is not mandatory so it can remain   #
 # empty                                                                        #
 #------------------------------------------------------------------------------#
-description: "Testing conda envs"
+description: "Testing semibin"
 
 #------------------------------------------------------------------------------#
 #                             Execution mode                                   #
@@ -511,7 +511,7 @@ jgi_summ:
 #------------------------------------------------------------------------------#
 
 # The settings are more sensitive for DAS, if you don't use DAS make sure you change the settings to less sensitive
-BINNING: "METABAT"
+BINNING: "SEMIBIN"
 
 #------------------------------------------------------------------------------#
 #                       Unbinned conntigs                                      #
@@ -696,6 +696,11 @@ das:
     run: "F"
     gtdbtk_analysis: "F"
     checkm_analysis: "F"
+  semibin:
+    run: "T"
+    gtdbtk_analysis: "T"
+    checkm_analysis: "T"
+
 
 #------------------------------------------------------------------------------#
 #                       chekM                                                  #
