@@ -1134,7 +1134,7 @@ rule checkM_das:
         "{PROJECT}/runs/{run}/{sample}_data/binning/checkM_metabat2/summary.txt",
         "{PROJECT}/runs/{run}/{sample}_data/binning/checkM_maxbin/summary.txt" if config["das"]["maxbin"]["run"]=="T" and  config["das"]["maxbin"]["checkm_analysis"]=="T"  else "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log",
         "{PROJECT}/runs/{run}/{sample}_data/binning/checkM_concoct/summary.txt" if config["das"]["concoct"]["run"]=="T" and config["das"]["concoct"]["checkm_analysis"]=="T"  else "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log",
-        "{PROJECT}/runs/{run}/{sample}_data/binning/checkM_binsanity/summary.txt" if config["das"]["binsanity"]["run"]=="T" and config["das"]["binsanity"]["checkm_analysis"]=="T" else "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log"
+        "{PROJECT}/runs/{run}/{sample}_data/binning/checkM_binsanity/summary.txt" if config["das"]["binsanity"]["run"]=="T" and config["das"]["binsanity"]["checkm_analysis"]=="T" else "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log",
         "{PROJECT}/runs/{run}/{sample}_data/binning/checkM_semibin2/summary.txt" if config["das"]["semibin"]["run"]=="T" and config["das"]["semibin"]["checkm_analysis"]=="T" else "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log"
     params:
         bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/DasOut_DASTool_bins/",
@@ -1243,13 +1243,30 @@ rule gtdbtk_binsanity:
     shell:
         "gtdbtk classify_wf --genome_dir  {params.bin_folder} --out_dir {params.out_folder}  -x {params.bin_ext} --cpus {config[gtdbtk][cpus]} {config[gtdbtk][extra_params]}  > {output} "
 
+rule gtdbtk_semibin2:
+    input:
+        "{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/SemiBinRun.log"
+    params:
+        bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"],
+        out_folder="{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_semibin2/",
+        bin_ext="fa"
+    output:
+        out_file="{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_semibin2/summary.txt"
+    threads:
+        int(config["gtdbtk"]["cpus"])
+    conda:
+        "envs/gtdbtk.yaml"
+    shell:
+        "gtdbtk classify_wf --genome_dir  {params.bin_folder} --out_dir {params.out_folder}  -x {params.bin_ext} --cpus {config[gtdbtk][cpus]} {config[gtdbtk][extra_params]}  > {output} "
+
 rule gtdbtk_das:
     input:
         "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log",
         "{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_metabat2/summary.txt",
         "{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_maxbin/summary.txt" if config["das"]["maxbin"]["run"]=="T" and config["das"]["maxbin"]["gtdbtk_analysis"]=="T" else "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log",
         "{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_concoct/summary.txt" if config["das"]["concoct"]["run"]=="T" and config["das"]["concoct"]["gtdbtk_analysis"]=="T" else "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log",
-        "{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_binsanity/summary.txt" if config["das"]["binsanity"]["run"]=="T" and config["das"]["binsanity"]["gtdbtk_analysis"]=="T"  else "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log"
+        "{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_binsanity/summary.txt" if config["das"]["binsanity"]["run"]=="T" and config["das"]["binsanity"]["gtdbtk_analysis"]=="T"  else "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log",
+        "{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_semibin2/summary.txt" if config["das"]["semibin"]["run"]=="T" and config["das"]["semibin"]["gtdbtk_analysis"]=="T"  else "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log"
     params:
         bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/DasOut_DASTool_bins/",
         out_folder="{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_das/",
@@ -1273,6 +1290,8 @@ rule gtdbtk_bins:
         if config["BINNING"] == "CONCOCT" else
         "{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_binsanity/summary.txt"
         if config["BINNING"] == "BINSANITY" else
+        "{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_semibin2/summary.txt"
+        if config["BINNING"] == "SEMIBIN" else
         "{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_das/summary.txt"
     params:
         dir="gtdbtk_metabat2"
@@ -1283,6 +1302,8 @@ rule gtdbtk_bins:
         if config["BINNING"] == "CONCOCT" else
         "gtdbtk_binsanity"
         if config["BINNING"] == "BINSANITY" else
+        "gtdbtk_semibin2"
+        if config["BINNING"] == "SEMIBIN" else
         "gtdbtk_das"
     output:
         out_file="{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk/summary.txt"
@@ -1299,6 +1320,8 @@ rule summarize_gtdbtk:
         if config["BINNING"] == "CONCOCT" else
         "{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_binsanity/summary.txt"
         if config["BINNING"] == "BINSANITY" else
+        "{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_semibin2/summary.txt"
+        if config["BINNING"] == "SEMIBIN" else
         "{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_das/summary.txt"
     params:
         search_path="{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_\\*/summary.txt"
@@ -1317,6 +1340,8 @@ rule summarize_checkM:
         if config["BINNING"] == "CONCOCT" else
         "{PROJECT}/runs/{run}/{sample}_data/binning/checkM_binsanity/summary.txt"
         if config["BINNING"] == "BINSANITY" else
+        "{PROJECT}/runs/{run}/{sample}_data/binning/checkM_semibin2/summary.txt"
+        if config["BINNING"] == "SEMIBIN" else
         "{PROJECT}/runs/{run}/{sample}_data/binning/checkM_das/summary.txt"
     params:
         search_path="{PROJECT}/runs/{run}/{sample}_data/binning/checkM_\\*/summary.txt"
