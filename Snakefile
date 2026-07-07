@@ -639,6 +639,8 @@ rule bwa_mem:
         "{input.read1_paired} {input.read2_paired} "
         "| samtools view --threads {config[bwa][threads]} -b - | samtools sort - -o {output} --threads {config[bwa][threads]}"
 
+
+"""
 rule bwa_mem_new:
     input:
         r1="{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_paired.fq",
@@ -658,6 +660,8 @@ rule bwa_mem_new:
         "nice -{config[bwa][nice]} bwa mem -t {config[bwa][threads]} {params} "
         "{input.read1_paired} {input.read2_paired} "
         "| samtools view --threads {config[bwa][threads]} -b - | samtools sort - -o {output} --threads {config[bwa][threads]}"
+"""
+
 
 rule bwa_mem_mtx:
     input:
@@ -951,7 +955,7 @@ elif (config["BINNING"] == "DAS" and config["das"]["binsanity"]["run"]!="T") or 
 if config["BINNING"] == "SEMIBIN" or (config["BINNING"] == "DAS" and config["das"]["semibin"]["run"]=="T"):
     rule semibin_single:
         input:
-            depth="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_depth.txt",
+            depth="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_mapped_against_cross-assembly_sorted.bam",
             assembly="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_scaffolds.fasta"
             if config["ANALYSIS"] == "SCAFFOLDS" else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.fasta"
         output:
