@@ -22,18 +22,20 @@ bin_sanity_low_completion = snakemake.config["binsanity"]["low_completion"]
 #output_dir+file
 #metabat
 #if snakemake.config["das"]["metabat"]=="T" else NULL
-for file in os.listdir(output_dir_metabat):
-    if file.endswith(file_extension_metabat):
-        #i = i+1
-        #print("\033[93mAnnotating\033[0m \033[92m" + file  + "\033[0m \033[93m file \033[0m \033[92m" + str(i) + "/" + str(count) + "\033[0m")
-        splittedName = file.split(".") #the name is bin.##.extension
-        number = splittedName[1]
-        fullFile=output_dir_metabat+"/"+file
-        os.system("cat "+ fullFile + " | grep '^>' | sed 's/>//g' | awk '{print $1\"\\tmetabat."+number+"\"}' >> " +snakemake.output["metabat_out"])
-
+if snakemake.config["das"]["metabat"]=="T" or snakemake.config["BINNING"] == "METABAT":
+    for file in os.listdir(output_dir_metabat):
+        if file.endswith(file_extension_metabat):
+            #i = i+1
+            #print("\033[93mAnnotating\033[0m \033[92m" + file  + "\033[0m \033[93m file \033[0m \033[92m" + str(i) + "/" + str(count) + "\033[0m")
+            splittedName = file.split(".") #the name is bin.##.extension
+            number = splittedName[1]
+            fullFile=output_dir_metabat+"/"+file
+            os.system("cat "+ fullFile + " | grep '^>' | sed 's/>//g' | awk '{print $1\"\\tmetabat."+number+"\"}' >> " +snakemake.output["metabat_out"])
+else:
+    os.system("touch " +snakemake.output["metabat_out"])
 
 #maxbin
-if snakemake.config["das"]["maxbin"]["run"]=="T":
+if snakemake.config["das"]["maxbin"]["run"]=="T" or snakemake.config["BINNING"] == "MAXBIN":
     for file in os.listdir(output_dir_maxbin):
         if file.endswith(file_extension_maxbin):
             #i = i+1
@@ -44,8 +46,9 @@ if snakemake.config["das"]["maxbin"]["run"]=="T":
             os.system("cat "+ fullFile + " | grep '^>' | sed 's/>//g' | awk '{print $1\"\\tmaxbin."+number+"\"}' >> " +snakemake.output["maxbin_out"])
 else:
     os.system("touch " +snakemake.output["maxbin_out"])
+
 #BinSanity
-if snakemake.config["das"]["binsanity"]["run"]=="T":
+if snakemake.config["das"]["binsanity"]["run"]=="T" or snakemake.config["BINNING"] == "BINSANITY":
     try:
         for file in os.listdir(output_dir_binsanity):
             if file.endswith(file_extension_binsanity) and (file.startswith("final") or (bin_sanity_low_completion == "T" and file.startswith("low_"))):
@@ -68,7 +71,9 @@ else:
     os.system("touch " +snakemake.output["binsanity_out"])
 
 #CONCOCT
-if snakemake.config["das"]["concoct"]["run"]=="T":
+if snakemake.config["das"]["concoct"]["run"]=="T" or snakemake.config["BINNING"] == "CONCOCT":
     os.system("cat "+ concoct_clustering + " | awk -F\",\" 'NR>1{print $1\"\tconcoct.\"$2}'   > " +snakemake.output["concoct_out"])
 else: 
     os.system("touch " +snakemake.output["concoct_out"])
+
+

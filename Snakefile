@@ -1739,7 +1739,7 @@ rule rename_Final_bins:
         "fa" if config["BINNING"] == "CONCOCT" else
         "fna" if config["BINNING"] == "BINSANITY" else
         "fa" if config["BINNING"] == "SEMIBIN" else
-        "fa",e
+        "fa",
         smp="{sample}",
         out_dir="{PROJECT}/runs/{run}/{sample}_data/binning/FinalBins/" 
     output:
