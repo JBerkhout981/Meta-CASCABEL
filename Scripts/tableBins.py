@@ -7,9 +7,11 @@ import re
 output_dir_metabat = snakemake.params["output_dir_metabat"]
 output_dir_maxbin = snakemake.params["output_dir_maxbin"]
 output_dir_binsanity = snakemake.params["output_dir_binsanity"]
+output_dir_semibin = snakemake.params["output_dir_semibin"]
 file_extension_metabat = snakemake.params["file_ext_metabat"]
 file_extension_maxbin = snakemake.params["file_ext_maxbin"]
 file_extension_binsanity = snakemake.params["file_ext_binsanity"]
+file_extension_semibin = snakemake.params["file_ext_semibin"]
 concoct_clustering = snakemake.input["concoct"]
 bin_sanity_low_completion = snakemake.config["binsanity"]["low_completion"]
 #print("\033[93mProcessing bin files from directory: \033[0m  \033[92m "+ output_dir_metabat+"\033[0m \033[93m with extension:\033[0m \033[92m"+file_extension + " \033[0m")
@@ -80,7 +82,6 @@ else:
 if snakemake.config["das"]["semibin"]["run"]=="T" or snakemake.config["BINNING"] == "SEMIBIN":
     for file in os.listdir(output_dir_semibin):
         if file.endswith(file_extension_semibin):
-            # splittedName = file.split(".") 
             splittedName = re.split('\.|_',file) #the name is SemiBin_##.fa
             number = splittedName[1]
             fullFile=output_dir_semibin+"/"+file
