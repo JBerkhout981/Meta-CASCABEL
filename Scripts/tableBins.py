@@ -22,7 +22,7 @@ bin_sanity_low_completion = snakemake.config["binsanity"]["low_completion"]
 #output_dir+file
 #metabat
 #if snakemake.config["das"]["metabat"]=="T" else NULL
-if snakemake.config["das"]["metabat"]=="T" or snakemake.config["BINNING"] == "METABAT":
+if snakemake.config["BINNING"]=="DAS" or snakemake.config["BINNING"] == "METABAT":
     for file in os.listdir(output_dir_metabat):
         if file.endswith(file_extension_metabat):
             #i = i+1
@@ -75,5 +75,17 @@ if snakemake.config["das"]["concoct"]["run"]=="T" or snakemake.config["BINNING"]
     os.system("cat "+ concoct_clustering + " | awk -F\",\" 'NR>1{print $1\"\tconcoct.\"$2}'   > " +snakemake.output["concoct_out"])
 else: 
     os.system("touch " +snakemake.output["concoct_out"])
+
+# Semibin2
+if snakemake.config["das"]["semibin"]["run"]=="T" or snakemake.config["BINNING"] == "SEMIBIN":
+    for file in os.listdir(output_dir_semibin):
+        if file.endswith(file_extension_semibin):
+            # splittedName = file.split(".") 
+            splittedName = re.split('\.|_',file) #the name is SemiBin_##.fa
+            number = splittedName[1]
+            fullFile=output_dir_semibin+"/"+file
+            os.system("cat "+ fullFile + " | grep '^>' | sed 's/>//g' | awk '{print $1\"\\tsemibin."+number+"\"}' >> " +snakemake.output["semibin_out"])
+else:
+    os.system("touch " +snakemake.output["semibin_out"])
 
 
