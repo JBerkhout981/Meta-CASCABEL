@@ -953,7 +953,7 @@ elif (config["BINNING"] == "DAS" and config["das"]["binsanity"]["run"]!="T") or 
             "touch {output}"
 
 if config["BINNING"] == "SEMIBIN" or (config["BINNING"] == "DAS" and config["das"]["semibin"]["run"]=="T"):
-    rule semibin_single:
+    rule semibin:
         input:
             depth="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_mapped_against_cross-assembly_sorted.bam",
             assembly="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_scaffolds.fasta"
@@ -961,7 +961,7 @@ if config["BINNING"] == "SEMIBIN" or (config["BINNING"] == "DAS" and config["das
         output:
             "{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/SemiBinRun.log"
         params: 
-            "{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/bin"
+            "{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/"
         benchmark:
             "{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/semibin.benchmark"
         threads:
@@ -976,7 +976,7 @@ if config["BINNING"] == "SEMIBIN" or (config["BINNING"] == "DAS" and config["das
                 -t {config[semibin][threads]} \
                 -o {params} \
                 --compression none
-            """
+            """  
 elif (config["BINNING"] == "DAS" and config["das"]["semibin"]["run"]!="T") or config["BINNING"] != "SEMIBIN":
     rule skip_semibin:
         output:
@@ -1003,7 +1003,7 @@ rule bins_to_table:
         output_dir_maxbin="{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"],
         output_dir_concoct="{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"],
         output_dir_binsanity="{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanity-Final-bins/",
-        output_dir_semibin="{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"],
+        output_dir_semibin="{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/output_bins/",
         file_ext_metabat="fa",
         file_ext_maxbin="fasta",
         file_ext_concoct="fa",
@@ -1120,7 +1120,7 @@ rule checkM_semibin2:
     input:
         "{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/SemiBinRun.log"
     params:
-        bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/",
+        bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/output_bins/",
         out_folder="{PROJECT}/runs/{run}/{sample}_data/binning/checkM_semibin2/",
         bin_ext="fa"
     output:
@@ -1251,7 +1251,7 @@ rule gtdbtk_semibin2:
     input:
         "{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/SemiBinRun.log"
     params:
-        bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"],
+        bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/output_bins/",
         out_folder="{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_semibin2/",
         bin_ext="fa"
     output:
@@ -1421,7 +1421,7 @@ rule bin_cvg_semibin2:
     input:
         "{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/SemiBinRun.log"
     params:
-        bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/",
+        bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/output_bins/",
         out_folder="{PROJECT}/runs/{run}/{sample}_data/binning/",
         bin_ext="fa",
         coverage="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_depth.txt"
@@ -1527,7 +1527,7 @@ rule gc_prc_semibin2:
     input:
         "{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/SemiBinRun.log"
     params:
-        bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/",
+        bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/output_bins/",
         out_folder="{PROJECT}/runs/{run}/{sample}_data/binning/",
         bin_ext="fa"
     output:
@@ -1648,7 +1648,7 @@ rule prokka_bins:
         if config["BINNING"] == "CONCOCT" else
         "{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanity-Final-bins/"
         if config["BINNING"] == "BINSANITY" else
-        "{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/"
+        "{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/output_bins/"
         if config["BINNING"] == "SEMIBIN" else
         "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/DasOut_DASTool_bins/",
         file_ext= "fa"
@@ -1695,7 +1695,7 @@ rule diamond_bins:
         if config["BINNING"] == "CONCOCT" else
         "{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanity-Final-bins/"
         if config["BINNING"] == "BINSANITY" else
-        "{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/"
+        "{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/output_bins/"
         if config["BINNING"] == "SEMIBIN" else
         "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/DasOut_DASTool_bins/",
         file_ext= "faa"
@@ -1732,14 +1732,14 @@ rule rename_Final_bins:
         "{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/" if config["BINNING"] == "MAXBIN" else
         "{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/" if config["BINNING"] == "CONCOCT" else 
         "{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanity-Final-bins/"  if config["BINNING"] == "BINSANITY" else
-        "{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/" if config["BINNING"] == "SEMIBIN" else 
+        "{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/output_bins/" if config["BINNING"] == "SEMIBIN" else 
         "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/DasOut_DASTool_bins/", 
         bin_ext="fa"  if config["BINNING"] == "METABAT" else
         "fasta"  if config["BINNING"] == "MAXBIN" else
         "fa" if config["BINNING"] == "CONCOCT" else
         "fna" if config["BINNING"] == "BINSANITY" else
         "fa" if config["BINNING"] == "SEMIBIN" else
-        "fa",
+        "fa",e
         smp="{sample}",
         out_dir="{PROJECT}/runs/{run}/{sample}_data/binning/FinalBins/" 
     output:
