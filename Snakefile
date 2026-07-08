@@ -10,6 +10,7 @@ run=config["RUN"]
 rule all:
     input:
         expand("{PROJECT}/runs/{run}/{sample}_data/report_f.html", PROJECT=config["PROJECT"],sample=config["SAMPLES"], run=run)
+        # expand("{PROJECT}/runs/{run}/{sample}_data/binning/abundance.semibin.tsv", PROJECT=config["PROJECT"],sample=config["SAMPLES"], run=run)
         # expand("{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/binTable.tsv", PROJECT=config["PROJECT"],sample=config["SAMPLES"], run=run)
 
 if len(config["SAMPLES"])==1 and len(config["fw_reads"])>0 and len(config["rv_reads"])>0:
