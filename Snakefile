@@ -9,8 +9,8 @@ Metagenomics Workflow for NIOZ MMBL.
 run=config["RUN"]
 rule all:
     input:
-        # expand("{PROJECT}/runs/{run}/{sample}_data/report_f.html", PROJECT=config["PROJECT"],sample=config["SAMPLES"], run=run)
-        expand("{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/binTable.tsv", PROJECT=config["PROJECT"],sample=config["SAMPLES"], run=run)
+        expand("{PROJECT}/runs/{run}/{sample}_data/report_f.html", PROJECT=config["PROJECT"],sample=config["SAMPLES"], run=run)
+        # expand("{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/binTable.tsv", PROJECT=config["PROJECT"],sample=config["SAMPLES"], run=run)
 
 if len(config["SAMPLES"])==1 and len(config["fw_reads"])>0 and len(config["rv_reads"])>0:
     rule init_structure:
@@ -77,8 +77,8 @@ if config["trimm"]["trimming"].lower() == "t":
             "{PROJECT}/runs/{run}/{sample}_data/trimmed/trimmomatic.benchmark"
         threads:
             int(config["trimm"]["threads"])
-        conda:
-            "envs/trimmomatic.yaml"
+        # conda:
+        #     "envs/trimmomatic.yaml"
         shell:
             "trimmomatic {config[trimm][mode]} -threads {config[trimm][threads]} {input.fw} {input.rv} "
             "{output.read1_paired} {output.read1_single} {output.read2_paired} {output.read2_single} "
@@ -120,8 +120,8 @@ if config["trimm"]["trimming"].lower() == "t":
                 category="3. Read trimming",
                 labels={"table":"Trimming results"},
             ),
-        conda:
-            "envs/trimmomatic.yaml"
+        # conda:
+        #     "envs/trimmomatic.yaml"
         wrapper:
             "v4.7.2/utils/datavzrd"
 else:
@@ -162,7 +162,7 @@ if config["QC"]["onTrimmedReads"].lower() == "t":
         threads:
             int(config["QC"]["threads"])
         conda:
-            "envs/trimmomatic.yaml"
+            "envs/sequali.yaml"
         shell:
             "sequali --outdir {params.outdir} --html  sequali.html --json sequali.json -t {config[QC][threads]}  {config[QC][extra_params]}  {input}"
 
