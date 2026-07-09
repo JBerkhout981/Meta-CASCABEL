@@ -10,8 +10,6 @@ run=config["RUN"]
 rule all:
     input:
         expand("{PROJECT}/runs/{run}/{sample}_data/report_f.html", PROJECT=config["PROJECT"],sample=config["SAMPLES"], run=run)
-        # expand("{PROJECT}/runs/{run}/{sample}_data/binning/abundance.semibin.tsv", PROJECT=config["PROJECT"],sample=config["SAMPLES"], run=run)
-        # expand("{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/binTable.tsv", PROJECT=config["PROJECT"],sample=config["SAMPLES"], run=run)
 
 if len(config["SAMPLES"])==1 and len(config["fw_reads"])>0 and len(config["rv_reads"])>0:
     rule init_structure:
@@ -326,8 +324,8 @@ if config["ASSEMBLER"] == "SPADES":
             read12_singles="{PROJECT}/runs/{run}/{sample}_data/trimmed/all_singles.fq" if config["trimm"]["trimming"] == "T"
             else []
         output:
-            "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/contigs.fasta_tmp",
-            "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/scaffolds.fasta_tmp"
+            "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/contigs_merged.fasta",
+            "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/scaffolds_merged.fasta"
         params:
             "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/"
         benchmark:
@@ -377,8 +375,10 @@ if config["ASSEMBLER"] == "SPADES":
             """
     rule std_assembly_meta_spades:
         input:
-            contigs="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/contigs.fasta",
-            scaffolds="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/scaffolds.fasta"
+            contigs="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/contigs.fasta" if config["spades"]["merge_paired_reads"] == "F"
+            else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/contigs_merged.fasta",
+            scaffolds="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/scaffolds.fasta" if config["spades"]["merge_paired_reads"] == "F"
+            else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/scaffolds_merged.fasta"
         output:
             contigs="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.fasta",
             scaffolds="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_scaffolds.fasta"
@@ -1844,10 +1844,10 @@ rule report:
         # "{PROJECT}/runs/{run}/{sample}_data/report_f.html"
     shell:
         "touch {output}"
-#rule tune_report:
-#    input:
-#        "{PROJECT}/runs/{run}/{sample}_data/report.html"
-#    output:
-#        "{PROJECT}/runs/{run}/{sample}_data/report_f.html"
-#    script:
-#        "Scripts/tuneReport.py"
+# rule tune_report:
+#     input:
+#         "{PROJECT}/runs/{run}/{sample}_data/report.html"
+#     output:
+#         "{PROJECT}/runs/{run}/{sample}_data/report_f.html"
+#     script:
+#         "Scripts/tuneReport_all.py"

@@ -75,7 +75,7 @@ gzip_input: "T"
 # The RUN variable can be set here or remain empty, in the latter case, the    #
 # user must assign this value via the command line --config RUN=User_run_name  #
 #------------------------------------------------------------------------------#
-RUN: "Test_semibin"
+RUN: "Test_spades_skip_trimmomatic"
 
 #------------------------------------------------------------------------------#
 #                            Description                                       #
@@ -84,7 +84,7 @@ RUN: "Test_semibin"
 # included on the final report. This field is not mandatory so it can remain   #
 # empty                                                                        #
 #------------------------------------------------------------------------------#
-description: "Testing semibin"
+description: "Testing reportfile"
 
 #------------------------------------------------------------------------------#
 #                             Execution mode                                   #
@@ -93,7 +93,7 @@ description: "Testing semibin"
 # the pipeline. For a list for all the "interactive" checkpoints take a look   #
 # into the following link: TBD                                                 #
 #------------------------------------------------------------------------------#
-interactive : "F"
+interactive : "T"
 
 
 ################################################################################
@@ -216,7 +216,7 @@ QC:
 # Adapters is now a fixed path
 
 trimm:
-  trimming: "T"
+  trimming: "F"
   mode: "PE"
   threads: 15
   clip:
@@ -328,7 +328,7 @@ TAXONOMY:
 # contigs               If ASSEMBLER = "ASSEMBLED" supply file pointing to     #
 #                       contigs/scaffolds.                                     #
 #------------------------------------------------------------------------------#
-ASSEMBLER: "MEGAHIT"
+ASSEMBLER: "SPADES"
 contigs: ""
 
 #------------------------------------------------------------------------------#
@@ -369,6 +369,7 @@ SPLIT_SIZE: 10000
 # memory                RAM limit for SPAdes in Gb (terminates if exceeded)    #
 # kmers                 Comma-separated list of k-mer sizes (must be odd and   #
 #                       less than 128)                                         #
+# merge_paired_reads    T or F to merge paired reads before assembling         #
 # extra_params          Any extra argument to be passed.                       #
 #                       Run spades.py -h for more options.                     #
 #------------------------------------------------------------------------------#
@@ -377,6 +378,7 @@ spades:
   threads: "25"
   memory: "350"
   kmers: "21,33,55,77"
+  merge_paired_reads: "F"
   extra_params: ""
 
 #------------------------------------------------------------------------------#
@@ -511,7 +513,7 @@ jgi_summ:
 #------------------------------------------------------------------------------#
 
 # The settings are more sensitive for DAS, if you don't use DAS make sure you change the settings to less sensitive
-BINNING: "SEMIBIN"
+BINNING: "DAS"
 
 #------------------------------------------------------------------------------#
 #                       Unbinned conntigs                                      #
@@ -693,9 +695,9 @@ das:
    gtdbtk_analysis: "F"
    checkm_analysis: "F"
   maxbin: 
-    run: "F"
-    gtdbtk_analysis: "F"
-    checkm_analysis: "F"
+    run: "T"
+    gtdbtk_analysis: "T"
+    checkm_analysis: "T"
   semibin:
     run: "T"
     gtdbtk_analysis: "T"
