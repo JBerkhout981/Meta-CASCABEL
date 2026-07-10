@@ -64,6 +64,8 @@ input_files: "input.txt"
 # (only the reads!, the metadata file always needs to be uncompressed) or "F"  #
 # if the input files are regular fastq files                                   #
 #------------------------------------------------------------------------------#
+
+# Now gzip_inpt files will stay gzipt
 gzip_input: "T"
 
 #------------------------------------------------------------------------------#
