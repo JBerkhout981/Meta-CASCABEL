@@ -67,10 +67,14 @@ if config["trimm"]["trimming"].lower() == "t":
             tmp_seq="{PROJECT}/samples/{sample}/qc/sequali/sequali.html" if config["QC"]["onRawReads"].lower() == "t"
             else []
         output:
-            read1_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_paired.fq",
-            read1_single="{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_singles.fq",
-            read2_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read2_paired.fq",
-            read2_single="{PROJECT}/runs/{run}/{sample}_data/trimmed/read2_singles.fq",
+            read1_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_paired.fq" if config["gzip_input"] == "F" else
+            "{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_paired.fq.gz",
+            read1_single="{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_singles.fq" if config["gzip_input"] == "F" else
+            "{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_singles.fq.gz",
+            read2_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read2_paired.fq" if config["gzip_input"] == "F" else
+            "{PROJECT}/runs/{run}/{sample}_data/trimmed/read2_paired.fq.gz",
+            read2_single="{PROJECT}/runs/{run}/{sample}_data/trimmed/read2_singles.fq" if config["gzip_input"] == "F" else
+            "{PROJECT}/runs/{run}/{sample}_data/trimmed/read2_singles.fq.gz",
             log="{PROJECT}/runs/{run}/{sample}_data/trimmed/trimmomatic.log"
         benchmark:
             "{PROJECT}/runs/{run}/{sample}_data/trimmed/trimmomatic.benchmark"
