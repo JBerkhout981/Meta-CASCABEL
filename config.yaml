@@ -77,7 +77,7 @@ gzip_input: "T"
 # The RUN variable can be set here or remain empty, in the latter case, the    #
 # user must assign this value via the command line --config RUN=User_run_name  #
 #------------------------------------------------------------------------------#
-RUN: "Test_spades_skip_trimmomatic"
+RUN: "Test_semibin"
 
 #------------------------------------------------------------------------------#
 #                            Description                                       #
@@ -86,7 +86,7 @@ RUN: "Test_spades_skip_trimmomatic"
 # included on the final report. This field is not mandatory so it can remain   #
 # empty                                                                        #
 #------------------------------------------------------------------------------#
-description: "Testing reportfile"
+description: "Adding binning to rapport file"
 
 #------------------------------------------------------------------------------#
 #                             Execution mode                                   #
@@ -330,7 +330,7 @@ TAXONOMY:
 # contigs               If ASSEMBLER = "ASSEMBLED" supply file pointing to     #
 #                       contigs/scaffolds.                                     #
 #------------------------------------------------------------------------------#
-ASSEMBLER: "SPADES"
+ASSEMBLER: "MEGAHIT"
 contigs: ""
 
 #------------------------------------------------------------------------------#
@@ -515,7 +515,8 @@ jgi_summ:
 #------------------------------------------------------------------------------#
 
 # The settings are more sensitive for DAS, if you don't use DAS make sure you change the settings to less sensitive
-BINNING: "DAS"
+# Binsanity and CONCOCT are the most memory inefficient
+BINNING: "SEMIBIN"
 
 #------------------------------------------------------------------------------#
 #                       Unbinned conntigs                                      #
@@ -656,7 +657,7 @@ binsanity:
 #------------------------------------------------------------------------------#
 #                       DAS Tool                                               #
 # rule: das                                                                    #
-#=======================DESCRIPTION============================================#
+#=========DESCRIPTION==========================================================#
 # DAS Tool is an automated method that integrates the results of a flexible    #
 # number of binning algorithms to calculate an optimized, non-redundant set of #
 # bins from a single assembly.                                                 #

@@ -1,15 +1,15 @@
 name: Datavzrd Report
 datasets:
-  FinalBins.summary:
-    path: FinalBins.summary.tsv
+  stats_bins:
+    path: stats_bins.tsv
     separator: "\t"
     headers: 1
     offer-excel: false
 max-in-memory-rows: 20000
 views:
-  FinalBins.summary:
+  stats_bins:
     hidden: false
-    dataset: FinalBins.summary
+    dataset: stats_bins
     page-size: 20
     render-table:
       columns:

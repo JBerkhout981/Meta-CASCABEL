@@ -1777,6 +1777,32 @@ rule summarize_final_bins:
         "{{if(FNR==1){{print \"New_BinID\",$0}}else if(h[$1$2]){{print h[$1$2],$0}} }}' "
         " - {input.summary} > {output}"
 
+rule merge_bins_stats:
+    input:
+        expand(
+            "{PROJECT}/runs/{run}/{sample}_data/binning/FinalBins.summary.tsv",
+            PROJECT=config["PROJECT"],
+            sample=config["SAMPLES"],
+            run=run
+        )
+    output:
+        "{PROJECT}/runs/{run}/tables/stats_bins.tsv"
+    benchmark:
+        "{PROJECT}/runs/{run}/tables/stats_bins.benchmark"
+    shell:
+        """
+        echo -e "Sample\tNew_BinID\tmethod\tBin Id\tMarker_lineage\t#genomes\t#markers\t#marker_sets\t0\t1\t2\t3\t4\t5+\tCompleteness\tContamination\tStrain_heterogeneity\tGTDB_classification\tGTDB_aa_percent\tGTDB_red_value\tGTDB_warnings\tnum_contigs\ttotal_length\tavg_depth\tavg_gc" > {output}
+
+        for file in {input};
+        do
+            sample=$(echo $file | awk -F'/' '{{gsub("_data","",$4); print $4}}')
+
+            tail -n +2 $file | \
+            awk -F"\t" -v s=$sample 'BEGIN{{OFS="\t"}} {{print s,$0}}' >> {output}
+
+        done
+        """
+
 rule create_yaml_bins_tbl:
     output:
         "{PROJECT}/runs/{run}/tables/bins.yaml"
@@ -1787,13 +1813,12 @@ rule datavzrd_bins:
     input:
         config="{PROJECT}/runs/{run}/tables/bins.yaml",
         # table=expand("{PROJECT}/runs/{run}/{sample}_data/binning/FinalBins.summary.tsv", PROJECT=config["PROJECT"],sample=config["SAMPLES"], run=run)
-        table="{PROJECT}/runs/{run}/{sample}_data/binning/FinalBins.summary.tsv"
+        table="{PROJECT}/runs/{run}/tables/stats_bins.tsv"
     output:
         report(
-            directory("{PROJECT}/runs/{run}/tables/bins/{sample}"),
+            directory("{PROJECT}/runs/{run}/tables/bins/"),
             htmlindex="index.html",
             category="6. Binning",
-            subcategory="{sample}",
             labels={"sample":"{sample}"}, 
         ),
     wrapper:
@@ -1838,7 +1863,7 @@ rule report:
          if config["trimm"]["trimming"] == "T" else
          "{PROJECT}/runs/{run}/{sample}_data/no_trimm.txt",
          "{PROJECT}/runs/{run}/tables/bwa",
-         # "{PROJECT}/runs/{run}/tables/bins/{sample}"
+         "{PROJECT}/runs/{run}/tables/bins/"
     output:
         temp("{PROJECT}/runs/{run}/{sample}_data/report_f.html")
         # "{PROJECT}/runs/{run}/{sample}_data/report_f.html"
