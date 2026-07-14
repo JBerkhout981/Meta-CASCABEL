@@ -739,16 +739,12 @@ rule merge_mapping_stats:
     params:
         report_dir="{PROJECT}/runs/{run}/*_data/bwa-mem/*.flagstat"
     shell:
-        #" echo -e \"Sample\\tAssembly\\tNum. contigs (>= 0 bp)\\tNum. contigs (>= 1000 bp)\\tNum. contigs (>= 5000 bp)\\tNum. contigs (>= 10000 bp)\\tNum. contigs (>= 25000 bp)\\tNum. contigs (>= 50000 bp)\\tTotal length (>= 0 bp)\\tTotal length (>= 1000 bp)\\tTotal length (>= 5000 bp)\\tTotal length (>= 10000 bp)\\tTotal length (>= 25000 bp)\\tTotal length (>= 50000 bp)\\tNum. contigs\\tLargest contig\\tTotal length\\tGC (%)\\tN50\\tN90\\tauN\\tL50\\tL90\\tNum. N's per 100 kbp\" > {output} ;"
         " echo -e \"Assembly\\tRaw reads\\tReads\\tMapped reads\\tMapped percentage\\tPaired\\tPaired prc\" > {output} ;"
         " for file in {params.report_dir} ; "
         " do "
         "   sample=$(echo $file | awk -F\"/\" '{{gsub(\"_data\",\"\",$4); split($NF,a,\"_\"); print $4\"\\t\"a[3]}}');  "
         "   cat $file | awk -v s=\"${{sample}}\" 'BEGIN{{OFS=\"\\t\"}} {{if(NR==1){{tot=$1}}else if(NR==7){{map=$1;gsub(/\\(|\\)/,\"\",$0);mapprc=$5}}else if(NR==12){{gsub(/\\(|\\)/,\"\",$0);paired=$1;pairedprc=$6}}}} END{{print s,tot,map,mapprc,paired,pairedprc >> \"{output}\"}}';"
-        " done"
-       # "   sample=$(echo $file | awk -F\"/\" '{{gsub(\"_data\",\"\",$4); print $4}}');"
-       # "   cat $file | grep  \"^Input Read\" | sed 's/(//g ; s/)//g' | awk -v samp=${{sample}} '{{print samp,$4,$7,$8,$12,$13,$17,$18,$20,$21 >> \"{output}\"}}';"
-       # " done " 
+        " done" 
 
 rule create_yaml_bwa_stats_tbl:
     output:
