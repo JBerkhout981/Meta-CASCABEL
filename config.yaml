@@ -13,7 +13,7 @@
 #                                                                              #
 # Author: Alejandro Abdala and Julia Engelmann                                 #
 # Date: 16/04/2026                                                             #
-# Version: 4.0                                                                 #
+# Version: 4.5                                                                 #
 ################################################################################
 
 ################################################################################
@@ -30,7 +30,7 @@
 # The name of the project for which the pipe line will be executed. This should#
 # be the same name used as the first parameter on init_sample.sh script        #
 #------------------------------------------------------------------------------#
-PROJECT: "MetaCascabelv4_test"
+PROJECT: "Testing_metacastcabel"
 
 #------------------------------------------------------------------------------#
 #                               SAMPLES                                        #
@@ -39,7 +39,7 @@ PROJECT: "MetaCascabelv4_test"
 # Same sample names used  with init_sample.sh script                           #
 # Include all the names between quotes, and comma separated                    #
 #------------------------------------------------------------------------------#
-SAMPLES: ["CURT3D-H2O1","CURT3D-PVC1"]
+SAMPLES: ["NIOZ114","NIOZ118","NIOZ130"]
 
 #------------------------------------------------------------------------------#
 #                             INPUT FILES                                      #
@@ -77,7 +77,7 @@ gzip_input: "T"
 # The RUN variable can be set here or remain empty, in the latter case, the    #
 # user must assign this value via the command line --config RUN=User_run_name  #
 #------------------------------------------------------------------------------#
-RUN: "Test_report"
+RUN: "Test_run"
 
 #------------------------------------------------------------------------------#
 #                            Description                                       #
@@ -131,12 +131,10 @@ interactive : "F"
 #------------------------------------------------------------------------------#
 
 QC:
-  onRawReads: "F"
-  onTrimmedReads: "F"
+  onRawReads: "T"
+  onTrimmedReads: "T"
   threads: 10
   extra_params: ""
-
-
 
 #------------------------------------------------------------------------------#
 #                       Trimmomatic                                            #
@@ -506,8 +504,7 @@ jgi_summ:
 # - BINSANITY           this option runs BinSanity workflow                    #
 # - DAS                 this option run all the above methods and then refine  #
 #                       bins with DASTool                                      #
-# - SEMIBIN             This option runs multi sample binning with semibin2.   #
-#                       Does not work with DAS                                 #
+# - SEMIBIN             This option runs single sample binning with semibin2.  #
 #                                                                              #
 # After selecting the target method, you can fine tune the options for each    #
 # tool, using the options below                                                #                           
@@ -515,7 +512,7 @@ jgi_summ:
 
 # The settings are more sensitive for DAS, if you don't use DAS make sure you change the settings to less sensitive
 # Binsanity and CONCOCT are the most memory inefficient
-BINNING: "METABAT"
+BINNING: "DAS"
 
 #------------------------------------------------------------------------------#
 #                       Unbinned conntigs                                      #
@@ -524,7 +521,7 @@ BINNING: "METABAT"
 # If this option is set to "T" (true) , a file with all the unbinned contigs   #
 # will be created.
 #------------------------------------------------------------------------------#
-CREATE_UNBINNED: "F"
+CREATE_UNBINNED: "T"
 
 #------------------------------------------------------------------------------#
 #                       Semibin Tool                                           #
@@ -561,7 +558,7 @@ semibin:
 #------------------------------------------------------------------------------#
 metabat2:
   threads: "20"
-  min_contig: "2500"
+  min_contig: "1500"
   min_score: "30"
   maxP: "98"
   maxEdge: "400"
@@ -686,8 +683,8 @@ das:
   search_engine: diamond
   extra_params: ""
   metabat:
-    gtdbtk_analysis: "T"
-    checkm_analysis: "T"
+    gtdbtk_analysis: "F"
+    checkm_analysis: "F"
   binsanity: 
     run: "F"
     gtdbtk_analysis: "F"
@@ -697,14 +694,13 @@ das:
    gtdbtk_analysis: "F"
    checkm_analysis: "F"
   maxbin: 
-    run: "T"
+    run: "F"
     gtdbtk_analysis: "T"
     checkm_analysis: "T"
   semibin:
-    run: "T"
+    run: "F"
     gtdbtk_analysis: "T"
     checkm_analysis: "T"
-
 
 #------------------------------------------------------------------------------#
 #                       chekM                                                  #

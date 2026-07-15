@@ -1859,7 +1859,7 @@ rule report:
          if config["trimm"]["trimming"] == "T" else
          "{PROJECT}/runs/{run}/{sample}_data/no_trimm.txt",
          "{PROJECT}/runs/{run}/tables/bwa",
-         "{PROJECT}/runs/{run}/tables/bins/"
+         # "{PROJECT}/runs/{run}/tables/bins/"
     output:
         temp("{PROJECT}/runs/{run}/{sample}_data/report_f.html")
         # "{PROJECT}/runs/{run}/{sample}_data/report_f.html"
