@@ -1,7 +1,7 @@
 name: Datavzrd Report
 datasets:
   stats_bins:
-    path: stats_bins.tsv
+    path: ?input.table
     separator: "\t"
     headers: 1
     offer-excel: false
