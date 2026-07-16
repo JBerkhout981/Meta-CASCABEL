@@ -1465,7 +1465,7 @@ rule summarize_coverage:
         "{PROJECT}/runs/{run}/{sample}_data/binning/summary_abundance.tsv"
     shell:
         "cat {params.abundance_folder}abundance*.tsv | grep  -v num_contigs | "
-        "awk -F \"\\t\" 'FNR==NR{{if(NR>1){{h[$1$2]=$3\"\\t\"$4\"\\t\"$5}};next }} BEGIN{{OFS=\"\\t\"}} "
+        "awk -F \"\\t\" 'FNR==NR{{{{h[$1$2]=$3\"\\t\"$4\"\\t\"$5}};next }} BEGIN{{OFS=\"\\t\"}} "
         "{{if(FNR==1){{print $0,\"num_contigs\",\"total_length\",\"avg_depth\" }}else{{print $0,h[$1$2]}} }}' "
         " - {input.summary} > {output}"
         
@@ -1570,7 +1570,7 @@ rule summarize_gc_prc:
         "{PROJECT}/runs/{run}/{sample}_data/binning/summary_abundance_coverage.tsv"
     shell:
         "cat {params.prc_folder}gc_prc*.tsv |  "
-        "awk -F \"\\t\" 'FNR==NR{{if(NR>1){{h[$1$2]=$3}};next }} BEGIN{{OFS=\"\\t\"}} "
+        "awk -F \"\\t\" 'FNR==NR{{{{h[$1$2]=$3}};next }} BEGIN{{OFS=\"\\t\"}} "
         "{{if(FNR==1){{print $0,\"avg_gc\" }}else{{print $0,h[$1$2]}} }}' "
         " - {input.summary} > {output}"
 
@@ -1815,7 +1815,7 @@ rule datavzrd_bins:
             directory("{PROJECT}/runs/{run}/tables/bins/"),
             htmlindex="index.html",
             category="6. Binning",
-            labels={"sample":"{sample}"}, 
+            # labels={"sample":"{sample}"}, 
         ),
     wrapper:
         "v4.7.2/utils/datavzrd"
@@ -1859,7 +1859,7 @@ rule report:
          if config["trimm"]["trimming"] == "T" else
          "{PROJECT}/runs/{run}/{sample}_data/no_trimm.txt",
          "{PROJECT}/runs/{run}/tables/bwa",
-         # "{PROJECT}/runs/{run}/tables/bins/"
+         "{PROJECT}/runs/{run}/tables/bins/"
     output:
         temp("{PROJECT}/runs/{run}/{sample}_data/report_f.html")
         # "{PROJECT}/runs/{run}/{sample}_data/report_f.html"
