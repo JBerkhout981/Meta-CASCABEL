@@ -30,7 +30,7 @@
 # The name of the project for which the pipe line will be executed. This should#
 # be the same name used as the first parameter on init_sample.sh script        #
 #------------------------------------------------------------------------------#
-PROJECT: "Testing_metacastcabel"
+PROJECT: "Testing_trimmed_reads"
 
 #------------------------------------------------------------------------------#
 #                               SAMPLES                                        #
@@ -66,7 +66,7 @@ input_files: "input.txt"
 #------------------------------------------------------------------------------#
 
 # Now gzip_inpt files will stay gzipt
-gzip_input: "T"
+gzip_input: "F"
 
 #------------------------------------------------------------------------------#
 #                               RUN                                            #
@@ -77,7 +77,7 @@ gzip_input: "T"
 # The RUN variable can be set here or remain empty, in the latter case, the    #
 # user must assign this value via the command line --config RUN=User_run_name  #
 #------------------------------------------------------------------------------#
-RUN: "Test_report"
+RUN: "Testje"
 
 #------------------------------------------------------------------------------#
 #                            Description                                       #
@@ -86,7 +86,7 @@ RUN: "Test_report"
 # included on the final report. This field is not mandatory so it can remain   #
 # empty                                                                        #
 #------------------------------------------------------------------------------#
-description: "Adding binning to rapport file"
+description: "Testing working with pre trimmed reads. Using skip_trimmomatic and SPADES without singles"
 
 #------------------------------------------------------------------------------#
 #                             Execution mode                                   #
@@ -95,7 +95,7 @@ description: "Adding binning to rapport file"
 # the pipeline. For a list for all the "interactive" checkpoints take a look   #
 # into the following link: TBD                                                 #
 #------------------------------------------------------------------------------#
-interactive : "F"
+interactive : "T"
 
 
 ################################################################################
@@ -216,7 +216,7 @@ QC:
 # Adapters is now a fixed path
 
 trimm:
-  trimming: "T"
+  trimming: "F"
   mode: "PE"
   threads: 15
   clip:
@@ -327,7 +327,7 @@ TAXONOMY:
 # contigs               If ASSEMBLER = "ASSEMBLED" supply file pointing to     #
 #                       contigs/scaffolds.                                     #
 #------------------------------------------------------------------------------#
-ASSEMBLER: "MEGAHIT"
+ASSEMBLER: "SPADES"
 contigs: ""
 
 #------------------------------------------------------------------------------#
@@ -479,7 +479,7 @@ ANALYSIS: "CONTIGS"
 bwa:
   nice: "5"
   threads: "12"
-  differential_coverage_matrix: "T"
+  differential_coverage_matrix: "F"
 
 #------------------------------------------------------------------------------#
 #                       jgi_summarize_bam_contig_depths                        #
@@ -707,7 +707,7 @@ das:
     gtdbtk_analysis: "T"
     checkm_analysis: "T"
   semibin:
-    run: "F"
+    run: "T"
     gtdbtk_analysis: "T"
     checkm_analysis: "T"
 

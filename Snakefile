@@ -779,14 +779,6 @@ rule total_coverage:
         if config["bwa"]["differential_coverage_matrix"].lower() == "f" else
         "awk -F'\\t' 'NR > 1 {{for(x=1;x<=NF;x++) if(x == 1 || (x >= 4 && x % 2 == 0)) printf \"%s\", $x (x == NF || x == (NF-1) ? \"\\n\":\"\\t\")}}'  {input} > {output}"
 
-rule maxbin_coverage:
-    input:
-        "{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_depth.txt"
-    output:
-        "{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_depth_avg_maxbin.txt"
-    shell:
-        "awk -F '\\t' -v col=\"CONTIGS_SPADESvs_{wildcards.sample}_mapped_against_cross-assembly_sorted.bam\" 'NR==1{{for (i=1; i<=NF; i++) if ($i == col){{c=i; break}}}} NR>1{{print $1\"\\t\"$c}}' {input} > {output}"
-
 if config["BINNING"] == "METABAT" or config["BINNING"] == "DAS":
     rule metabat:
         input:
@@ -817,6 +809,14 @@ elif config["BINNING"] != "METABAT":
             "touch {output}"
 
 if config["BINNING"] == "MAXBIN" or (config["BINNING"] == "DAS" and config["das"]["maxbin"]["run"]=="T" ):
+    rule maxbin_coverage:
+        input:
+            "{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_depth.txt"
+        output:
+            "{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_depth_avg_maxbin.txt"
+        shell:
+            "awk -F '\\t' -v col=\"CONTIGS_SPADESvs_{wildcards.sample}_mapped_against_cross-assembly_sorted.bam\" 'NR==1{{for (i=1; i<=NF; i++) if ($i == col){{c=i; break}}}} NR>1{{print $1\"\\t\"$c}}' {input} > {output}"
+
     rule maxbin:
         """
         Please make sure that your abundance information is provided in the following format:
@@ -973,8 +973,8 @@ if config["BINNING"] == "SEMIBIN" or (config["BINNING"] == "DAS" and config["das
                 -o {params} \
                 --compression none \
                 -t {config[semibin][threads]} \
-                --minfasta-kbs {config[semibin][min_bin_size]}
-                --max-edges {config[semibin][max_edge]}
+                --minfasta-kbs {config[semibin][min_bin_size]} \
+                --max-edges {config[semibin][max_edge]} \
                 {config[semibin][extra_params]}
             """  
 elif (config["BINNING"] == "DAS" and config["das"]["semibin"]["run"]!="T") or config["BINNING"] != "SEMIBIN":
