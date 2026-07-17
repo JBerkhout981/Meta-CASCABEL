@@ -474,12 +474,12 @@ ANALYSIS: "CONTIGS"
 #                       value of minus 20 represents the highest priority      #
 #                       level, whereas 19 represents the lowest.               #
 # threads               number of threads                                      #
-# differential_coverage_matrix                                                 #
+# differential_coverage_matrix  Cross mapping or coassembly maybe??            #
 #------------------------------------------------------------------------------#
 bwa:
   nice: "5"
   threads: "12"
-  differential_coverage_matrix: "F"
+  differential_coverage_matrix: "T"
 
 #------------------------------------------------------------------------------#
 #                       jgi_summarize_bam_contig_depths                        #
@@ -512,7 +512,7 @@ jgi_summ:
 
 # The settings are more sensitive for DAS, if you don't use DAS make sure you change the settings to less sensitive
 # Binsanity and CONCOCT are the most memory inefficient
-BINNING: "METABAT"
+BINNING: "DAS"
 
 #------------------------------------------------------------------------------#
 #                       Unbinned conntigs                                      #
@@ -522,18 +522,6 @@ BINNING: "METABAT"
 # will be created.
 #------------------------------------------------------------------------------#
 CREATE_UNBINNED: "T"
-
-#------------------------------------------------------------------------------#
-#                       Semibin Tool                                           #
-# rule:                                                                        #
-#=======================DESCRIPTION============================================#
-# type                  'SINGLE' if you want to eprform single sample binning  #
-#                       'MULTI' if you want to perfomr multi-sample binning    #
-# threads               Number of threads you want to use                      #
-#=======================PARAMS=================================================#
-semibin:
-  type: "SINGLE"
-  threads: 20
 
 #------------------------------------------------------------------------------#
 #                       MetaBAT2                                               #
@@ -558,7 +546,7 @@ semibin:
 #------------------------------------------------------------------------------#
 metabat2:
   threads: "20"
-  min_contig: "1500"
+  min_contig: "2500"
   min_score: "30"
   maxP: "98"
   maxEdge: "400"
@@ -651,6 +639,26 @@ binsanity:
   extra_params: ""
 
 #------------------------------------------------------------------------------#
+#                       Semibin Tool                                           #
+# rule:                                                                        #
+#=======================DESCRIPTION============================================#
+# Guide: https://semibin.readthedocs.io/en/latest/                             #
+#=======================PARAMS=================================================#
+# type                  'SINGLE' if you want to eprform single sample binning  #
+#                       'MULTI' if you want to perfomr multi-sample binning    #
+# threads               Number of threads you want to use                      #
+# min_bin_size          Minimum bin size in kilo-basepairs (Default: 200)      #
+# max_edge              The maximum number of edges that can be connected to   #
+#                       one contig (Default: 200)                              #
+# extra_params          See 'Subcommand reference' in the guide                #
+#------------------------------------------------------------------------------#
+semibin:
+  threads: "20"
+  min_bin_size: "200"
+  max_edge: "200"
+  extra_params: ""
+
+#------------------------------------------------------------------------------#
 #                       DAS Tool                                               #
 # rule: das                                                                    #
 #=========DESCRIPTION==========================================================#
@@ -675,6 +683,7 @@ binsanity:
 #------------------------------------------------------------------------------#
 
 # max_interation in description but not in params
+# Binsanity and CONCOCT are the most memory inefficient
 
 das:
   threads: "20"
@@ -683,8 +692,8 @@ das:
   search_engine: diamond
   extra_params: ""
   metabat:
-    gtdbtk_analysis: "F"
-    checkm_analysis: "F"
+    gtdbtk_analysis: "T"
+    checkm_analysis: "T"
   binsanity: 
     run: "F"
     gtdbtk_analysis: "F"
@@ -694,7 +703,7 @@ das:
    gtdbtk_analysis: "F"
    checkm_analysis: "F"
   maxbin: 
-    run: "F"
+    run: "T"
     gtdbtk_analysis: "T"
     checkm_analysis: "T"
   semibin:

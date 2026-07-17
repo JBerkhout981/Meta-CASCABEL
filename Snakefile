@@ -970,9 +970,12 @@ if config["BINNING"] == "SEMIBIN" or (config["BINNING"] == "DAS" and config["das
             SemiBin2 single_easy_bin \
                 -i {input.assembly} \
                 -b {input.depth} \
-                -t {config[semibin][threads]} \
                 -o {params} \
-                --compression none
+                --compression none \
+                -t {config[semibin][threads]} \
+                --minfasta-kbs {config[semibin][min_bin_size]}
+                --max-edges {config[semibin][max_edge]}
+                {config[semibin][extra_params]}
             """  
 elif (config["BINNING"] == "DAS" and config["das"]["semibin"]["run"]!="T") or config["BINNING"] != "SEMIBIN":
     rule skip_semibin:
@@ -1812,7 +1815,7 @@ rule datavzrd_bins:
         table="{PROJECT}/runs/{run}/tables/stats_bins.tsv"
     output:
         report(
-            directory("{PROJECT}/runs/{run}/tables/bins/"),
+            directory("{PROJECT}/runs/{run}/tables/bins"),
             htmlindex="index.html",
             category="6. Binning",
             # labels={"sample":"{sample}"}, 
@@ -1848,18 +1851,18 @@ rule report:
         #"{PROJECT}/runs/{run}/{sample}_data/metabat2/bin/metabat2.log",
          #"{PROJECT}/runs/{run}/{sample}_data/binning/checkM/summary.txt",
          #"{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk/summary.txt",
-         "{PROJECT}/runs/{run}/{sample}_data/binning/summary.tsv",
-         "{PROJECT}/runs/{run}/{sample}_data/binning/summary_abundance.tsv",
+         # "{PROJECT}/runs/{run}/{sample}_data/binning/summary.tsv",
+         # "{PROJECT}/runs/{run}/{sample}_data/binning/summary_abundance.tsv",
          "{PROJECT}/runs/{run}/{sample}_data/unbinned/unbinned.fasta"
          if config["CREATE_UNBINNED"] == "T" else
-         "{PROJECT}/runs/{run}/{sample}_data/unbinned/unbinned.txt",
-         "{PROJECT}/runs/{run}/{sample}_data/binning/FinalBins.summary.tsv",
+         # "{PROJECT}/runs/{run}/{sample}_data/unbinned/unbinned.txt",
+         # "{PROJECT}/runs/{run}/{sample}_data/binning/FinalBins.summary.tsv",
          "{PROJECT}/runs/{run}/{sample}_data/binning/FinalBins/contig_coverage.txt",
          "{PROJECT}/runs/{run}/tables/trimmomatic"
          if config["trimm"]["trimming"] == "T" else
          "{PROJECT}/runs/{run}/{sample}_data/no_trimm.txt",
          "{PROJECT}/runs/{run}/tables/bwa",
-         "{PROJECT}/runs/{run}/tables/bins/"
+         "{PROJECT}/runs/{run}/tables/bins"
     output:
         temp("{PROJECT}/runs/{run}/{sample}_data/report_f.html")
         # "{PROJECT}/runs/{run}/{sample}_data/report_f.html"
