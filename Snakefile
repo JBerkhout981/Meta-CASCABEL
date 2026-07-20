@@ -616,7 +616,7 @@ rule bwa_index:
     params:
         "{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_assembly"
     conda:
-        "envs/bwa.yaml"
+        "envs/bwa_sam.yaml"
     shell:
         "bwa index -p {params} {input.assembly}"
 #nice -5 bwa mem -t 4 $folderOut/cross-assembly $fq1 $fq2 \
@@ -636,7 +636,7 @@ rule bwa_mem:
     threads:
         int(config["bwa"]["threads"])
     conda:
-        "envs/bwa.yaml"
+        "envs/bwa_sam.yaml"
     shell:
         "nice -{config[bwa][nice]} bwa mem -t {config[bwa][threads]} {params} "
         "{input.read1_paired} {input.read2_paired} "
@@ -658,7 +658,7 @@ rule bwa_mem_new:
     threads:
         int(config["bwa"]["threads"])
     conda:
-        "envs/bwa.yaml"
+        "envs/bwa_sam.yaml"
     shell:
         "nice -{config[bwa][nice]} bwa mem -t {config[bwa][threads]} {params} "
         "{input.read1_paired} {input.read2_paired} "
@@ -682,7 +682,7 @@ rule bwa_mem_mtx:
     threads:
         int(config["bwa"]["threads"])
     conda:
-        "envs/bwa.yaml"
+        "envs/bwa_sam.yaml"
     script:
         "Scripts/bwa_mem.py"
 
@@ -702,7 +702,7 @@ rule sam_flags:
     params:
         idx="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"
     conda:
-        "envs/samtools.yaml"
+        "envs/bwa_sam.yaml"
     shell:
         "samtools flagstat --threads {config[bwa][threads]} {input} > {output}"
         if config["bwa"]["differential_coverage_matrix"].lower() == "f" else

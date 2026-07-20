@@ -695,7 +695,7 @@ das:
     gtdbtk_analysis: "T"
     checkm_analysis: "T"
   binsanity: 
-    run: "T"
+    run: "F"
     gtdbtk_analysis: "T"
     checkm_analysis: "T"
   concoct: 
@@ -738,7 +738,8 @@ checkM:
 #------------------------------------------------------------------------------#
 gtdbtk:
   cpus: "35"
-  extra_params: "--min_perc_aa 0.5 --force"
+  extra_params: ""
+  # extra_params: "--min_perc_aa 0.5 --force"
 
 #------------------------------------------------------------------------------#
 #                       Prokka                                                 #
