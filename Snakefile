@@ -1027,7 +1027,7 @@ if config["BINNING"] == "DAS":
             bs_input=",{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/binTable.tsv" if config["das"]["binsanity"]["run"]=="T" else "",
             mx_input=",{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/binTable.tsv" if config["das"]["maxbin"]["run"]=="T" else "",
             cc_input=",{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/binTable.tsv" if config["das"]["concoct"]["run"]=="T" else "",
-            sb_input=",{PROJECT}/runs/{run}/{sample}_data/binning/semibin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/binTable.tsv" if config["das"]["semibin"]["run"]=="T" else "",
+            sb_input=",{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/binTable.tsv" if config["das"]["semibin"]["run"]=="T" else "",
             bs_l=",binsanity" if config["das"]["binsanity"]["run"]=="T" else "",
             mx_l=",maxbin"  if config["das"]["maxbin"]["run"]=="T" else "",
             cc_l=",concoct"  if config["das"]["concoct"]["run"]=="T" else "",
