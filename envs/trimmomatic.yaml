@@ -2,7 +2,6 @@ name: trimmomatic
 channels:
   - bioconda
   - conda-forge
-  - defaults
   
 dependencies:
-  - trimmomatic
+  - trimmomatic=0.39

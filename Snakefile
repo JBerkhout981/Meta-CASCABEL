@@ -76,8 +76,8 @@ if config["trimm"]["trimming"].lower() == "t":
             "{PROJECT}/runs/{run}/{sample}_data/trimmed/trimmomatic.benchmark"
         threads:
             int(config["trimm"]["threads"])
-        # conda:
-        #     "envs/trimmomatic.yaml"
+        conda:
+            "envs/trimmomatic.yaml"
         shell:
             "trimmomatic {config[trimm][mode]} -threads {config[trimm][threads]} {input.fw} {input.rv} "
             "{output.read1_paired} {output.read1_single} {output.read2_paired} {output.read2_single} "
@@ -119,8 +119,8 @@ if config["trimm"]["trimming"].lower() == "t":
                 category="3. Read trimming",
                 labels={"table":"Trimming results"},
             ),
-        # conda:
-        #     "envs/trimmomatic.yaml"
+        conda:
+            "envs/datavzrd.yaml"
         wrapper:
             "v4.7.2/utils/datavzrd"
 else:
@@ -598,6 +598,8 @@ rule datavzrd_assembly:
             category="4. Assembly",
             labels={"Assembler": ""+ config["ASSEMBLER"]},
         ),
+    conda:
+        "envs/datavzrd.yaml"
     wrapper:
         "v4.7.2/utils/datavzrd"
 
@@ -762,6 +764,8 @@ rule datavzrd_bwa:
             htmlindex="index.html",
             category="5. Read Mapping",
         ),
+    conda:
+        "envs/datavzrd.yaml"
     wrapper:
         "v4.7.2/utils/datavzrd"
 
@@ -1813,6 +1817,8 @@ rule datavzrd_bins:
             htmlindex="index.html",
             category="6. Binning",
         ),
+    conda:
+        "envs/datavzrd.yaml"
     wrapper:
         "v4.7.2/utils/datavzrd"
 
