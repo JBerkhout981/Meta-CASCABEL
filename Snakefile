@@ -1778,12 +1778,7 @@ rule summarize_final_bins:
 
 rule merge_bins_stats:
     input:
-        expand(
-            "{PROJECT}/runs/{run}/{sample}_data/binning/FinalBins.summary.tsv",
-            PROJECT=config["PROJECT"],
-            sample=config["SAMPLES"],
-            run=run
-        )
+        expand("{PROJECT}/runs/{run}/{sample}_data/binning/FinalBins.summary.tsv",PROJECT=config["PROJECT"],sample=config["SAMPLES"],run=run)
     output:
         "{PROJECT}/runs/{run}/tables/stats_bins.tsv"
     benchmark:
@@ -1811,14 +1806,12 @@ rule create_yaml_bins_tbl:
 rule datavzrd_bins:
     input:
         config="{PROJECT}/runs/{run}/tables/bins.yaml",
-        # table=expand("{PROJECT}/runs/{run}/{sample}_data/binning/FinalBins.summary.tsv", PROJECT=config["PROJECT"],sample=config["SAMPLES"], run=run)
         table="{PROJECT}/runs/{run}/tables/stats_bins.tsv"
     output:
         report(
             directory("{PROJECT}/runs/{run}/tables/bins"),
             htmlindex="index.html",
             category="6. Binning",
-            # labels={"sample":"{sample}"}, 
         ),
     wrapper:
         "v4.7.2/utils/datavzrd"
