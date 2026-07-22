@@ -4,5 +4,5 @@ channels:
 
 dependencies:
   - python=3.10
-  - setuptools
-  - datavzrd
+  - setuptools=65.4.1
+  - datavzrd=2.41.2

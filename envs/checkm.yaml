@@ -5,4 +5,4 @@ channels:
   - defaults
 
 dependencies:
-  - checkm-genome
+  - checkm-genome=1.2.1

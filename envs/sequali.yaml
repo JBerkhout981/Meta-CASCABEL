@@ -5,4 +5,4 @@ channels:
   - defaults
 
 dependencies:
-  - sequali
+  - sequali=1.0.2

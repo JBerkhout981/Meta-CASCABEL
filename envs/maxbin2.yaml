@@ -5,4 +5,4 @@ channels:
   - defaults
 
 dependencies:
-  - maxbin2
+  - maxbin2=2.7.2

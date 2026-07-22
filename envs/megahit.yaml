@@ -5,4 +5,4 @@ channels:
   - defaults
 
 dependencies:
-  - megahit
+  - megahit=1.2.9

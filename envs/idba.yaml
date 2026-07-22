@@ -5,4 +5,4 @@ channels:
   - defaults
 
 dependencies:
-  - idba
+  - idba=1.1.3

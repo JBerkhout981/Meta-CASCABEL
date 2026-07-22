@@ -5,4 +5,4 @@ channels:
   - defaults
 
 dependencies:
-  - spades
+  - spades=3.15.5

@@ -5,4 +5,4 @@ channels:
   - defaults
 
 dependencies:
-  - semibin=2.*
+  - semibin=2.4.0

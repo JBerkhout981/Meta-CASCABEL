@@ -5,4 +5,4 @@ channels:
   - defaults
 
 dependencies:
-  - metabat2
+  - metabat2=2.12.1
