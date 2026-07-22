@@ -52,7 +52,7 @@ if config["QC"]["onRawReads"].lower() == "t":
         benchmark:
             "{PROJECT}/samples/{sample}/benchmark/sequali.benchmark"
         conda:
-            "envs/sequali.yaml"
+            "resources/envs/sequali.yaml"
         shell:
             "sequali --outdir {params.outdir} --html  sequali.html --json sequali.json -t {config[QC][threads]}  {config[QC][extra_params]}  {input}"
 
@@ -77,7 +77,7 @@ if config["trimm"]["trimming"].lower() == "t":
         threads:
             int(config["trimm"]["threads"])
         conda:
-            "envs/trimmomatic.yaml"
+            "resources/envs/trimmomatic.yaml"
         shell:
             "trimmomatic {config[trimm][mode]} -threads {config[trimm][threads]} {input.fw} {input.rv} "
             "{output.read1_paired} {output.read1_single} {output.read2_paired} {output.read2_single} "
@@ -120,7 +120,7 @@ if config["trimm"]["trimming"].lower() == "t":
                 labels={"table":"Trimming results"},
             ),
         conda:
-            "envs/datavzrd.yaml"
+            "resources/envs/datavzrd.yaml"
         wrapper:
             "v4.7.2/utils/datavzrd"
 else:
@@ -161,7 +161,7 @@ if config["QC"]["onTrimmedReads"].lower() == "t":
         threads:
             int(config["QC"]["threads"])
         conda:
-            "envs/sequali.yaml"
+            "resources/envs/sequali.yaml"
         shell:
             "sequali --outdir {params.outdir} --html  sequali.html --json sequali.json -t {config[QC][threads]}  {config[QC][extra_params]}  {input}"
 
@@ -235,7 +235,7 @@ if config["TAXONOMY"]["PROFILING"] == "KAIJU" or config["TAXONOMY"]["PROFILING"]
         threads:
             int(config["TAXONOMY"]["KAIJU"]["threads"])
         conda:
-            "envs/kaiju.yaml"
+            "resources/envs/kaiju.yaml"
         shell:
             "kaiju -i {input.fw} -j {input.rv} "
             " -t {config[TAXONOMY][KAIJU][nodes]}  -f {config[TAXONOMY][KAIJU][db]} "
@@ -249,7 +249,7 @@ if config["TAXONOMY"]["PROFILING"] == "KAIJU" or config["TAXONOMY"]["PROFILING"]
         output:
             "{PROJECT}/runs/{run}/{sample}_data/taxonomy/kaiju.taxonomy.out.labels"
         conda:
-            "envs/kaiju.yaml"
+            "resources/envs/kaiju.yaml"
         shell:
             "kaiju-addTaxonNames -t {config[TAXONOMY][KAIJU][nodes]} -n {config[TAXONOMY][KAIJU][names]} "
             "-i {input} {config[TAXONOMY][taxonomy_path]}  -o {output}"
@@ -262,7 +262,7 @@ if config["TAXONOMY"]["PROFILING"] == "KAIJU" or config["TAXONOMY"]["PROFILING"]
         output:
             "{PROJECT}/runs/{run}/{sample}_data/taxonomy/kaiju.taxonomy.out.report"
         conda:
-            "envs/kaiju.yaml"
+            "resources/envs/kaiju.yaml"
         shell:
            "kaiju2table -t {config[TAXONOMY][KAIJU][nodes]} -n {config[TAXONOMY][KAIJU][names]} "
             " {config[TAXONOMY][taxonomy_path]}  -o {output} {input}"
@@ -331,7 +331,7 @@ if config["ASSEMBLER"] == "SPADES":
         benchmark:
             "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/assembly.benchmark"
         conda:
-            "envs/spades.yaml"
+            "resources/envs/spades.yaml"
         shell:
             """
             if [[ "{config[trimm][trimming]}" == "T" ]]; then
@@ -360,7 +360,7 @@ if config["ASSEMBLER"] == "SPADES":
         threads:
             int(config["spades"]["threads"])
         conda:
-            "envs/spades.yaml"
+            "resources/envs/spades.yaml"
         shell:
             """
             if [[ "{config[trimm][trimming]}" == "T" ]]; then
@@ -399,7 +399,7 @@ if config["ASSEMBLER"] == "MEGAHIT":
         threads:
             int(config["megahit"]["cpus"])
         conda:
-            "envs/megahit.yaml"
+            "resources/envs/megahit.yaml"
         shell:
             "megahit -1 {input.read1_paired} -2 {input.read2_paired} -f --k-min {config[megahit][kmin]} "
             "--k-max {config[megahit][kmax]} --k-step {config[megahit][kstep]} {config[megahit][extra_params]} "
@@ -447,7 +447,7 @@ if config["ASSEMBLER"] == "IDBA":
         threads:
             int(config["idba"]["threads"])
         conda:
-            "envs/idba.yaml"
+            "resources/envs/idba.yaml"
         shell:
             "idba_ud -r {input} -o {params} "
             "--step {config[idba][step]} --num_threads {config[idba][threads]} {config[idba][extra_params]}"
@@ -493,7 +493,7 @@ rule quast_contigs:
     threads:
         int(config["quast"]["threads"])
     conda:
-        "envs/quast.yaml"
+        "resources/envs/quast.yaml"
     shell:
         "quast.py -t {config[quast][threads]} -o {params} {config[quast][extra_params]} {input[0]}"
 
@@ -509,7 +509,7 @@ rule quast_scaffolds:
     threads:
         int(config["quast"]["threads"])
     conda:
-        "envs/quast.yaml"
+        "resources/envs/quast.yaml"
     shell:
         "quast.py -t {config[quast][threads]} -o {params} -s {config[quast][extra_params]}  {input.scaffolds}"
 
@@ -599,7 +599,7 @@ rule datavzrd_assembly:
             labels={"Assembler": ""+ config["ASSEMBLER"]},
         ),
     conda:
-        "envs/datavzrd.yaml"
+        "resources/envs/datavzrd.yaml"
     wrapper:
         "v4.7.2/utils/datavzrd"
 
@@ -616,7 +616,7 @@ rule bwa_index:
     params:
         "{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_assembly"
     conda:
-        "envs/bwa_sam.yaml"
+        "resources/envs/bwa_sam.yaml"
     shell:
         "bwa index -p {params} {input.assembly}"
 #nice -5 bwa mem -t 4 $folderOut/cross-assembly $fq1 $fq2 \
@@ -636,7 +636,7 @@ rule bwa_mem:
     threads:
         int(config["bwa"]["threads"])
     conda:
-        "envs/bwa_sam.yaml"
+        "resources/envs/bwa_sam.yaml"
     shell:
         "nice -{config[bwa][nice]} bwa mem -t {config[bwa][threads]} {params} "
         "{input.read1_paired} {input.read2_paired} "
@@ -658,7 +658,7 @@ rule bwa_mem_new:
     threads:
         int(config["bwa"]["threads"])
     conda:
-        "envs/bwa_sam.yaml"
+        "resources/envs/bwa_sam.yaml"
     shell:
         "nice -{config[bwa][nice]} bwa mem -t {config[bwa][threads]} {params} "
         "{input.read1_paired} {input.read2_paired} "
@@ -682,7 +682,7 @@ rule bwa_mem_mtx:
     threads:
         int(config["bwa"]["threads"])
     conda:
-        "envs/bwa_sam.yaml"
+        "resources/envs/bwa_sam.yaml"
     script:
         "Scripts/bwa_mem.py"
 
@@ -702,7 +702,7 @@ rule sam_flags:
     params:
         idx="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"
     conda:
-        "envs/bwa_sam.yaml"
+        "resources/envs/bwa_sam.yaml"
     shell:
         "samtools flagstat --threads {config[bwa][threads]} {input} > {output}"
         if config["bwa"]["differential_coverage_matrix"].lower() == "f" else
@@ -765,7 +765,7 @@ rule datavzrd_bwa:
             category="5. Read Mapping",
         ),
     conda:
-        "envs/datavzrd.yaml"
+        "resources/envs/datavzrd.yaml"
     wrapper:
         "v4.7.2/utils/datavzrd"
 
@@ -798,7 +798,7 @@ if config["BINNING"] == "METABAT" or config["BINNING"] == "DAS":
         threads:
             int(config["metabat2"]["threads"])
         conda:
-            "envs/metabat2.yaml"
+            "resources/envs/metabat2.yaml"
         shell:
             "metabat2 -o {params} -i {input.assembly} -t {config[metabat2][threads]} "
             "-m {config[metabat2][min_contig]} -a {input.depth} "
@@ -841,7 +841,7 @@ if config["BINNING"] == "MAXBIN" or (config["BINNING"] == "DAS" and config["das"
         threads:
             int(config["maxbin"]["threads"])
         conda:
-            "envs/maxbin2.yaml"
+            "resources/envs/maxbin2.yaml"
         shell:
             "run_MaxBin.pl -contig {input.assembly} "
             "-abund  {input.depth} -out {params} -thread {config[maxbin][threads]} "
@@ -860,7 +860,7 @@ if config["BINNING"] == "CONCOCT" or ( config["BINNING"] == "DAS" and config["da
         output:
             concoct_activation="{PROJECT}/runs/{run}/concoct_activation.log"
         conda:
-            "envs/concoct.yaml"
+            "resources/envs/concoct.yaml"
         shell:
             "{config[concoct][activation_cmd]} && echo {config[concoct][activation_cmd]} > {output}"
     """
@@ -879,7 +879,7 @@ if config["BINNING"] == "CONCOCT" or ( config["BINNING"] == "DAS" and config["da
         threads:
             int(config["concoct"]["threads"])
         conda:
-            "envs/concoct.yaml"
+            "resources/envs/concoct.yaml"
         shell:
             "concoct -l {config[concoct][min_contig_length]} -i {config[concoct][max_iteration]} -t {config[concoct][threads]} "
             "--coverage_file {input.depth} --composition_file {input.assembly} {config[concoct][extra_params]}   -b {params}  > /dev/null 2>&1"
@@ -946,7 +946,7 @@ if config["BINNING"] == "BINSANITY" or (config["BINNING"] == "DAS" and config["d
         threads:
             int(config["binsanity"]["threads"])
         conda: 
-            "envs/binsanity.yaml"
+            "resources/envs/binsanity.yaml"
         shell:
             "Binsanity-wf -f {params.contig_directory} -l {params.assembly} -c {input.depth} -o {params.bin_directory} --binPrefix  final "
             #"/export/data/aabdala/utils/BInSanity/BinSanity-master/bin/Binsanity-wf -f {params.contig_directory} -l {params.assembly} -c {input.depth} -o {params.bin_directory} --binPrefix  final "
@@ -974,7 +974,7 @@ if config["BINNING"] == "SEMIBIN" or (config["BINNING"] == "DAS" and config["das
         threads:
             int(config["semibin"]["threads"])
         conda:
-            "envs/semibin.yaml"
+            "resources/envs/semibin.yaml"
         shell:
             """
             SemiBin2 single_easy_bin \
@@ -1048,7 +1048,7 @@ if config["BINNING"] == "DAS":
         threads:
             int(config["das"]["threads"])
         conda:
-            "envs/das.yaml"
+            "resources/envs/das.yaml"
         shell:
             "DAS_Tool -i {input.metabat_bin2t}{params.mx_input}{params.cc_input}{params.bs_input}{params.sb_input} "
             "-l metabat{params.mx_l}{params.cc_l}{params.bs_l}{params.sb_l} -c {input.assembly} -t {config[das][threads]} "
@@ -1075,7 +1075,7 @@ rule checkM_metabat2:
     threads:
         int(config["checkM"]["threads"])
     conda:
-        "envs/checkm.yaml"
+        "resources/envs/checkm.yaml"
     shell:
         "checkm lineage_wf -f {output.out_file} -t  {config[checkM][threads]} -x {params.bin_ext} {config[checkM][extra_params]} {params.bin_folder} {params.out_folder} "
 
@@ -1091,7 +1091,7 @@ rule checkM_maxbin:
     threads:
         int(config["checkM"]["threads"])
     conda:
-        "envs/checkm.yaml"
+        "resources/envs/checkm.yaml"
     shell:
         "checkm lineage_wf -f {output.out_file} -t  {config[checkM][threads]} -x {params.bin_ext} {config[checkM][extra_params]} {params.bin_folder} {params.out_folder} "
 
@@ -1106,7 +1106,7 @@ rule checkM_concoct:
     output:
         out_file="{PROJECT}/runs/{run}/{sample}_data/binning/checkM_concoct/summary.txt"
     conda:
-        "envs/checkm.yaml"
+        "resources/envs/checkm.yaml"
     shell:
         "checkm lineage_wf -f {output.out_file} -t  {config[checkM][threads]} -x {params.bin_ext} {config[checkM][extra_params]} {params.bin_folder} {params.out_folder} "
 
@@ -1122,7 +1122,7 @@ rule checkM_binsanity:
     output:
         out_file="{PROJECT}/runs/{run}/{sample}_data/binning/checkM_binsanity/summary.txt"
     conda:
-        "envs/checkm.yaml"
+        "resources/envs/checkm.yaml"
     shell:
         "checkm lineage_wf -f {output.out_file} -t  {config[checkM][threads]} -x {params.bin_ext} {config[checkM][extra_params]} {params.bin_folder} {params.out_folder} "
 
@@ -1138,7 +1138,7 @@ rule checkM_semibin2:
     threads:
         int(config["checkM"]["threads"])
     conda:
-        "envs/checkm.yaml"
+        "resources/envs/checkm.yaml"
     shell:
         "checkm lineage_wf -f {output.out_file} -t  {config[checkM][threads]} -x {params.bin_ext} {config[checkM][extra_params]} {params.bin_folder} {params.out_folder} "
 
@@ -1159,7 +1159,7 @@ rule checkM_das:
     threads:
         int(config["checkM"]["threads"])
     conda:
-        "envs/checkm.yaml"
+        "resources/envs/checkm.yaml"
     shell:
         "checkm lineage_wf -f {output.out_file} -t  {config[checkM][threads]} -x {params.bin_ext} {config[checkM][extra_params]} {params.bin_folder} {params.out_folder} "
 
@@ -1205,7 +1205,7 @@ rule gtdbtk_metabat2:
     threads:
         int(config["gtdbtk"]["cpus"])
     conda:
-        "envs/gtdbtk.yaml"
+        "resources/envs/gtdbtk.yaml"
     shell:
         "gtdbtk classify_wf --genome_dir {params.bin_folder} --out_dir {params.out_folder}  -x {params.bin_ext} --cpus {config[gtdbtk][cpus]} {config[gtdbtk][extra_params]} > {output}"
 
@@ -1221,7 +1221,7 @@ rule gtdbtk_maxbin:
     threads:
         int(config["gtdbtk"]["cpus"])
     conda:
-        "envs/gtdbtk.yaml"
+        "resources/envs/gtdbtk.yaml"
     shell:
         "gtdbtk classify_wf --genome_dir  {params.bin_folder} --out_dir {params.out_folder}  -x {params.bin_ext} --cpus {config[gtdbtk][cpus]} {config[gtdbtk][extra_params]}  > {output}"
 
@@ -1237,7 +1237,7 @@ rule gtdbtk_concoct:
     threads:
         int(config["gtdbtk"]["cpus"])
     conda:
-        "envs/gtdbtk.yaml"
+        "resources/envs/gtdbtk.yaml"
     shell:
         "gtdbtk classify_wf --genome_dir  {params.bin_folder} --out_dir {params.out_folder}  -x {params.bin_ext} --cpus {config[gtdbtk][cpus]} {config[gtdbtk][extra_params]}  > {output}"
 
@@ -1253,7 +1253,7 @@ rule gtdbtk_binsanity:
     threads:
         int(config["gtdbtk"]["cpus"])
     conda:
-        "envs/gtdbtk.yaml"
+        "resources/envs/gtdbtk.yaml"
     shell:
         "gtdbtk classify_wf --genome_dir  {params.bin_folder} --out_dir {params.out_folder}  -x {params.bin_ext} --cpus {config[gtdbtk][cpus]} {config[gtdbtk][extra_params]}  > {output} "
 
@@ -1269,7 +1269,7 @@ rule gtdbtk_semibin2:
     threads:
         int(config["gtdbtk"]["cpus"])
     conda:
-        "envs/gtdbtk.yaml"
+        "resources/envs/gtdbtk.yaml"
     shell:
         "gtdbtk classify_wf --genome_dir  {params.bin_folder} --out_dir {params.out_folder}  -x {params.bin_ext} --cpus {config[gtdbtk][cpus]} {config[gtdbtk][extra_params]}  > {output} "
 
@@ -1290,7 +1290,7 @@ rule gtdbtk_das:
     threads:
         int(config["gtdbtk"]["cpus"])
     conda:
-        "envs/gtdbtk.yaml"
+        "resources/envs/gtdbtk.yaml"
     shell:
         "gtdbtk classify_wf --genome_dir  {params.bin_folder} --out_dir {params.out_folder}  -x {params.bin_ext} --cpus {config[gtdbtk][cpus]} {config[gtdbtk][extra_params]} > {output} "
 
@@ -1824,7 +1824,7 @@ rule datavzrd_bins:
             category="6. Binning",
         ),
     conda:
-        "envs/datavzrd.yaml"
+        "resources/envs/datavzrd.yaml"
     wrapper:
         "v4.7.2/utils/datavzrd"
 
