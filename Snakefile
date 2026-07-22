@@ -805,7 +805,7 @@ if config["BINNING"] == "METABAT" or config["BINNING"] == "DAS":
             "--minS {config[metabat2][min_score]} --maxP {config[metabat2][maxP]} "
             "--maxEdges {config[metabat2][maxEdge]} -s {config[metabat2][min_bin_size]} "
             "{config[metabat2][extra_params]}  > {output}"
-elif config["BINNING"] != "METABAT":
+elif config["BINNING"] != "METABAT" and config["BINNING"] != "DAS":
     rule skip_metabat:
         output:
             log="{PROJECT}/runs/{run}/{sample}_data/binning/metabat2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/metabat.log"
@@ -848,7 +848,7 @@ if config["BINNING"] == "MAXBIN" or (config["BINNING"] == "DAS" and config["das"
             "-prob_threshold {config[maxbin][prob_threshold]} -markerset {config[maxbin][markerset]} "
             "-min_contig_length {config[maxbin][min_contig_length]}  "
             "{config[maxbin][plotmarker]} {config[maxbin][extra_params]} > {output.log}"
-elif (config["BINNING"] == "DAS" and config["das"]["maxbin"]["run"]!="T") or config["BINNING"] != "MAXBIN":
+elif (config["BINNING"] == "DAS" and config["das"]["maxbin"]["run"]!="T") or (config["BINNING"] != "MAXBIN" and config["BINNING"] != "DAS"):
     rule skip_maxbin:
         output:
             log="{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/maxbin.log"
@@ -859,6 +859,8 @@ if config["BINNING"] == "CONCOCT" or ( config["BINNING"] == "DAS" and config["da
     rule activate_concoct:
         output:
             concoct_activation="{PROJECT}/runs/{run}/concoct_activation.log"
+        conda:
+            "envs/concoct.yaml"
         shell:
             "{config[concoct][activation_cmd]} && echo {config[concoct][activation_cmd]} > {output}"
     """
@@ -876,6 +878,8 @@ if config["BINNING"] == "CONCOCT" or ( config["BINNING"] == "DAS" and config["da
             "{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/bin"
         threads:
             int(config["concoct"]["threads"])
+        conda:
+            "envs/concoct.yaml"
         shell:
             "concoct -l {config[concoct][min_contig_length]} -i {config[concoct][max_iteration]} -t {config[concoct][threads]} "
             "--coverage_file {input.depth} --composition_file {input.assembly} {config[concoct][extra_params]}   -b {params}  > /dev/null 2>&1"
@@ -895,7 +899,7 @@ if config["BINNING"] == "CONCOCT" or ( config["BINNING"] == "DAS" and config["da
             "{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/"
         shell:
             "extract_fasta_bins.py --output_path  {params} {input.assembly} {input.clustering} > {output.log}"
-elif (config["BINNING"] == "DAS" and config["das"]["concoct"]["run"]!="T") or config["BINNING"] != "CONCOCT":
+elif (config["BINNING"] == "DAS" and config["das"]["concoct"]["run"]!="T") or (config["BINNING"] != "CONCOCT" and config["BINNING"] != "DAS"):
     rule skip_concoct:
         output:
             log="{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/concoct.log",
@@ -925,7 +929,7 @@ if config["BINNING"] == "BINSANITY" or (config["BINNING"] == "DAS" and config["d
             temp("{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/assembly_coverage_gt0.fasta")
         shell:
             "cat {input.depth} | cut -f1 | grep -w -A1 --no-group-separator -F -f - {input.fasta}  > {output}" 
-    rule bin_sanity:
+    rule binsanity:
         input:
             depth="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_depth_avg_log.txt",
             assembly="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_scaffolds.fasta"
@@ -941,12 +945,14 @@ if config["BINNING"] == "BINSANITY" or (config["BINNING"] == "DAS" and config["d
             log="{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanityWf.log"
         threads:
             int(config["binsanity"]["threads"])
+        conda: 
+            "envs/binsanity.yaml"
         shell:
             "Binsanity-wf -f {params.contig_directory} -l {params.assembly} -c {input.depth} -o {params.bin_directory} --binPrefix  final "
             #"/export/data/aabdala/utils/BInSanity/BinSanity-master/bin/Binsanity-wf -f {params.contig_directory} -l {params.assembly} -c {input.depth} -o {params.bin_directory} --binPrefix  final "
             "-p {config[binsanity][preference]} -x {config[binsanity][min_contig_length]} --threads {config[binsanity][threads]} "
             "{config[binsanity][extra_params]}"
-elif (config["BINNING"] == "DAS" and config["das"]["binsanity"]["run"]!="T") or config["BINNING"] != "BINSANITY":
+elif (config["BINNING"] == "DAS" and config["das"]["binsanity"]["run"]!="T") or (config["BINNING"] != "BINSANITY" and config["BINNING"] != "DAS"):
     rule skip_bin_sanity:
         output:
             log="{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanityWf.log"
@@ -981,7 +987,7 @@ if config["BINNING"] == "SEMIBIN" or (config["BINNING"] == "DAS" and config["das
                 --max-edges {config[semibin][max_edge]} \
                 {config[semibin][extra_params]}
             """  
-elif (config["BINNING"] == "DAS" and config["das"]["semibin"]["run"]!="T") or config["BINNING"] != "SEMIBIN":
+elif (config["BINNING"] == "DAS" and config["das"]["semibin"]["run"]!="T") or (config["BINNING"] != "SEMIBIN" and config["BINNING"] != "DAS"):
     rule skip_semibin:
         output:
             log="{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/SemiBinRun.log"

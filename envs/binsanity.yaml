@@ -1,0 +1,10 @@
+name: binsanity
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+
+dependencies:
+  - python=3.10.6
+  - binsanity=0.5.4
+  - biopython=1.79

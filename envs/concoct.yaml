@@ -1,9 +1,8 @@
-name: gtdbtk
+name: concoct
 channels:
   - conda-forge
   - bioconda
   - defaults
 
 dependencies:
-  - gtdbtk=2.5.2
-  - python=3.10
+  - concoct
