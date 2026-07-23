@@ -525,6 +525,8 @@ if config["SPLIT_ASSEMBLY"] == "T":
             contigs="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.fasta"
         output:
             "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.chunks.fasta"
+        conda:
+            "resources/envs/concoct.yaml"
         shell:
             # "/opt/biolinux/anaconda2.2019.07/bin/cut_up_fasta.py -c {config[SPLIT_SIZE]} "
             # This pathway currently only works for ada, not ada94
@@ -724,6 +726,8 @@ rule summarize_bam:
         "{PROJECT}/runs/{run}/{sample}_data/bwa-mem/jgi_summ.benchmark"
     params:
         "{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+""
+    conda:
+        "resources/envs/metabat2.yaml"
     shell:
         "jgi_summarize_bam_contig_depths --outputDepth {output} {config[jgi_summ][extra_params]} {input}"
         if config["bwa"]["differential_coverage_matrix"].lower() == "f" else
