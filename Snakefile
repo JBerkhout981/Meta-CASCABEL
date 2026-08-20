@@ -1831,6 +1831,13 @@ else:
         shell:
             "echo 'prokka and diamond have not been executed' > {output}"
 
+rule cleanup:
+    output:
+        temp("{PROJECT}/runs/{run}/{sample}_data/cleanUp_flag.txt")
+    shell:
+        "touch {output}"
+
+
 rule report:
     input:
         # Taxonomy
@@ -1841,20 +1848,25 @@ rule report:
         "{PROJECT}/runs/{run}/{sample}_data/taxonomy/all.taxonomy.out"
         if config["TAXONOMY"]["PROFILING"] == "ALL" else
         "{PROJECT}/runs/{run}/{sample}_data/no_tax.txt",
+
         # Report
         "{PROJECT}/runs/{run}/tables/trimmomatic"
         if config["trimm"]["trimming"] == "T" else
         "{PROJECT}/runs/{run}/{sample}_data/trimmed/no_trimm.txt",
         "{PROJECT}/runs/{run}/tables/bwa",
         "{PROJECT}/runs/{run}/tables/bins",
+
         # Contig coverage per bin
         "{PROJECT}/runs/{run}/{sample}_data/binning/FinalBins/contig_coverage.txt",
+
         # Unbinned
         "{PROJECT}/runs/{run}/{sample}_data/unbinned/unbinned.fasta"
         if config["CREATE_UNBINNED"] == "T" else
         "{PROJECT}/runs/{run}/{sample}_data/unbinned/unbinned.txt",
         # Diamond
-        "{PROJECT}/runs/{run}/{sample}_data/binning/diamond_prokka_flag.txt"
+        "{PROJECT}/runs/{run}/{sample}_data/binning/diamond_prokka_flag.txt",
+        # Cleanup
+        "{PROJECT}/runs/{run}/{sample}_data/cleanUp_flag.txt"
     output:
         temp("{PROJECT}/runs/{run}/{sample}_data/report_f.html")
     shell:
