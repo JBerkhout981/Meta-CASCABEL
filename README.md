@@ -2,7 +2,7 @@
 
 Snakemake pipeline for assembly and binning of metagenomics reads.
 
-**Current version:** 3.0
+**Current version:** 5.0
 
 The pipeline creates different output files which allow the user to explore the data and results in a simple way, as well as facilitate downstream analysis based on the generated output files.
 
@@ -25,46 +25,40 @@ For each single metagenome you should supply the paired end raw reads:
 Forward raw reads (fastq or fastq.gz)
 Reverse raw reads (fastq or fastq.gz)
 
-In order to only perform the binning, you can also supply a fasta file containing your assemble. In such case, you also need to supply the raw data.
+In order to only perform the binning, you can also supply a fasta file containing your assembly. In such case, you also need to supply the raw data.
 
 **Download or clone the repository**
 
-> git clone https://github.com/AlejandroAb/Meta-CASCABEL.git
+> git clone -b MetaCASCABEL_v5 https://github.com/AlejandroAb/Meta-CASCABEL
 
 **Initialize directory structure**
 
-In case you want to process more than one metagenome you need to initialize all the target samples. For this, you need to execute the init_sample.sh script.
+There are two ways to configure the input.
 
-The script needs 4 arguments, in the exact same order as follows:
+The first method can only be used when working with one sample. 
 
-* The name of the project
-* The name of the sample
-* Absolute path to forward raw reads
-* Absolute path to reverse raw reads
+Go to the config.yaml file and fill in the following:
+1. Enter the name of your sample in 'SAMPLES', for example: SAMPLES: ["SAMPLE_NAME"]
+2. Enter the absolute path to the forward reads after 'fw_reads:' between quotes.
+3. Enter the absolute path to the reverse reads after 'rv_reads:' between quotes.
+4. Leave 'input_files:' empty.
 
-Example. Initialize the directory to process two metagenomes (sampleA and sampleB) within a *project* called "test_metagenomes"
+The second method can be used when working with one or more samples.
 
-```sh
-Scripts/init_sample.sh test_metagenomes  sampleA  /path/to/rawdata/sampleA_fw.fastq  /path/to/rawdata/sampleA_rv.fastq
-Scripts/init_sample.sh test_metagenomes  sampleB  /path/to/rawdata/sampleB_fw.fastq  /path/to/rawdata/sampleB_rv.fastq
+1. Create a '.txt' file. The filename can be anything but in this example, we use 'input.txt'.
+2. Add one sample per line. Each line must contain three tab-separated columns:
+- Sample name
+- Absolute path to the forward reads
+- Absolute path to the reverse reads
+3. Add the sample names to 'SAMPLES' in config.yaml. The names must be identical to the sample names in the first column of `input.txt`.
+4. Leave 'fw_reads:' and 'rv_reads:' empty.
+5. Enter the name of the '.txt' file after 'input_files:'.
+
+Here is an example of what input.txt should look like:
 ```
-
-Please notice how the project is the same for both commands, while the sample and the reference to the raw data changes.
-
-This steps needs to be executed as many times as the number of samples/metagenomes that the user want to analyze.
-At the end you should have a directory structure similar to the following:
-
-```
-<PROJECT_NAME>
-├── samples
-    └── <SAMPLE_NAME_A>
-    │   └── rawdata
-    │       ├── fw.fastq -> /path/to/raw/data/fw_reads.fq
-    │       └── rv.fastq -> /path/ro/raw/data/rv_reads.fq
-    └── <SAMPLE_NAME_B>
-        └── rawdata
-            ├── fw.fastq -> /path/to/raw/data/fw_reads.fq
-            └── rv.fastq -> /path/ro/raw/data/rv_reads.fq
+NIOZ118 /export/lv4/projects/workshop_2023/S10_Assembly/rawdata_1/NIOZ118_R1.fastq.gz   /export/lv4/projects/workshop_2023/S10_Assembly/rawdata_1/NIOZ118_R2.fastq.gz
+NIOZ130 /export/lv4/projects/workshop_2023/S10_Assembly/rawdata_1/NIOZ130_R1.fastq.gz   /export/lv4/projects/workshop_2023/S10_Assembly/rawdata_1/NIOZ130_R2.fastq.gz
+NIOZ114 /export/lv4/projects/workshop_2023/S10_Assembly/rawdata_1/NIOZ114_R1.fastq.gz   /export/lv4/projects/workshop_2023/S10_Assembly/rawdata_1/NIOZ114_R2.fastq.gz
 ```
 
 **Edit configuration file**
@@ -81,8 +75,6 @@ At the end you should have a directory structure similar to the following:
 PROJECT: "test_metagenomes"
 ```
 
-If you use the init_script_new.sh for multiple samples, make sure to use the same project name here.
-
 <ins>Samples</ins>
 
 ```yaml
@@ -96,23 +88,35 @@ If you use the init_script_new.sh for multiple samples, make sure to use the sam
 SAMPLES: ["sampleA", "sampleB"]
 ```
 
-In the same way, if the init_script_new.sh for multiple samples/metagenomes was used, make sure to enter
-the same sample names, quoted and comma-separated.
+Go through the rest of the configuration file and choose your options before running the script. 
 
-Go through the rest of the configuration file and choose your options. 
+**Run the pipeline using SLURM**
 
-**Run the pipeline**
+>  sbatch hpc.sh
+
+**Run the pipeline without SLURM**
+
+*Activating environment*
+
+>  module load anaconda/2024.02
+>  conda activate /export/lv10/user/jberkhout/.conda/envs/snake_env_test
+>  export GTDBTK_DATA_PATH="/export/lv13/databases/gtdb/release232"
 
 *dry run*
 
- snakemake  --configfile config.yaml  -np
+> snakemake --configfile config.yaml -j2 -c35 --use-conda --conda-frontend conda -np
 
 *Run*
 
- snakemake  --configfile config.yaml  
+> snakemake --configfile config.yaml  -j2 -c35 --use-conda --conda-frontend conda 
+
+*Generating report file*
+>  snakemake --configfile config.yaml --report report_name.zip
 
 
 **Output files structure**
+
+Needs to be updated
 
 ```
 <PROJECT>

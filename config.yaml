@@ -11,9 +11,9 @@
 # deviate from the default settings. Any text after a hash tag is considered a #
 # comment and will be ignored by snakemake.                                    #
 #                                                                              #
-# Author: Alejandro Abdala and Julia Engelmann                                 #
-# Date: 16/04/2026                                                             #
-# Version: 4.5                                                                 #
+# Author: Alejandro Abdala, Julia Engelmann and Juliette Berkhout                            #
+# Date: 19/08/2026                                                             #
+# Version: 5                                                                 #
 ################################################################################
 
 ################################################################################
@@ -64,8 +64,6 @@ input_files: "input.txt"
 # (only the reads!, the metadata file always needs to be uncompressed) or "F"  #
 # if the input files are regular fastq files                                   #
 #------------------------------------------------------------------------------#
-
-# Now gzip_inpt files will stay gzipt
 gzip_input: "T"
 
 #------------------------------------------------------------------------------#
@@ -77,7 +75,7 @@ gzip_input: "T"
 # The RUN variable can be set here or remain empty, in the latter case, the    #
 # user must assign this value via the command line --config RUN=User_run_name  #
 #------------------------------------------------------------------------------#
-RUN: "Test_prokka_diamond"
+RUN: "Test_differential_coverage_matrix_semibin"
 
 #------------------------------------------------------------------------------#
 #                            Description                                       #
@@ -86,7 +84,7 @@ RUN: "Test_prokka_diamond"
 # included on the final report. This field is not mandatory so it can remain   #
 # empty                                                                        #
 #------------------------------------------------------------------------------#
-description: "Testing spades"
+description: "Testing semibin cross sample depth file"
 
 #------------------------------------------------------------------------------#
 #                             Execution mode                                   #
@@ -220,8 +218,8 @@ trimm:
   threads: 15
   clip:
     type: "ILLUMINACLIP"
-    adapter: "/export/lv11/projects/projects_JB/JB_Meta_Cascabel/Analysis/resources/adapters/TruSeq3-PE-2.fa"
-    # adapter: "resources/adapters/TruSeq3-PE-2.fa"
+    # adapter: "/export/lv11/projects/projects_JB/JB_Meta_Cascabel/Analysis/resources/adapters/TruSeq3-PE-2.fa"
+    adapter: "resources/adapters/TruSeq3-PE-2.fa"
     # adapter: "/export/lv1/user/aabdala/.conda/envs/metac4/share/trimmomatic/adapters/TruSeq3-PE-2.fa"
     # adapter: "/.conda/envs/metac4/share/trimmomatic/adapters/TruSeq3-PE-2.fa"
     seed: 1
@@ -288,6 +286,9 @@ trimm:
 # * all available dabases at:                                                  #
 # http://redmine.nioz.nl/projects/databases-at-ymga/wiki/Databases             #
 #------------------------------------------------------------------------------#
+
+# Taxonomic profiling doesn't work yet
+
 TAXONOMY:
   PROFILING: "NONE"
   taxonomy_path: "-r species"
@@ -478,6 +479,9 @@ ANALYSIS: "CONTIGS"
 # threads               number of threads                                      #
 # differential_coverage_matrix  Cross mapping or coassembly maybe??            #
 #------------------------------------------------------------------------------#
+
+# Semibin doesn't work in the differential covergae mode yet
+
 bwa:
   nice: "5"
   threads: "12"
@@ -514,7 +518,7 @@ jgi_summ:
 
 # The settings are more sensitive for DAS, if you don't use DAS make sure you change the settings to less sensitive
 # Binsanity and CONCOCT are the most memory inefficient
-BINNING: "METABAT"
+BINNING: "SEMIBIN"
 
 #------------------------------------------------------------------------------#
 #                       Unbinned conntigs                                      #
@@ -784,8 +788,12 @@ prokka:
 # For more info on the tool and parameters, see:                               #
 # https://github.com/bbuchfink/diamond/wiki/3.-Command-line-options            #
 #------------------------------------------------------------------------------#
+
+# run: "T" If you want to run diamond and prokka 
+# run: "F" If you don't want to run diamond and prokka 
+
 diamond:
-  run: "T"
+  run: "F"
   db: "/export/lv13/databases/ncbi_20260601/diamond/nr.prok.dmnd"
   taxonmap: "/export/lv13/databases/ncbi_20260601/diamond/nr.prok.dmnd"
   outfmt: "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore staxids stitle"
