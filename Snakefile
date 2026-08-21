@@ -900,9 +900,9 @@ if config["BINNING"] == "BINSANITY" or (config["BINNING"] == "DAS" and config["d
         output:
             "{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_depth_avg_log.txt"
         shell:
-            "cat {input} | awk 'NR>1 && $4>1{{ if($4 <= 1) a = 0; else  a = log($4)/log(10); printf(\"%s\\t%0.4f\\n\",$1,a)}}' > {output}"
+            "cat {input} | awk -F '\\t' 'NR==1 {{printf \"%s\\t%s_log\\n\",$1,$4; next}} NR>1 && $4>1{{ if($4 <= 1) a = 0; else a = log($4)/log(10); printf(\"%s\\t%0.4f\\n\",$1,a)}}' > {output}"
             if config["bwa"]["differential_coverage_matrix"].lower() == "f" else
-            "cat {input} | awk -F '\\t' 'NR > 1 {{for(x=1;x<=NF;x++) if(x == 1 || (x >= 4 && x % 2 == 0)) {{if($x <= 1) a = 0; else if(x == 1) a = $x; else  a = log($x)/log(10);  printf \"%s\", a (x == NF || x == (NF-1) ? \"\\n\":\"\\t\")}}}}' > {output}"
+            "cat {input} | awk -F '\\t' 'NR==1 {{printf \"%s\",$1; for(x=4;x<=NF;x++) if(x >= 4 && x % 2 == 0) printf \"\\t%s_log\",$x; printf \"\\n\"; next}} NR > 1 {{for(x=1;x<=NF;x++) if(x == 1 || (x >= 4 && x % 2 == 0)) {{if($x <= 1) a = 0; else if(x == 1) a = $x; else a = log($x)/log(10); printf \"%s\", a (x == NF || x == (NF-1) ? \"\\n\":\"\\t\")}}}}' > {output}"
     rule binsanity:
         input:
             depth="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_depth_avg_log.txt",
