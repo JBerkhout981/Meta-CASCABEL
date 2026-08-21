@@ -1702,7 +1702,7 @@ else:
             "{PROJECT}/runs/{run}/{sample}_data/unbinned/unbinned.txt"
         shell:
             "echo 'CREATE_UNBINNED == F' > {output}"
-if config["diamond"] == "T":
+if config["diamond"]["run"] == "T":
     rule prokka_bins:
         input:
             "{PROJECT}/runs/{run}/{sample}_data/binning/metabat2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/metabat.log"
