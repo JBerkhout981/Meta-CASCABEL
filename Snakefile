@@ -11,6 +11,7 @@ rule all:
     input:
         expand("{PROJECT}/runs/{run}/{sample}_data/report_f.html", PROJECT=config["PROJECT"],sample=config["SAMPLES"], run=run)
 
+# SETTING UP DIRECTORY STRUCTURE
 if len(config["SAMPLES"])==1 and len(config["fw_reads"])>0 and len(config["rv_reads"])>0:
     rule init_structure:
         input:
@@ -33,6 +34,8 @@ elif len(config["input_files"])>2 and len(config["SAMPLES"])>=1:
         script:
             "Scripts/init_sample.py"
 
+
+# QUALITY CONTROL ON RAW READS
 if config["QC"]["onRawReads"].lower() == "t":
     rule sequali:
         """
@@ -56,6 +59,7 @@ if config["QC"]["onRawReads"].lower() == "t":
         shell:
             "sequali --outdir {params.outdir} --html  sequali.html --json sequali.json -t {config[QC][threads]}  {config[QC][extra_params]}  {input}"
 
+# TRIMM READS
 # run trimmomatic to remove adapter contamination and trim very low quality parts (ends) of the reads.
 # trimmomatic-0.35.jar PE -threads 2 $inFile1 $inFile2 $fol/read1_paired.fq $fol/read1_singles.fq $fol/read2_paired.fq $fol/read2_singles.fq
 # ILLUMINACLIP:/usr/local/bioinf/trimmomatic/adapters/TruSeq3-PE-2.fa:2:30:12:2:TRUE MAXINFO:40:0.6 MINLEN:40
@@ -145,6 +149,7 @@ else:
             fi
             """
 
+# QUALITY CONTROL ON TRIMMED READS
 if config["QC"]["onTrimmedReads"].lower() == "t":
     rule sequali_trimmed_reads:
         input:
@@ -165,6 +170,7 @@ if config["QC"]["onTrimmedReads"].lower() == "t":
         shell:
             "sequali --outdir {params.outdir} --html  sequali.html --json sequali.json -t {config[QC][threads]}  {config[QC][extra_params]}  {input}"
 
+# TAXONOMIC PROFILING
 if config["TAXONOMY"]["PROFILING"] == "KRAKEN" or config["TAXONOMY"]["PROFILING"] == "ALL":
     rule kraken:
         """
@@ -897,15 +903,6 @@ if config["BINNING"] == "BINSANITY" or (config["BINNING"] == "DAS" and config["d
             "cat {input} | awk 'NR>1 && $4>1{{ if($4 <= 1) a = 0; else  a = log($4)/log(10); printf(\"%s\\t%0.4f\\n\",$1,a)}}' > {output}"
             if config["bwa"]["differential_coverage_matrix"].lower() == "f" else
             "cat {input} | awk -F '\\t' 'NR > 1 {{for(x=1;x<=NF;x++) if(x == 1 || (x >= 4 && x % 2 == 0)) {{if($x <= 1) a = 0; else if(x == 1) a = $x; else  a = log($x)/log(10);  printf \"%s\", a (x == NF || x == (NF-1) ? \"\\n\":\"\\t\")}}}}' > {output}"
-    rule filter_fasta_by_coverage:
-        input:
-            depth="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_depth_avg_log.txt",
-            fasta="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_scaffolds.fasta"
-            if config["ANALYSIS"] == "SCAFFOLDS" else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.fasta"
-        output:
-            temp("{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/assembly_coverage_gt0.fasta")
-        shell:
-            "cat {input.depth} | cut -f1 | grep -w -A1 --no-group-separator -F -f - {input.fasta}  > {output}"
     rule binsanity:
         input:
             depth="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_depth_avg_log.txt",
@@ -1871,3 +1868,5 @@ rule report:
         temp("{PROJECT}/runs/{run}/{sample}_data/report_f.html")
     shell:
         "touch {output}"
+
+
