@@ -328,7 +328,7 @@ if config["ASSEMBLER"] == "SPADES":
     #This rule is ment for running spades with already merged reads, and this we need the 
     # merged files created above, but for the moment just using meta_spades rules, that works directly
     #with trimmomatic output. The above procedure is also used for IDBA UD. 
-    rule meta_spades_to_fix:
+    rule meta_spades_merged:
         input:
             reads_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/reads_merged.fastq",
             read12_singles="{PROJECT}/runs/{run}/{sample}_data/trimmed/all_singles.fq" if config["trimm"]["trimming"] == "T"

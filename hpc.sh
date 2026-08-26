@@ -15,7 +15,7 @@ conda activate /export/lv10/user/jberkhout/.conda/envs/snake_env_test
 
 export GTDBTK_DATA_PATH="/export/lv13/databases/gtdb/release232"
 
-snakemake --configfile config.yaml  -j2 -c100 --keep-going --use-conda --conda-frontend conda 
+snakemake --configfile config.yaml  -j2 -c100 --use-conda --conda-frontend conda 
 # --rerun-triggers mtime
 snakemake --configfile config.yaml --report report.hpc.zip
 
