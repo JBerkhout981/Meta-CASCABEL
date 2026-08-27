@@ -11,9 +11,9 @@
 # deviate from the default settings. Any text after a hash tag is considered a #
 # comment and will be ignored by snakemake.                                    #
 #                                                                              #
-# Author: Alejandro Abdala, Julia Engelmann and Juliette Berkhout                            #
+# Author: Alejandro Abdala, Julia Engelmann and Juliette Berkhout              #
 # Date: 19/08/2026                                                             #
-# Version: 5                                                                 #
+# Version: 5                                                                   #
 ################################################################################
 
 ################################################################################
@@ -207,10 +207,7 @@ QC:
 #usadellab.org/cms/uploads/supplementary/Trimmomatic/TrimmomaticManual_V0.32.pdf
 #------------------------------------------------------------------------------#
 
-# Blokje bij 'sliding type' opdelen in windowzise & required quality
 # trimming = 'N' -> Je kan dan geen SPADES gebruiken ivm singles file gegenereerd door trimmomatic
-# Make an option in spades without singles
-# Adapters is now a fixed path
 
 trimm:
   trimming: "T"
@@ -218,10 +215,7 @@ trimm:
   threads: 15
   clip:
     type: "ILLUMINACLIP"
-    # adapter: "/export/lv11/projects/projects_JB/JB_Meta_Cascabel/Analysis/resources/adapters/TruSeq3-PE-2.fa"
     adapter: "resources/adapters/TruSeq3-PE-2.fa"
-    # adapter: "/export/lv1/user/aabdala/.conda/envs/metac4/share/trimmomatic/adapters/TruSeq3-PE-2.fa"
-    # adapter: "/.conda/envs/metac4/share/trimmomatic/adapters/TruSeq3-PE-2.fa"
     seed: 1
     palindrome_ct: 30
     simple_ct: 10
@@ -646,17 +640,19 @@ binsanity:
 
 #------------------------------------------------------------------------------#
 #                       Semibin Tool                                           #
-# rule:                                                                        #
+# rule: semibin                                                                #
 #=======================DESCRIPTION============================================#
-# Guide: https://semibin.readthedocs.io/en/latest/                             #
+# SemiBin is a command tool for metagenomic binning with deep learning, handles#
+# both short and long reads.                                                   #
 #=======================PARAMS=================================================#
-# type                  'SINGLE' if you want to eprform single sample binning  #
-#                       'MULTI' if you want to perfomr multi-sample binning    #
 # threads               Number of threads you want to use                      #
 # min_bin_size          Minimum bin size in kilo-basepairs (Default: 200)      #
 # max_edge              The maximum number of edges that can be connected to   #
 #                       one contig (Default: 200)                              #
-# extra_params          See 'Subcommand reference' in the guide                #
+# extra_params          Any extra params                                       #
+#------------------------------------------------------------------------------#
+# For more info about the tool and parameters, see                             #
+# https://semibin.readthedocs.io/en/latest/subcommands/ for any information    #
 #------------------------------------------------------------------------------#
 semibin:
   threads: "20"
@@ -676,25 +672,19 @@ semibin:
 # db                    Directory of single copy gene database.                #
 # search_engine         Engine used for single copy gene identification        #
 #                       [blast/diamond/usearch].                               #
-
-# max_iteration         maximum Expectation-Maximization algorithm iteration   #
-#                       number. Default 50.                                    #
-
 # extra_params         Any extra params. Run DAS_Tool to see available options #
-#                                                                              #
+#=======================NOTES==================================================#
 # By default, DAS will run metabat if you want to turn on/off other tools use  #
 # values T (true) or F (false) accordingly for binsanity, concoct and maxbin.  #
 # In case you use any of these tools, select if you want to perform checkm     #
-# and/or gtdbtk analyzes by seting the corresponding flags, also to T or F     #  
+# and/or gtdbtk analyzes by seting the corresponding flags, also to T or F     #
+#                                                                              #
+# Also it is important to keep in mind that CONCOCT and Binanity are very      #
+# memory inefficiënt                                                           #
 #------------------------------------------------------------------------------#
-
-# max_interation in description but not in params
-# Binsanity and CONCOCT are the most memory inefficient
-
 das:
   threads: "20"
   db: "/export/lv13/databases/DAS_tool/release-1.1.7/"
-  # db: "/.conda/envs/metac4/share/das_tool-1.1.7-1/db/
   search_engine: diamond
   extra_params: ""
   metabat:
@@ -721,11 +711,14 @@ das:
 #                       chekM                                                  #
 # rule: checkm_<bin_method>                                                    #
 #=======================DESCRIPTION============================================#
-# This rule asses the quality of genomes recovered from isolates, single cells #
-# or metagenomes.                                                              #
+# This rule asseses the quality of genomes recovered from isolates, single     #
+# cells or metagenomes.                                                        #
 #=======================PARAMS=================================================#
 # threads               Number of threads                                      #
 # extra_params          Any extra params. Run checkm to see available options  #
+#------------------------------------------------------------------------------#
+# Do 'checkm lineage_wf -h' to see all optional parameters or check:           #
+# https://github.com/Ecogenomics/CheckM/wiki/Workflows#lineage-specific-workflow
 #------------------------------------------------------------------------------#
 checkM:
   threads: "15" 
@@ -734,20 +727,20 @@ checkM:
 #------------------------------------------------------------------------------#
 #                       GTDB-Tk                                                #
 # rule: gtdbtk_<bin_method>                                                    #
-#=======================DESCRIPTION============================================#
+# =DESCRIPTION=================================================================#
 # GTDB-Tk is a software toolkit for assigning objective taxonomic              #
 # classifications to bacterial and archaeal genomes based on the Genome        #
 # Database Taxonomy GTDB.                                                      #
-# ========PARAMS========                                                       #
+# =PARAMS======================================================================#
 # cpus                  Number of CPUs                                         #
-# extra_params          Any extra params. Run gtdbtk to see available options  #
-#------------------------------------------------------------------------------#
+# extra_params          Any extra params                                       #
+#=INFO=========================================================================#
 # For more info on the tool and parameters, see:                               #
-# https://ecogenomics.github.io/GTDBTk/                                        #
+# https://ecogenomics.github.io/GTDBTk/commands/classify_wf.html               #
 #------------------------------------------------------------------------------#
 gtdbtk:
   cpus: "35"
-  extra_params: "--min_perc_aa 0.5 --force"
+  extra_params: ""
 
 #------------------------------------------------------------------------------#
 #                       Prokka                                                 #
@@ -777,25 +770,22 @@ prokka:
 # mode). The speedup over BLAST is up to 20,000 on short reads at a typical    #
 # sensitivity of 90-99% relative to BLAST depending on the data and settings.  #
 # ========PARAMS========                                                       #
+# run                   "T" If you want to run diamond and prokka              #
+#                       "F" If you don't want to run diamond and prokka        #
 # db                    Path to the output DIAMOND database file               #
 # taxonmap              Path to mapping file that maps NCBI protein accession  #
 #                       numbers to taxon ids                                   #
 # outfmt                Format of the output file                              #
 # threads               Number of CPU threads                                  #
-# extra_params          Any extra params. Default values on this pipeline:     #
-#   --sensitive         Find hits of >40% identity and short read fragments    #
+# extra_params          Any extra params                                       #
 #------------------------------------------------------------------------------#
 # For more info on the tool and parameters, see:                               #
 # https://github.com/bbuchfink/diamond/wiki/3.-Command-line-options            #
 #------------------------------------------------------------------------------#
-
-# run: "T" If you want to run diamond and prokka 
-# run: "F" If you don't want to run diamond and prokka 
-
 diamond:
   run: "F"
   db: "/export/lv13/databases/ncbi_20260601/diamond/nr.prok.dmnd"
   taxonmap: "/export/lv13/databases/ncbi_20260601/diamond/nr.prok.dmnd"
   outfmt: "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore staxids stitle"
   threads: "30"
-  extra_params: "--sensitive"
+  extra_params: ""
