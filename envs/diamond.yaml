@@ -1,3 +1,4 @@
+name: diamond
 channels:
   - conda-forge
   - bioconda
