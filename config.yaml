@@ -75,7 +75,7 @@ gzip_input: "T"
 # The RUN variable can be set here or remain empty, in the latter case, the    #
 # user must assign this value via the command line --config RUN=User_run_name  #
 #------------------------------------------------------------------------------#
-RUN: "Test_full_run_spades"
+RUN: "Test_differential_coverage_matrix_semibin2"
 
 #------------------------------------------------------------------------------#
 #                            Description                                       #
@@ -84,7 +84,7 @@ RUN: "Test_full_run_spades"
 # included on the final report. This field is not mandatory so it can remain   #
 # empty                                                                        #
 #------------------------------------------------------------------------------#
-description: "Testing cleanup file"
+description: "Testing if the cross mapping function works for semibin, but just 1 bam file"
 
 #------------------------------------------------------------------------------#
 #                             Execution mode                                   #
@@ -128,8 +128,8 @@ interactive : "F"
 # extra_params          Extra parameters. See sequali --help for more info.    #
 #------------------------------------------------------------------------------#
 QC:
-  onRawReads: "T"
-  onTrimmedReads: "T"
+  onRawReads: "F"
+  onTrimmedReads: "F"
   threads: 10
   extra_params: ""
 
@@ -321,7 +321,7 @@ TAXONOMY:
 # contigs               If ASSEMBLER = "ASSEMBLED" supply file pointing to     #
 #                       contigs/scaffolds.                                     #
 #------------------------------------------------------------------------------#
-ASSEMBLER: "SPADES"
+ASSEMBLER: "MEGAHIT"
 contigs: ""
 
 #------------------------------------------------------------------------------#
@@ -479,7 +479,7 @@ ANALYSIS: "CONTIGS"
 bwa:
   nice: "5"
   threads: "12"
-  differential_coverage_matrix: "F"
+  differential_coverage_matrix: "T"
 
 #------------------------------------------------------------------------------#
 #                       jgi_summarize_bam_contig_depths                        #
@@ -512,7 +512,7 @@ jgi_summ:
 
 # The settings are more sensitive for DAS, if you don't use DAS make sure you change the settings to less sensitive
 # Binsanity and CONCOCT are the most memory inefficient
-BINNING: "BINSANITY"
+BINNING: "SEMIBIN"
 
 #------------------------------------------------------------------------------#
 #                       Unbinned conntigs                                      #
@@ -521,7 +521,7 @@ BINNING: "BINSANITY"
 # If this option is set to "T" (true) , a file with all the unbinned contigs   #
 # will be created.
 #------------------------------------------------------------------------------#
-CREATE_UNBINNED: "T"
+CREATE_UNBINNED: "F"
 
 #------------------------------------------------------------------------------#
 #                       MetaBAT2                                               #
