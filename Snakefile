@@ -869,7 +869,7 @@ if config["BINNING"] == "CONCOCT" or ( config["BINNING"] == "DAS" and config["da
     we only use the clustering file to DAS to create new bins. NOT anymore! now we run 
     checkM for all the methods
     """
-    rule extract_concoct_bins:
+    rule std_concoct_bins:
         input:
             assembly="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_scaffolds.fasta"
             if config["ANALYSIS"] == "SCAFFOLDS" else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.fasta",
@@ -1702,6 +1702,7 @@ else:
             "{PROJECT}/runs/{run}/{sample}_data/unbinned/unbinned.txt"
         shell:
             "echo 'CREATE_UNBINNED == F' > {output}"
+
 if config["diamond"]["run"] == "T":
     rule prokka_bins:
         input:
@@ -1713,10 +1714,10 @@ if config["diamond"]["run"] == "T":
             if config["BINNING"] == "CONCOCT" else
             "{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanityWf.log"
             if config["BINNING"] == "BINSANITY" else
-            "{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanityWf.log"
+            "{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/SemiBinRun.log"
             if config["BINNING"] == "SEMIBIN" else
             "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log",
-            "{PROJECT}/runs/{run}/{sample}_data/binning/checkM/summary.txt"
+            "{PROJECT}/runs/{run}/tables/stats_bins.tsv"
         output:
             "{PROJECT}/runs/{run}/{sample}_data/binning/metabat2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/prokka.log"
             if config["BINNING"] == "METABAT" else
@@ -1816,6 +1817,8 @@ if config["diamond"]["run"] == "T":
             if config["BINNING"] == "CONCOCT" else
             "{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/diamond.log"
             if config["BINNING"] == "BINSANITY" else
+            "{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/diamond.log"
+            if config["BINNING"] == "SEMIBIN" else
             "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/diamond.log"
         output:
             "{PROJECT}/runs/{run}/{sample}_data/binning/diamond_prokka_flag.txt"
@@ -1833,7 +1836,6 @@ rule cleanup:
         temp("{PROJECT}/runs/{run}/{sample}_data/cleanUp_flag.txt")
     shell:
         "touch {output}"
-
 
 rule report:
     input:

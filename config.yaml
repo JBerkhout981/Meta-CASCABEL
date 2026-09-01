@@ -75,7 +75,7 @@ gzip_input: "T"
 # The RUN variable can be set here or remain empty, in the latter case, the    #
 # user must assign this value via the command line --config RUN=User_run_name  #
 #------------------------------------------------------------------------------#
-RUN: "Test_differential_coverage_matrix_semibin2"
+RUN: "Test_snake_env"
 
 #------------------------------------------------------------------------------#
 #                            Description                                       #
@@ -84,7 +84,7 @@ RUN: "Test_differential_coverage_matrix_semibin2"
 # included on the final report. This field is not mandatory so it can remain   #
 # empty                                                                        #
 #------------------------------------------------------------------------------#
-description: "Testing if the cross mapping function works for semibin, but just 1 bam file"
+description: "Testing the new snake environment"
 
 #------------------------------------------------------------------------------#
 #                             Execution mode                                   #
@@ -321,7 +321,7 @@ TAXONOMY:
 # contigs               If ASSEMBLER = "ASSEMBLED" supply file pointing to     #
 #                       contigs/scaffolds.                                     #
 #------------------------------------------------------------------------------#
-ASSEMBLER: "MEGAHIT"
+ASSEMBLER: "IDBA"
 contigs: ""
 
 #------------------------------------------------------------------------------#
@@ -458,7 +458,7 @@ quast:
 # Not all assembly tools generate scaffolds, if you wan't to use scaffolds,    #
 # chose either SPADES or IDBA.                                                 #
 #------------------------------------------------------------------------------#
-ANALYSIS: "CONTIGS"
+ANALYSIS: "SCAFFOLDS"
 
 #------------------------------------------------------------------------------#
 #                       BWA MEM                                                #
@@ -521,7 +521,7 @@ BINNING: "SEMIBIN"
 # If this option is set to "T" (true) , a file with all the unbinned contigs   #
 # will be created.
 #------------------------------------------------------------------------------#
-CREATE_UNBINNED: "F"
+CREATE_UNBINNED: "T"
 
 #------------------------------------------------------------------------------#
 #                       MetaBAT2                                               #
@@ -783,7 +783,7 @@ prokka:
 # https://github.com/bbuchfink/diamond/wiki/3.-Command-line-options            #
 #------------------------------------------------------------------------------#
 diamond:
-  run: "F"
+  run: "T"
   db: "/export/lv13/databases/ncbi_20260601/diamond/nr.prok.dmnd"
   taxonmap: "/export/lv13/databases/ncbi_20260601/diamond/nr.prok.dmnd"
   outfmt: "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore staxids stitle"
