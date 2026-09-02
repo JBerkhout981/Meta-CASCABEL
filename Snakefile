@@ -679,21 +679,40 @@ elif config["BINNING"] != "METABAT" and config["BINNING"] != "DAS":
             "touch {output}"
 
 if config["BINNING"] == "MAXBIN" or (config["BINNING"] == "DAS" and config["das"]["maxbin"]["run"]=="T" ):
+    rule maxbin_coverage:
+        input:
+            "{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"] + "_" + config["ASSEMBLER"] + "_depth.txt"
+        output:
+            "{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_{sample}_depth_avg_maxbin.txt"
+        shell:
+            """
+            awk -F '\\t' -v col="{config[ANALYSIS]}_{config[ASSEMBLER]}vs_{wildcards.sample}_mapped_against_cross-assembly_sorted.bam" 'NR == 1 {{for (i = 1; i <= NF; i++) {{if ($i == col) {{c = i;break}}}}print "contig\\tabundance"}}NR > 1 {{print $1 "\\t" $c}}' {input} > {output}
+            """
+    rule maxbin_abund_list:
+        input:
+            expand("{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_{sample}_depth_avg_maxbin.txt",PROJECT=config["PROJECT"],run=run,sample=config["SAMPLES"])
+        output:
+            "{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"] + "_" + config["ASSEMBLER"]+"_abund_list.txt"
+        shell:
+            "printf '%s\\n' {input} > {output}"
     rule maxbin:
         """
         Please make sure that your abundance information is provided in the following format:
         (contig header)\t(abundance)
         """
         input:
-            depth="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_depth_avg.txt",
-            # if config["bwa"]["differential_coverage_matrix"].lower() == "f" else
-            # "{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_depth_avg_maxbin.txt",
+            depth="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_depth_avg.txt"
+            if config["bwa"]["differential_coverage_matrix"].lower() == "f" else
+            "{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_abund_list.txt",
             assembly="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_scaffolds.fasta"
             if config["ANALYSIS"] == "SCAFFOLDS" else "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.fasta"
         output:
             log="{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/maxbin.log"
         params:
-            "{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/bin"
+            abundance="-abund"
+            if config["bwa"]["differential_coverage_matrix"].lower() == "f" else
+            "-abund_list",
+            outdir="{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/bin"
         benchmark:
             "{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/maxbin.benchmark"
         threads:
@@ -702,7 +721,7 @@ if config["BINNING"] == "MAXBIN" or (config["BINNING"] == "DAS" and config["das"
             "maxbin_v2.2.7"
         shell:
             "run_MaxBin.pl -contig {input.assembly} "
-            "-abund  {input.depth} -out {params} -thread {config[maxbin][threads]} "
+            "{params.abundance} {input.depth} -out {params.outdir} -thread {config[maxbin][threads]} "
             "-prob_threshold {config[maxbin][prob_threshold]} -markerset {config[maxbin][markerset]} "
             "-min_contig_length {config[maxbin][min_contig_length]}  "
             "{config[maxbin][plotmarker]} {config[maxbin][extra_params]} > {output.log}"
@@ -712,7 +731,6 @@ elif (config["BINNING"] == "DAS" and config["das"]["maxbin"]["run"]!="T") or (co
             log="{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/maxbin.log"
         shell:
             "touch {output}"
-
 if config["BINNING"] == "CONCOCT" or ( config["BINNING"] == "DAS" and config["das"]["concoct"]["run"]=="T"):
     """
     This rules try to follow the steps recommended by using CONCOCT according to
@@ -1730,7 +1748,7 @@ rule report:
 
         # Diamond
         "{PROJECT}/runs/{run}/{sample}_data/binning/diamond_prokka_flag.txt",
-        
+
         # Cleanup
         "{PROJECT}/runs/{run}/{sample}_data/cleanUp_flag.txt"
     output:
