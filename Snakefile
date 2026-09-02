@@ -170,132 +170,6 @@ if config["QC"]["onTrimmedReads"].lower() == "t":
         shell:
             "sequali --outdir {params.outdir} --html  sequali.html --json sequali.json -t {config[QC][threads]}  {config[QC][extra_params]}  {input}"
 
-# TAXONOMIC PROFILING
-if config["TAXONOMY"]["PROFILING"] == "KRAKEN" or config["TAXONOMY"]["PROFILING"] == "ALL":
-    rule kraken:
-        """
-            Execute Kraken taxonomy profiling
-        """
-        input:
-            fw="{PROJECT}/samples/{sample}/rawdata/fw.fastq"
-            if config["TAXONOMY"]["KRAKEN"]["raw_reads"] == "Y" else "{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_paired.fq",
-            rv="{PROJECT}/samples/{sample}/rawdata/rv.fastq"
-            if config["TAXONOMY"]["KRAKEN"]["raw_reads"] == "Y" else "{PROJECT}/runs/{run}/{sample}_data/trimmed/read2_paired.fq"
-        params:
-            "{PROJECT}/runs/{run}/{sample}_data/taxonomy/"
-        output:
-            "{PROJECT}/runs/{run}/{sample}_data/taxonomy/kraken.taxonomy.out"
-        threads:
-            int(config["TAXONOMY"]["KRAKEN"]["threads"])
-        shell:
-            "kraken --preload --db {config[TAXONOMY][KRAKEN][db]} --paired {input.fw} {input.rv} "
-            "--threads {config[TAXONOMY][KRAKEN][threads]} {config[TAXONOMY][KRAKEN][extra_params]} > {output}"
-#--gzip-compressed
-    rule prepare_kraken_report:
-        """
-            Prepare the input file for addTaxonNames script
-        """
-        input:
-            "{PROJECT}/runs/{run}/{sample}_data/taxonomy/kraken.taxonomy.out"
-        output:
-            temp("{PROJECT}/runs/{run}/{sample}_data/taxonomy/kraken.taxonomy.out.tmp")
-        shell:
-            "cat {input} | cut -f1,2,3 > {output}"
-    rule kraken_labels:
-        """
-            Prepare the input file for addTaxonNames script
-        """
-        input:
-            "{PROJECT}/runs/{run}/{sample}_data/taxonomy/kraken.taxonomy.out.tmp"
-        output:
-            "{PROJECT}/runs/{run}/{sample}_data/taxonomy/kraken.taxonomy.out.labels"
-        shell:
-            "kaiju-addTaxonNames -t {config[TAXONOMY][KRAKEN][nodes]} -n {config[TAXONOMY][KRAKEN][names]} "
-            "-i {input} {config[TAXONOMY][taxonomy_path]}  -o {output}"
-    rule kraken_report:
-        """
-            Prepare the input file for addTaxonNames script
-        """
-        input:
-            "{PROJECT}/runs/{run}/{sample}_data/taxonomy/kraken.taxonomy.out.labels"
-        output:
-            "{PROJECT}/runs/{run}/{sample}_data/taxonomy/kraken.taxonomy.report"
-        shell:
-            "kaiju2table -t {config[TAXONOMY][KRAKEN][nodes]} -n {config[TAXONOMY][KRAKEN][names]} "
-            " {config[TAXONOMY][taxonomy_path]}  -o {output} {input}"
-
-if config["TAXONOMY"]["PROFILING"] == "KAIJU" or config["TAXONOMY"]["PROFILING"] == "ALL":
-    rule kaiju:
-        """
-            Execute Kaiju taxonomy profiling
-        """
-        input:
-            fw="{PROJECT}/samples/{sample}/rawdata/fw.fastq"
-            if config["TAXONOMY"]["KRAKEN"]["raw_reads"] == "Y" else "{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_paired.fq",
-            rv="{PROJECT}/samples/{sample}/rawdata/rv.fastq"
-            if config["TAXONOMY"]["KRAKEN"]["raw_reads"] == "Y" else "{PROJECT}/runs/{run}/{sample}_data/trimmed/read2_paired.fq"
-        params:
-            "{PROJECT}/runs/{run}/{sample}_data/taxonomy/"
-        output:
-            "{PROJECT}/runs/{run}/{sample}_data/taxonomy/kaiju.taxonomy.out"
-        threads:
-            int(config["TAXONOMY"]["KAIJU"]["threads"])
-        conda:
-            "envs/kaiju.yaml"
-        shell:
-            "kaiju -i {input.fw} -j {input.rv} "
-            " -t {config[TAXONOMY][KAIJU][nodes]}  -f {config[TAXONOMY][KAIJU][db]} "
-            "-z {config[TAXONOMY][KAIJU][threads]} {config[TAXONOMY][KAIJU][extra_params]} -o {output}"
-    rule kaiju_labels:
-        """
-            addTaxonLabels for kaiju
-        """
-        input:
-            "{PROJECT}/runs/{run}/{sample}_data/taxonomy/kaiju.taxonomy.out"
-        output:
-            "{PROJECT}/runs/{run}/{sample}_data/taxonomy/kaiju.taxonomy.out.labels"
-        conda:
-            "envs/kaiju.yaml"
-        shell:
-            "kaiju-addTaxonNames -t {config[TAXONOMY][KAIJU][nodes]} -n {config[TAXONOMY][KAIJU][names]} "
-            "-i {input} {config[TAXONOMY][taxonomy_path]}  -o {output}"
-    rule kaiju_report:
-        """
-            addTaxonLabels for kaiju
-        """
-        input:
-            "{PROJECT}/runs/{run}/{sample}_data/taxonomy/kaiju.taxonomy.out.labels"
-        output:
-            "{PROJECT}/runs/{run}/{sample}_data/taxonomy/kaiju.taxonomy.out.report"
-        conda:
-            "envs/kaiju.yaml"
-        shell:
-           "kaiju2table -t {config[TAXONOMY][KAIJU][nodes]} -n {config[TAXONOMY][KAIJU][names]} "
-            " {config[TAXONOMY][taxonomy_path]}  -o {output} {input}"
-
-if config["TAXONOMY"]["PROFILING"] not in "KRAKEN KAIJU ALL":
-    rule create_taxo_out:
-        """
-            As there is no taxonomy profiling touch one file to generate a "silly" file
-        """
-        output:
-            "{PROJECT}/runs/{run}/{sample}_data/no_tax.txt"
-        shell:
-            "touch {output}"
-
-elif config["TAXONOMY"]["PROFILING"] == "ALL":
-    rule merge_taxonomy_outs:
-        """
-            Merge the output of the three taxonomic profiler into one single outfile
-        """
-        input:
-            kraken="{PROJECT}/runs/{run}/{sample}_data/taxonomy/kraken.taxonomy.out",
-            kaiju="{PROJECT}/runs/{run}/{sample}_data/taxonomy/kaiju.taxonomy.out"
-        output:
-            "{PROJECT}/runs/{run}/{sample}_data/taxonomy/all.taxonomy.out"
-        shell:
-            "touch {output}"
-
 """
 SPADES has the option to also work with merged reads and IDBA always uses merged reads
 """
@@ -1839,15 +1713,6 @@ rule cleanup:
 
 rule report:
     input:
-        # Taxonomy
-        "{PROJECT}/runs/{run}/{sample}_data/taxonomy/kraken.taxonomy.report"
-        if config["TAXONOMY"]["PROFILING"] == "KRAKEN" else
-        "{PROJECT}/runs/{run}/{sample}_data/taxonomy/kaiju.taxonomy.out.report"
-        if config["TAXONOMY"]["PROFILING"] == "KAIJU" else
-        "{PROJECT}/runs/{run}/{sample}_data/taxonomy/all.taxonomy.out"
-        if config["TAXONOMY"]["PROFILING"] == "ALL" else
-        "{PROJECT}/runs/{run}/{sample}_data/no_tax.txt",
-
         # Report
         "{PROJECT}/runs/{run}/tables/trimmomatic"
         if config["trimm"]["trimming"] == "T" else
@@ -1862,8 +1727,10 @@ rule report:
         "{PROJECT}/runs/{run}/{sample}_data/unbinned/unbinned.fasta"
         if config["CREATE_UNBINNED"] == "T" else
         "{PROJECT}/runs/{run}/{sample}_data/unbinned/unbinned.txt",
+
         # Diamond
         "{PROJECT}/runs/{run}/{sample}_data/binning/diamond_prokka_flag.txt",
+        
         # Cleanup
         "{PROJECT}/runs/{run}/{sample}_data/cleanUp_flag.txt"
     output:

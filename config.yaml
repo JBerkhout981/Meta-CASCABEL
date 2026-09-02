@@ -235,79 +235,6 @@ trimm:
   extra_params: ""
 
 #------------------------------------------------------------------------------#
-#                       TAXONOMIC PROFILING                                    #
-#=======================DESCRIPTION============================================#
-# This options allows the user to choose if perform or not taxonomic profiling #
-# and if so, choose between different methods.                                 #
-# This step is good to have only a first overview of the expected taxonomy     #
-# distribution, although these methods are good to identify already known      #
-# organisms, they tend to fail for identification of new species and the       #
-# specifivicty of the algorithms declain at deeper taxonomic levels (genus,    #
-# species, and so on... )                                                      #
-#=======================PARAMS=================================================#
-# PROFILING             If you wish to make the profiling, select one of the   #
-#                       following tools:                                       #
-# - KRAKEN              Run Kraken2                                            #
-# - KAIJU               Run Kaiju                                              #
-# - ALL                 Runs all of the above                                  #
-# - NONE (Defualt)      Skip this step                                         #
-# taxonomy_path         Use this option to choose your output taxonomy path.   #
-#                       Default 7 classic levels:                              #
-#  -r + superkingdom, phylum, order, class, family, genus, species             #
-#  -p print the full path empty will print the default taxon name at which the #
-#     read is assigned                                                         #
-#------------------------------------------------------------------------------#
-# KRAKEN                http://ccb.jhu.edu/software/kraken/                    #
-# - db                  Kraken database*                                       #
-# - raw_reads           'Y' to use the raw reads.                              #
-#                       'N' will use the trimmed reads.                        #
-#  - threads            Number of threads                                      #
-#  - extra_params       Any extra parameter, execute kraken -h                 #
-#  - nodes              Path to the nodes file                                 #
-#  - names              Path to the names file                                 #        
-# KAIJU                 https://github.com/bioinformatics-centre/kaiju         #
-# - nodes               Path to nodes NCBI file. This is downloaded durning DB #
-#                       creation and although it could be the newest nodes, it #
-#                       is important to always use the one used for the DB     #
-#                       creation.                                              #
-# - names               Path to the names file                                 # 
-# - db                  Path to target database                                #
-# - raw_reads           'Y' to use the raw reads                               #   
-#                       'N' will use the trimmed reads                         #
-# - threads             Number of threads                                      #                   
-# - extra_params        Any extra parameter, execute kaiju -h                  #
-#------------------------------------------------------------------------------#
-# * all available dabases at:                                                  #
-# http://redmine.nioz.nl/projects/databases-at-ymga/wiki/Databases             #
-#------------------------------------------------------------------------------#
-
-# Taxonomic profiling doesn't work yet
-
-TAXONOMY:
-  PROFILING: "NONE"
-  taxonomy_path: "-r species"
-  KRAKEN:
-    db: "/export/lv13/databases/kraken2_modified/db_05_2024_standart"
-    # db: "kraken/"
-    raw_reads: "N"
-    threads: 30
-    extra_params: ""
-    nodes: "/export/lv13/databases/kraken2_modified/nodes.dmp"
-    names: "/export/lv13/databases/kraken2_modified/names.dmp"
-    # nodes: "nodes.dmp"
-    # names: "names.dmp"
-  KAIJU:
-    nodes: "/export/lv13/databases/kaiju/progenomes/nodes.dmp"
-    names: "/export/lv13/databases/kaiju/progenomes/names.dmp"
-    db: "/export/lv13/databases/kaiju/progenomes/kaiju_db_progenomes.fmi"
-    # nodes: "kaiju/nodes.dmp"
-    # names: "kaiju/names.dmp"
-    # db: "refseq/kaiju_db.fmi"
-    raw_reads: "N"
-    threads: 30
-    extra_params: ""
-
-#------------------------------------------------------------------------------#
 #                       Select assembly tool                                   #
 #=======================DESCRIPTION============================================#
 # This option allows the user to choose between different assemblers.          #
@@ -472,10 +399,8 @@ ANALYSIS: "SCAFFOLDS"
 #                       level, whereas 19 represents the lowest.               #
 # threads               number of threads                                      #
 # differential_coverage_matrix  Cross mapping or coassembly maybe??            #
+#-----------------------NOTE---------------------------------------------------#
 #------------------------------------------------------------------------------#
-
-# Semibin doesn't work in the differential covergae mode yet
-
 bwa:
   nice: "5"
   threads: "12"
