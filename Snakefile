@@ -681,16 +681,18 @@ elif config["BINNING"] != "METABAT" and config["BINNING"] != "DAS":
 if config["BINNING"] == "MAXBIN" or (config["BINNING"] == "DAS" and config["das"]["maxbin"]["run"]=="T" ):
     rule maxbin_coverage:
         input:
-            "{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"] + "_" + config["ASSEMBLER"] + "_depth.txt"
+            "{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_depth.txt"
         output:
-            "{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_{sample}_depth_avg_maxbin.txt"
+            "{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"] + "_" + config["ASSEMBLER"]+"_{coverage_sample}_depth_avg_maxbin.txt"
+        params:
+            col=config["ANALYSIS"] + "_" + config["ASSEMBLER"]+"vs_{coverage_sample}_mapped_against_cross-assembly_sorted.bam"
         shell:
             """
-            awk -F '\\t' -v col="{config[ANALYSIS]}_{config[ASSEMBLER]}vs_{wildcards.sample}_mapped_against_cross-assembly_sorted.bam" 'NR == 1 {{for (i = 1; i <= NF; i++) {{if ($i == col) {{c = i;break}}}}print "contig\\tabundance"}}NR > 1 {{print $1 "\\t" $c}}' {input} > {output}
+            awk -F '\\t' -v col="{params.col}" 'NR == 1 {{for (i = 1; i <= NF; i++) {{if ($i == col) {{c = i;break}}}}print $1 "\\t" $c}}NR > 1 {{print $1 "\\t" $c}}' {input} > {output}
             """
     rule maxbin_abund_list:
         input:
-            expand("{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_{sample}_depth_avg_maxbin.txt",PROJECT=config["PROJECT"],run=run,sample=config["SAMPLES"])
+            expand("{PROJECT}/runs/{run}/{{sample}}_data/bwa-mem/"+config["ANALYSIS"] + "_" + config["ASSEMBLER"]+"_{coverage_sample}_depth_avg_maxbin.txt", PROJECT=config["PROJECT"], run=run, coverage_sample=config["SAMPLES"])
         output:
             "{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"] + "_" + config["ASSEMBLER"]+"_abund_list.txt"
         shell:
