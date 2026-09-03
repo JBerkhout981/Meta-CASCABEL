@@ -1,0 +1,11 @@
+name: snake_env_test
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python=3.10
+  - snakemake=7.14.2
+  - gsl=2.5
+  - hmmer=3.1
+  - seqtk=1.3

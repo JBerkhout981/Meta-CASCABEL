@@ -7,91 +7,99 @@ Snakemake pipeline for assembly and binning of metagenomics reads.
 The pipeline creates different output files which allow the user to explore the data and results in a simple way, as well as facilitate downstream analysis based on the generated output files.
 
 * Different quality control steps on the reads.
-* Taxonomy assessment at different levels
 * Read trimming and filtering
 * Assembly
-* Gene calling (bins, contigs or scaffolds)
 * Binning 
 * Bin evaluation
+* Taxonomic classification
 
 ## Quick start
-
-
-**Required input files**
-
-The pipeline is designed to analyze one or more metagenomes.
-For each single metagenome you should supply the paired end raw reads:
-
-Forward raw reads (fastq or fastq.gz)
-Reverse raw reads (fastq or fastq.gz)
-
-In order to only perform the binning, you can also supply a fasta file containing your assembly. In such case, you also need to supply the raw data.
 
 **Download or clone the repository**
 
 > git clone -b MetaCASCABEL_v5 https://github.com/AlejandroAb/Meta-CASCABEL
 
-**Initialize directory structure**
+**Required input files**
 
-There are two ways to configure the input.
+The pipeline is designed to analyze one or more metagenomes.
+For each metagenome you should supply the paired end raw reads:
 
-The first method can only be used when working with one sample. 
+Forward raw reads (fastq or fastq.gz)
+Reverse raw reads (fastq or fastq.gz)
+
+When using unzipped reads make sure to set 'gzip_input' to 'F' in config.yaml, or to 'T' when working with zipped reads.
+If you want to analyze pre trimmed reads, you can supply these as input and then change 'trimming' in the configfile to 'F'.
+In order to only perform the binning, you can also supply a fasta file containing your assembly. In such case, you also need to supply the raw data.
+
+**Configure the input files**
+
+There are two ways to configure the input files, depending on whether you are working with a one sample or multiple samples.
+
+*One sample*
+
+This method can be used when analysing one sample.
 
 Go to the config.yaml file and fill in the following:
-1. Enter the name of your sample in 'SAMPLES', for example: SAMPLES: ["SAMPLE_NAME"]
-2. Enter the absolute path to the forward reads after 'fw_reads:' between quotes.
-3. Enter the absolute path to the reverse reads after 'rv_reads:' between quotes.
-4. Leave 'input_files:' empty.
+* Enter the name of your sample in 'SAMPLES'. 
+* Enter the absolute path to the forward reads in 'fw_reads:' between quotes.
+* Enter the absolute path to the reverse reads after 'rv_reads:' between quotes.
+* Leave 'input_files:' empty.
 
-The second method can be used when working with one or more samples.
+For example:
+```yaml
+SAMPLES: ["NIOZ118"]
 
-1. Create a '.txt' file. The filename can be anything but in this example, we use 'input.txt'.
-2. Add one sample per line. Each line must contain three tab-separated columns:
-- Sample name
-- Absolute path to the forward reads
-- Absolute path to the reverse reads
-3. Add the sample names to 'SAMPLES' in config.yaml. The names must be identical to the sample names in the first column of `input.txt`.
-4. Leave 'fw_reads:' and 'rv_reads:' empty.
-5. Enter the name of the '.txt' file after 'input_files:'.
-
-Here is an example of what input.txt should look like:
+fw_reads: "/export/lv4/projects/workshop_2023/S10_Assembly/rawdata_1/NIOZ118_R1.fastq.gz"
+rv_reads: "/export/lv4/projects/workshop_2023/S10_Assembly/rawdata_1/NIOZ118_R2.fastq.gz"
+input_files: ""
 ```
+
+*Multiple samples*
+
+* Create a 'input.txt' file. The filename can be anything but in this example, we use 'input.txt'.
+* Add one sample per line. Each line must contain three tab-separated columns:
+1. Sample name
+2. Absolute path to the forward reads
+3. Absolute path to the reverse reads
+* Add the sample names to 'SAMPLES' in config.yaml. The names must be identical to the sample names in the first column of 'input.txt'.
+* Leave 'fw_reads:' and 'rv_reads:' empty.
+* Enter the name of the '.txt' file after 'input_files:'.
+
+An example of the config file:
+```yaml
+SAMPLES: ["NIOZ114","NIOZ118","NIOZ130"]
+
+fw_reads: ""
+rv_reads: ""
+input_files: "input.txt"
+```
+
+An example of input.txt:
+```
+NIOZ114 /export/lv4/projects/workshop_2023/S10_Assembly/rawdata_1/NIOZ114_R1.fastq.gz   /export/lv4/projects/workshop_2023/S10_Assembly/rawdata_1/NIOZ114_R2.fastq.gz
 NIOZ118 /export/lv4/projects/workshop_2023/S10_Assembly/rawdata_1/NIOZ118_R1.fastq.gz   /export/lv4/projects/workshop_2023/S10_Assembly/rawdata_1/NIOZ118_R2.fastq.gz
 NIOZ130 /export/lv4/projects/workshop_2023/S10_Assembly/rawdata_1/NIOZ130_R1.fastq.gz   /export/lv4/projects/workshop_2023/S10_Assembly/rawdata_1/NIOZ130_R2.fastq.gz
-NIOZ114 /export/lv4/projects/workshop_2023/S10_Assembly/rawdata_1/NIOZ114_R1.fastq.gz   /export/lv4/projects/workshop_2023/S10_Assembly/rawdata_1/NIOZ114_R2.fastq.gz
 ```
 
 **Edit configuration file**
 
-<ins>Project name</ins>
+To run the script you need to go through the configuration file (config.yaml). 
 
-```yaml
-#------------------------------------------------------------------------------#
-#                             Project Name                                     #
-#------------------------------------------------------------------------------#
-# The name of the project for which the pipeline will be executed. This should#
-# be the same name used as the first parameter on init_sample.sh script        #
-#------------------------------------------------------------------------------#
-PROJECT: "test_metagenomes"
-```
+Some mandatory options are left empty as default:
+* PROJECT
+* RUN
+* Input configuration (explained above)
+* ANALYSIS
+* ASSEMBLER
+* BINNING
 
-<ins>Samples</ins>
+Make sure to go through all these options, otherwise the script won't run. 
 
-```yaml
-#------------------------------------------------------------------------------#
-#                               SAMPLES                                        #
-#------------------------------------------------------------------------------#
-# SAMPLES/Libraries you will like to include on the analysis                   #
-# Same sample names used  with init_sample.sh script                           #
-# Include all the names between quotes, and comma separated                    #
-#------------------------------------------------------------------------------#
-SAMPLES: ["sampleA", "sampleB"]
-```
-
-Go through the rest of the configuration file and choose your options before running the script. 
+IMPORTANT! If you run the pipeline on SLURM set 'interactive' to 'F'
 
 **Run the pipeline using SLURM**
 
+If you open hpc.sh you can set -j (number of jobs) and -c (number of cpu's) according to your needs and available recources
 >  sbatch hpc.sh
 
 **Run the pipeline without SLURM**
@@ -99,20 +107,24 @@ Go through the rest of the configuration file and choose your options before run
 *Activating environment*
 
 >  module load anaconda/2024.02
+> 
 >  conda activate snakemake_v7.14.2
+> 
 >  export GTDBTK_DATA_PATH="/export/lv13/databases/gtdb/release232"
 
 *dry run*
 
-> snakemake --configfile config.yaml -j2 -c35 --use-conda --conda-frontend conda -np
+> snakemake --configfile config.yaml -p
 
 *Run*
 
+Set -j (number of jobs) and -c (number of cpu's) according to your needs and available recources
 > snakemake --configfile config.yaml  -j2 -c35 --use-conda --conda-frontend conda 
 
 *Generating report file*
-> snakemake --configfile config.yaml --report report_name.zip
 
+You can set the name to anything you want
+> snakemake --configfile config.yaml --report report_name.zip
 
 **Output files structure**
 
@@ -172,21 +184,11 @@ Needs to be updated
 ```
 
 
-**Dependencies** 
+**Environment and dependencies** 
 
-* Assembly (you don't need to have all the tools installed, only the one for your target analysis)
-  * Spades
-  * Megahit
-  * IDBA
-* Mapping back reads to the assembly
-  * BWA
-* Binning (you don't need to have all the tools installed, only the one for your target analysis)
-  * Maxbin
-  * Metabat2
-  * CONCOCT
-  * Bin Sanity
-  * DAS Tool
-* Binning evaluation
-  * CheckM
-  * GTDB-Tk
+In the directory '/envs' are yaml files of all the different tools with their versions and dependencies.
+
+'snake_env.yaml' shows the tools and dependencies used to run the script. The parameters '--use-conda' and '--conda-frontend conda' allow the pipeline to use different conda environments according to the necessary tools per rule.
+
+Right now the pipeline is configured to use global environments available on the server. If these are not available to you or you want to run the pipeline on your own server, you can change all 'conda:' occurrences in the Snakefile from conda: "sequali_v1.0.2" to conda: "envs/sequali.yaml" and repeat this for every tool. This way it will automatically create all the new environments needed. 
 

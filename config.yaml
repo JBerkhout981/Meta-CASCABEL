@@ -29,7 +29,27 @@
 #=======================DESCRIPTION============================================#
 # The name of the project for which the pipe line will be executed.            #
 #------------------------------------------------------------------------------#
-PROJECT: ""
+PROJECT: "Test"
+
+#------------------------------------------------------------------------------#
+#                       RUN                                                    #
+#=======================DESCRIPTION============================================#
+# Name of the RUN - Only use alphanumeric characters and don't use spaces.     #
+# This argument helps the user to execute different runs (pipeline execution)  #
+# with the same input data but with different parameters (ideally).            #
+# The RUN variable can be set here or remain empty, in the latter case, the    #
+# user must assign this value via the command line --config RUN=User_run_name  #
+#------------------------------------------------------------------------------#
+RUN: "testje"
+
+#------------------------------------------------------------------------------#
+#                       Description                                            #
+#=======================DESCRIPTION============================================#
+# Brief description for the pipeline. Any description written here will be     #
+# included on the final report. This field is not mandatory so it can remain   #
+# empty                                                                        #
+#------------------------------------------------------------------------------#
+description: ""
 
 #------------------------------------------------------------------------------#
 #                       SAMPLES                                                #
@@ -38,7 +58,7 @@ PROJECT: ""
 # Same sample names used with input.txt script                                 #
 # Include all the names between quotes, and comma separated                    #
 #------------------------------------------------------------------------------#
-SAMPLES: [""]
+SAMPLES: ["NIOZ114"]
 
 #------------------------------------------------------------------------------#
 #                       INPUT FILES                                            #
@@ -55,8 +75,8 @@ SAMPLES: [""]
 #                       txt file and put the name here (this can be any name)  #
 #                       An example of the .txt file is on Redmine              #
 #------------------------------------------------------------------------------#
-fw_reads: ""
-rv_reads: ""
+fw_reads: "/export/lv4/projects/workshop_2023/S10_Assembly/rawdata_1/NIOZ114_R1.fastq.gz"
+rv_reads: "/export/lv4/projects/workshop_2023/S10_Assembly/rawdata_1/NIOZ114_R2.fastq.gz"
 input_files: ""
 
 #------------------------------------------------------------------------------#
@@ -69,26 +89,6 @@ input_files: ""
 # if the input files are regular fastq files                                   #
 #------------------------------------------------------------------------------#
 gzip_input: "F"
-
-#------------------------------------------------------------------------------#
-#                       RUN                                                    #
-#=======================DESCRIPTION============================================#
-# Name of the RUN - Only use alphanumeric characters and don't use spaces.     #
-# This argument helps the user to execute different runs (pipeline execution)  #
-# with the same input data but with different parameters (ideally).            #
-# The RUN variable can be set here or remain empty, in the latter case, the    #
-# user must assign this value via the command line --config RUN=User_run_name  #
-#------------------------------------------------------------------------------#
-RUN: ""
-
-#------------------------------------------------------------------------------#
-#                       Description                                            #
-#=======================DESCRIPTION============================================#
-# Brief description for the pipeline. Any description written here will be     #
-# included on the final report. This field is not mandatory so it can remain   #
-# empty                                                                        #
-#------------------------------------------------------------------------------#
-description: ""
 
 #------------------------------------------------------------------------------#
 #                       Execution mode                                         #
@@ -208,7 +208,7 @@ trimm:
 # Not all assembly tools generate scaffolds, if you wan't to use scaffolds,    #
 # chose either SPADES or IDBA as assembly tool.                                #
 #------------------------------------------------------------------------------#
-ANALYSIS: ""
+ANALYSIS: "CONTIGS"
 
 #------------------------------------------------------------------------------#
 #                       Select assembly tool                                   #
@@ -224,7 +224,7 @@ ANALYSIS: ""
 # contigs               If ASSEMBLER = "ASSEMBLED" supply file pointing to     #
 #                       contigs/scaffolds                                      #
 #------------------------------------------------------------------------------#
-ASSEMBLER: ""
+ASSEMBLER: "MEGAHIT"
 contigs: ""
 
 #------------------------------------------------------------------------------#
@@ -410,7 +410,7 @@ jgi_summ:
 #   DAS, if you don't use DAS change the settings to less sensitive            #
 # - When using DAS, it will always run Metabat2 as one of the binning tools    #
 #------------------------------------------------------------------------------#
-BINNING: ""
+BINNING: "METABAT"
 
 #------------------------------------------------------------------------------#
 #                       MetaBAT2                                               #
