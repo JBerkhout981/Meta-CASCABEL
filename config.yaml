@@ -123,7 +123,7 @@ interactive : "F"
 # onTrimmedReads        'T' Run QC steps on trimmed reads                      #
 #                       'F' Don't run QC steps on trimmed reads                #
 # threads               Number of threads to run sequali.                      #
-# extra_params          Extra parameters. See sequali --help for more info.    #
+# extra_params          Extra parameters.                                      #
 #=======================INFORMATION============================================#
 # https://github.com/rhpvorderman/sequali                                      #
 #------------------------------------------------------------------------------#
@@ -247,7 +247,7 @@ contigs: ""
 #                       less than 128)                                         #
 # merge_paired_reads    'T' to merge reads before assembling                   #
 #                       'F' don't merge reads before assembling                #
-# extra_params          Any extra params. Run spades.py -h for more options.   #
+# extra_params          Any extra params.                                      #
 #=======================INFORMATION============================================#
 # http://spades.bioinf.spbau.ru/release3.11.1/manual.html#sec3.4               #
 #------------------------------------------------------------------------------#
@@ -304,7 +304,6 @@ idba:
 #                       set between 0-1, fraction of the machine's total memory#
 # cpus                  Number of CPU threads.                                 #
 # extra_params          Any extra argument to be passed.                       #
-#                       For more info run: megahit -h                          #
 #=======================INFORMATION============================================#
 # https://github.com/voutcn/megahit/wiki/Assembly-Tips                         #
 #------------------------------------------------------------------------------#
@@ -345,8 +344,7 @@ SPLIT_SIZE: 20000
 # QUality ASsessment Tool for Genome Assemblies                                #
 #=======================PARAMS=================================================#
 # threads               Number of threads                                      #
-# extra_params          Any extra argument to be passed. For more info run:    #
-#                       quast.py --help                                        #
+# extra_params          Any extra argument to be passed.                       #
 #=======================INFORMATION============================================#
 # https://github.com/ablab/quast                                               #
 #------------------------------------------------------------------------------#
@@ -402,28 +400,17 @@ jgi_summ:
 # - CONCOCT             this option runs Concoct                               #
 # - BINSANITY           this option runs BinSanity workflow                    #
 # - SEMIBIN             This option runs semibin2                              #
-# - DAS                 this option runs multiple binning tools then refine    #
+# - DAS                 this option runs multiple binning tools then refines   #
 #                       bins with DASTool. In DAS Tool in the configfile you   #
 #                       can chose which binning tools to run                   #                          
-#=======================NOTE===================================================#
-# Binsanity and CONCOCT are the most memory inefficient binning tools.         #
-# After selecting the target method, you can fine tune the options for each    #
-# tool, using the options below. The default settings are more sensitive for   #
-# DAS, if you don't use DAS make sure you change the settings to less sensitive#
+#=======================NOTES==================================================#
+# - Binsanity and CONCOCT are the most memory inefficient binning tools        #
+# - After selecting the target method, you can fine tune the options for each  #
+#   tool, using the options below. The default settings are more sensitive for #
+#   DAS, if you don't use DAS change the settings to less sensitive            #
+# - When using DAS, it will always run Metabat2 as one of the binning tools    #
 #------------------------------------------------------------------------------#
 BINNING: ""
-
-#------------------------------------------------------------------------------#
-#                       Unbinned                                               #
-# rule: get_unbinned                                                           #
-#=======================DESCRIPTION============================================#
-# Here you can chose if you want to get a fasta file containing all contigs or #
-# scaffolds (depending on your 'ANALYSIS' choice in the config file)           #
-#=======================PARAMS=================================================#
-# CREATE_UNBINNED       'T' Generate unbinned contigs/scaffolds                #
-#                       'F' Don't generate unbinned contigs/scaffolds          #
-#------------------------------------------------------------------------------#
-CREATE_UNBINNED: "F"
 
 #------------------------------------------------------------------------------#
 #                       MetaBAT2                                               #
@@ -432,19 +419,18 @@ CREATE_UNBINNED: "F"
 # Metagenome Binning based on Abundance and Tetranucleotide frequency          #
 #=======================PARAMS=================================================#
 # threads               Number of threads to use                               #
-# min_contig            Minimum size of a contig for binning. Default = 2500.  #
-#                       Should be >=1500.                                      #
-# min_score             Minimum score of a edge for binning. Default = 60.     #
+# min_contig            Minimum size of a contig for binning. Should be >=1500 #
+# min_score             Minimum score of a edge for binning.                   #
 #                       Should be between 1 and 99, greater = more specific.   #
 # maxP                  Percentage of 'good' contigs considered for binning    #
-#                       decided by connection among contigs. Default = 95.     #
+#                       decided by connection among contigs.                   #
 #                       The greater, the more sensitive.                       #
-# maxEdge               Maximum number of edges per node. Default = 200.       # 
+# maxEdge               Maximum number of edges per node.                      # 
 #                       The greater, the more sensitive.                       #
-# min_bin_size          Minimum size of a bin as the output. Default = 200000. #
-# extra_params          Any extra params. Default values on this pipeline:     #
-#   --saveCls           Save cluster memberships as a matrix format            #
-#   -v                  verbose                                                #
+# min_bin_size          Minimum size of a bin as the output.                   #
+# extra_params          Any extra params.                                      #
+#=======================INFORMATION============================================#
+# https://gensoft.pasteur.fr/docs/MetaBAT/2.15/                                #
 #------------------------------------------------------------------------------#
 metabat2:
   threads: "20"
@@ -453,7 +439,7 @@ metabat2:
   maxP: "98"
   maxEdge: "400"
   min_bin_size: "200000"
-  extra_params: "--saveCls -v"
+  extra_params: ""
 
 #------------------------------------------------------------------------------#
 #                       MaxBin                                                 #
@@ -464,17 +450,16 @@ metabat2:
 # algorithm.                                                                   #
 #=======================PARAMS=================================================#
 # threads               Number of threads                                      #
-# min_contig_length     minimum contig length. Default 1000                    #
+# min_contig_length     minimum contig length.                                 #
 # max_iteration         maximum Expectation-Maximization algorithm iteration   #
-#                       number. Default 50.                                    #
+#                       number.                                                #
 # prob_threshold        Probability threshold for EM final classification.     #
-#                       Default 0.9                                            #
-# plotmarker            Values -plotmarker to generate plot with marker        #
-#                       abundance or empty to skip plot generation             #
+# plotmarker            '-plotmarker' to generate plot with marker abundance   #
+#                       or leave empty to skip plot generation                 #
 # markerset             Marker gene sets, 107 (default) or 40.                 #
-#                       See /export/data/aabdala/utils/MaxBin-2.2.4/README.txt)#
-#                       for more information.                                  #
-# extra_params:         Any extra params.                                      #
+# extra_params          Any extra params.                                      #
+#=======================INFORMATION============================================#
+# https://github.com/galsang-git/maxbin2/blob/main/README.txt                  #
 #------------------------------------------------------------------------------#
 maxbin:
   threads: "20"
@@ -490,15 +475,15 @@ maxbin:
 # rule: concoct                                                                #
 #=======================DESCRIPTION============================================#
 # CONCOCT does unsupervised binning of metagenomic contigs by using nucleotide #
-# composition - kmer frequencies - and coverage data for multiple samples.     #
+# composition kmer frequencies and coverage data for multiple samples.         #
 # CONCOCT can accurately (up to species level) bin metagenomic contigs.        #
-# more info about concoct: https://concoct.readthedocs.io/en/latest/index.html #
 #=======================PARAMS=================================================#
-# min_contig_length     minimum contig length. Default 1000)                   #
-# max_iteration         Specify maximum number of iterations for the VBGM      #
-#                       Default 500.                                           #
+# min_contig_length     Minimum contig length.                                 #
+# max_iteration         Specify maximum number of iterations for binning proces#
 # threads               Number of threads to use                               #
-# extra_params          Any extra params. See concoct -h                       #
+# extra_params          Any extra params.                                      #
+#=======================INFORMATION============================================#
+# https://concoct.readthedocs.io/en/latest/index.html                          #
 #------------------------------------------------------------------------------#
 concoct:
   min_contig_length: "2500"
@@ -507,7 +492,7 @@ concoct:
   extra_params: ""
 
 #------------------------------------------------------------------------------#
-#                       BinSanity                                              #
+#                       BinSanity_wf                                           #
 # rule: binsanity                                                              #
 #=======================DESCRIPTION============================================#
 # BinSanity contains a suite a scripts designed to cluster contigs generated   #
@@ -516,22 +501,16 @@ concoct:
 # The biphasic approach whereby contigs are clustered initially with contig    #
 # coverage followed by refinement using GC% and k-mer frequencies yields more  #
 # complete bins than similar methods.                                          #
-# ========PARAMS========                                                       #
-# preference            Specify a preference [Default: -3] Note: decreasing the#
-#                       preference leads to more lumping, increasing will lead #
-#                       to more splitting. If your range of coverages are low  #
-#                       you will want to decrease the preference, if you have  #
-#                       10 or less replicates increasing the preference could  #
-#                       benefit you.                                           #
-# min_contig_length     Option -x/SizeThreshold. Specify the contig size       #
-#                       cut-off [Default: 1000 bp]                             #
-# threads               Indicate how many threads you want dedicated to the    #
-#                       subprocess CheckM                                      #
-# low_completion        T or F. BinSanity WF output two different kind of bins:#
-#                       "refined" bins (high quality) bins and also low        #
-#                       completion bins. Use T to include low comp. bins in    #
-#                       downstream analysis                                    #
-# extra_params:         Any extra params. See Binsanity-wf -h                  #
+#=======================PARAMS=================================================#
+# preference            Specify a preference. Decreasing = more lumping,       #
+#                       increasing = more splitting.                           #
+# min_contig_length     Specify the contig size cut-off                        #
+# threads               Number of threads to use                               #
+# low_completion        'T' include low completion bins in downstream analysis #
+#                       'F' exclude low completion bins in downstream analysis #
+# extra_params          Any extra params.                                      #
+#=======================INFORMATION============================================#
+# https://github.com/edgraham/BinSanity/wiki                                   #
 #------------------------------------------------------------------------------#
 binsanity:
   preference: -3
@@ -541,20 +520,19 @@ binsanity:
   extra_params: ""
 
 #------------------------------------------------------------------------------#
-#                       Semibin Tool                                           #
+#                       Semibin2                                               #
 # rule: semibin                                                                #
 #=======================DESCRIPTION============================================#
-# SemiBin is a command tool for metagenomic binning with deep learning, handles#
-# both short and long reads.                                                   #
+# SemiBin is a command tool for metagenomic binning with deep learning, using  #
+# Siamese Neural networks.                                                     #
 #=======================PARAMS=================================================#
 # threads               Number of threads you want to use                      #
-# min_bin_size          Minimum bin size in kilo-basepairs (Default: 200)      #
+# min_bin_size          Minimum bin size in kilo-basepairs                     #
 # max_edge              The maximum number of edges that can be connected to   #
-#                       one contig (Default: 200)                              #
+#                       one contig                                             #
 # extra_params          Any extra params                                       #
-#------------------------------------------------------------------------------#
-# For more info about the tool and parameters, see                             #
-# https://semibin.readthedocs.io/en/latest/subcommands/ for any information    #
+#=======================INFORMATION============================================#
+# https://semibin.readthedocs.io/en/latest/subcommands/                        #
 #------------------------------------------------------------------------------#
 semibin:
   threads: "20"
@@ -569,20 +547,25 @@ semibin:
 # DAS Tool is an automated method that integrates the results of a flexible    #
 # number of binning algorithms to calculate an optimized, non-redundant set of #
 # bins from a single assembly.                                                 #
-# ========PARAMS========                                                       #
+#=======================PARAMS=================================================#
 # threads               Number of threads                                      #
 # db                    Directory of single copy gene database.                #
 # search_engine         Engine used for single copy gene identification        #
 #                       [blast/diamond/usearch].                               #
-# extra_params         Any extra params. Run DAS_Tool to see available options #
+# extra_params          Any extra params                                       #
+# run                   'T' for all the binning tools you want to use          #
+#                       'F' for all the binning tools you don't want to use    #
+# gtdbtk_analysis       'T' to perform gtdbtk analysis for this binning tool   #
+#                       'F' skip gtdbtk analysis for this binning tool         #
+# checkm_analysis       'T' to perform checkm analysis for this binning tool   #
+#                       'F' skip checkm analysis for this binning tool         #
 #=======================NOTES==================================================#
-# By default, DAS will run metabat if you want to turn on/off other tools use  #
-# values T (true) or F (false) accordingly for binsanity, concoct and maxbin.  #
-# In case you use any of these tools, select if you want to perform checkm     #
-# and/or gtdbtk analyzes by seting the corresponding flags, also to T or F     #
-#                                                                              #
-# Also it is important to keep in mind that CONCOCT and Binanity are very      #
-# memory inefficiënt                                                           #
+# - Binsanity and CONCOCT are the most memory inefficient binning tools        #
+# - Das will always run Metabat2 as one of the binning tools (hence why there  #
+#   is no 'run' option for metabat)                                            #
+# - The checkM and gtdbtk analys only work if 'run' is set to 'T' for the tool #
+#=======================INFORMATION============================================#
+# https://github.com/cmks/DAS_Tool                                             #
 #------------------------------------------------------------------------------#
 das:
   threads: "20"
@@ -590,36 +573,47 @@ das:
   search_engine: diamond
   extra_params: ""
   metabat:
-    gtdbtk_analysis: "T"
-    checkm_analysis: "T"
+    gtdbtk_analysis: "F"
+    checkm_analysis: "F"
   binsanity: 
-    run: "T"
-    gtdbtk_analysis: "T"
-    checkm_analysis: "T"
+    run: "F"
+    gtdbtk_analysis: "F"
+    checkm_analysis: "F"
   concoct: 
-   run: "T"
-   gtdbtk_analysis: "T"
-   checkm_analysis: "T"
+   run: "F"
+   gtdbtk_analysis: "F"
+   checkm_analysis: "F"
   maxbin: 
-    run: "T"
-    gtdbtk_analysis: "T"
-    checkm_analysis: "T"
+    run: "F"
+    gtdbtk_analysis: "F"
+    checkm_analysis: "F"
   semibin:
-    run: "T"
-    gtdbtk_analysis: "T"
-    checkm_analysis: "T"
+    run: "F"
+    gtdbtk_analysis: "F"
+    checkm_analysis: "F"
 
 #------------------------------------------------------------------------------#
-#                       chekM                                                  #
+#                       Unbinned                                               #
+# rule: get_unbinned                                                           #
+#=======================DESCRIPTION============================================#
+# Here you can chose if you want to get a fasta file containing all contigs or #
+# scaffolds (depending on your 'ANALYSIS' choice in the config file)           #
+#=======================PARAMS=================================================#
+# CREATE_UNBINNED       'T' obtain all unbinned contigs/scaffolds              #
+#                       'F' Don't obtain unbinned contigs/scaffolds            #
+#------------------------------------------------------------------------------#
+CREATE_UNBINNED: "F"
+
+#------------------------------------------------------------------------------#
+#                       checkM lineage_wf                                      #
 # rule: checkm_<bin_method>                                                    #
 #=======================DESCRIPTION============================================#
 # This rule asseses the quality of genomes recovered from isolates, single     #
 # cells or metagenomes.                                                        #
 #=======================PARAMS=================================================#
 # threads               Number of threads                                      #
-# extra_params          Any extra params. Run checkm to see available options  #
-#------------------------------------------------------------------------------#
-# Do 'checkm lineage_wf -h' to see all optional parameters or check:           #
+# extra_params          Any extra params                                       #
+#=======================INFORMATION============================================#
 # https://github.com/Ecogenomics/CheckM/wiki/Workflows#lineage-specific-workflow
 #------------------------------------------------------------------------------#
 checkM:
@@ -627,17 +621,16 @@ checkM:
   extra_params: ""
 
 #------------------------------------------------------------------------------#
-#                       GTDB-Tk                                                #
+#                       GTDB-Tk classify_wf                                    #
 # rule: gtdbtk_<bin_method>                                                    #
-# =DESCRIPTION=================================================================#
+#=======================DESCRIPTION============================================#
 # GTDB-Tk is a software toolkit for assigning objective taxonomic              #
 # classifications to bacterial and archaeal genomes based on the Genome        #
 # Database Taxonomy GTDB.                                                      #
-# =PARAMS======================================================================#
+#=======================PARAMS=================================================#
 # cpus                  Number of CPUs                                         #
 # extra_params          Any extra params                                       #
-#=INFO=========================================================================#
-# For more info on the tool and parameters, see:                               #
+#=======================INFORMATION============================================#
 # https://ecogenomics.github.io/GTDBTk/commands/classify_wf.html               #
 #------------------------------------------------------------------------------#
 gtdbtk:
@@ -650,17 +643,16 @@ gtdbtk:
 #=======================DESCRIPTION============================================#
 # Prokka is a software tool to annotate bacterial, archaeal and viral genomes  #
 # quickly and produce standards-compliant output files.                        #
-# ========PARAMS========                                                       #
-# extra_params          Any extra params.                                      #
-#   --addmrna           Add 'mRNA' features for each 'CDS' feature             #
-#   --increment         Locus tag counter increment (default '1')              #
+#=======================PARAMS=================================================#
+# extra_params          Any extra paramsn                                      #
 # cpus                  Number of CPUs to use                                  #
-#------------------------------------------------------------------------------#
-# For more info on the tool and parameters, see:                               #
+#=======================INFORMATION============================================#
 # https://github.com/tseemann/prokka                                           #
+#=======================NOTES==================================================#
+# In the 'DIAMOND' section in the config, you can chose to run Prokka or not   #
 #------------------------------------------------------------------------------#
 prokka:
-  extra_params: "--addmrna --increment 1"
+  extra_params: ""
   cpus: 6
 
 #------------------------------------------------------------------------------#
@@ -671,17 +663,16 @@ prokka:
 # query  sequences  against  a  protein  reference database (BLASTX alignment  #
 # mode). The speedup over BLAST is up to 20,000 on short reads at a typical    #
 # sensitivity of 90-99% relative to BLAST depending on the data and settings.  #
-# ========PARAMS========                                                       #
+#=======================PARAMS=================================================#
 # run                   "T" If you want to run diamond and prokka              #
 #                       "F" If you don't want to run diamond and prokka        #
-# db                    Path to the output DIAMOND database file               #
+# db                    Path to the DIAMOND database                           #
 # taxonmap              Path to mapping file that maps NCBI protein accession  #
 #                       numbers to taxon ids                                   #
 # outfmt                Format of the output file                              #
 # threads               Number of CPU threads                                  #
 # extra_params          Any extra params                                       #
 #------------------------------------------------------------------------------#
-# For more info on the tool and parameters, see:                               #
 # https://github.com/bbuchfink/diamond/wiki/3.-Command-line-options            #
 #------------------------------------------------------------------------------#
 diamond:
