@@ -17,7 +17,7 @@
 ################################################################################
 
 ################################################################################
-#                          GENERAL PARAMS SECTION                              #
+#                       GENERAL PARAMS SECTION                                 #
 #------------------------------------------------------------------------------#
 # The general parameters section defines variables that are global or general  #
 # for the complete work-flow execution, as well as extra information for the   #
@@ -25,82 +25,86 @@
 ################################################################################
 
 #------------------------------------------------------------------------------#
-#                             Project Name                                     #
+#                       Project Name                                           #
+#=======================DESCRIPTION============================================#
+# The name of the project for which the pipe line will be executed.            #
 #------------------------------------------------------------------------------#
-# The name of the project for which the pipe line will be executed. This should#
-# be the same name used as the first parameter on init_sample.sh script        #
-#------------------------------------------------------------------------------#
-PROJECT: "Small_metacascabel_test_3"
+PROJECT: ""
 
 #------------------------------------------------------------------------------#
-#                               SAMPLES                                        #
-#------------------------------------------------------------------------------#
+#                       SAMPLES                                                #
+#=======================DESCRIPTION============================================#
 # SAMPLES/Libraries you will like to include on the analysis                   #
-# Same sample names used  with init_sample.sh script                           #
+# Same sample names used with input.txt script                                 #
 # Include all the names between quotes, and comma separated                    #
 #------------------------------------------------------------------------------#
-SAMPLES: ["NIOZ114","NIOZ118","NIOZ130"]
+SAMPLES: [""]
 
 #------------------------------------------------------------------------------#
-#                             INPUT FILES                                      #
-#------------------------------------------------------------------------------#
-# Here you have to enter FULL PATH! to the raw reads                           #
-# fw_reads:     Full path to raw reads in forward direction                    #
-# rv_reads:     Full path to raw reads in reverse direction                    #
-# input_files:  If you are analysing more than 1 metagenome create a .txt file #
-#               and put the name here (this can be any name).                  #
-#               An example of the .txt file is on Redmine.                     #
+#                       INPUT FILES                                            #
+#=======================DESCRIPTION============================================#
+# You can configure the input fiels in two ways:                               #
+# - If you want to analyse one sample, fill in 'fw_reads' and rv_reads' and    #
+#   leave 'input_files' empty                                                  #
+# - If you want to analyse more than one sample, leave 'fw_reads' and          #
+#   'rv_reads' empty and fill in 'input_files'                                 #
+#=======================PARAMS=================================================#
+# fw_reads              Full path to raw reads in forward direction            #
+# rv_reads              Full path to raw reads in reverse direction            #
+# input_files           If you are analysing more than 1 metagenome create a   #
+#                       txt file and put the name here (this can be any name)  #
+#                       An example of the .txt file is on Redmine              #
 #------------------------------------------------------------------------------#
 fw_reads: ""
 rv_reads: ""
-input_files: "input_test_set.txt"
+input_files: ""
 
 #------------------------------------------------------------------------------#
-#                             INPUT TYPE                                       #
-#------------------------------------------------------------------------------#
+#                       INPUT TYPE                                             #
+#=======================DESCRIPTION============================================#
 # This pipeline supports two types of input files, fastq and gzipped fastq     #
 # files.                                                                       #
 # The option gzip_input can take the values "T" if the input files are gziped  #
 # (only the reads!, the metadata file always needs to be uncompressed) or "F"  #
 # if the input files are regular fastq files                                   #
 #------------------------------------------------------------------------------#
-gzip_input: "T"
+gzip_input: "F"
 
 #------------------------------------------------------------------------------#
-#                               RUN                                            #
-#------------------------------------------------------------------------------#
+#                       RUN                                                    #
+#=======================DESCRIPTION============================================#
 # Name of the RUN - Only use alphanumeric characters and don't use spaces.     #
 # This argument helps the user to execute different runs (pipeline execution)  #
 # with the same input data but with different parameters (ideally).            #
 # The RUN variable can be set here or remain empty, in the latter case, the    #
 # user must assign this value via the command line --config RUN=User_run_name  #
 #------------------------------------------------------------------------------#
-RUN: "Test_maxbin"
+RUN: ""
 
 #------------------------------------------------------------------------------#
-#                            Description                                       #
-#------------------------------------------------------------------------------#
+#                       Description                                            #
+#=======================DESCRIPTION============================================#
 # Brief description for the pipeline. Any description written here will be     #
 # included on the final report. This field is not mandatory so it can remain   #
 # empty                                                                        #
 #------------------------------------------------------------------------------#
-description: "Testing 3 samples and maxbin diff cov mat"
+description: ""
 
 #------------------------------------------------------------------------------#
-#                             Execution mode                                   #
-#------------------------------------------------------------------------------#
+#                       Execution mode                                         #
+#=======================DESCRIPTION============================================#
 # Set this flag to T (default) in order to interact at some specific steps with#
 # the pipeline. For a list for all the "interactive" checkpoints take a look   #
 # into the following link: TBD                                                 #
 #------------------------------------------------------------------------------#
 interactive : "F"
 
-
 ################################################################################
 #                       Specific Parameters Section                            #
-#------------------------------------------------------------------------------#
+#=======================DESCRIPTION============================================#
 # In this section of the configuration file, you can find all the values used  #
 # to run the different rules during the pipeline execution.                    #
+#                                                                              #
 # Some of the parameters below, contains an option called "extra_params".      #
 # This option is designed to allow the user enter any other extra parameter    #
 # available on the program to be executed, therefore if the default            #
@@ -109,23 +113,19 @@ interactive : "F"
 #------------------------------------------------------------------------------#
 
 #------------------------------------------------------------------------------#
-#                       Quality control with Sequali                           #
-#=======================DESCRIPTION============================================#
-# Select which tool to use for quality control.                                #
-#=======================PARAMS=================================================#
-# onRawReads            Run QC steps on raw reads: T|F                         #
-# onTrimmedReads        Run QC steps on trimmed reads: T|F                     #
-# tool                  Tool for QC steps: "fastqc","sequali" or "both"        #
-#------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------#
-#                       Quality control with Sequali                           #
-# rules: sequali                                                               #
+#                       Quality control                                        #
+# rule: sequali and sequali_trimmed_reads                                      #
 #=======================DESCRIPTION============================================#
 # Sequence quality metrics for FASTQ and uBAM files.                           #
-# Sequali (https://github.com/rhpvorderman/sequali).                           #
 #=======================PARAMS=================================================#
+# onRawReads            'T' Run QC steps on raw reads                          #
+#                       'F' Don't run QC steps on raw reads                    #
+# onTrimmedReads        'T' Run QC steps on trimmed reads                      #
+#                       'F' Don't run QC steps on trimmed reads                #
 # threads               Number of threads to run sequali.                      #
 # extra_params          Extra parameters. See sequali --help for more info.    #
+#=======================INFORMATION============================================#
+# https://github.com/rhpvorderman/sequali                                      #
 #------------------------------------------------------------------------------#
 QC:
   onRawReads: "F"
@@ -140,75 +140,33 @@ QC:
 # Remove adapter contamination and trim very low quality parts (ends) of the   #
 # reads. Use maxinfo 0.6 for Q trimming and leave read 1 and 2 separate since  #
 # spades (assembler) does no longer support merged reads                       #
-#=======================REQUIRED SETTINGS======================================#
-# mode PE               (Paired End), The data type is paired reads            #
-# threads               Number of threads.                                     #       
-# type'ILLUMINACLIP'    Step to find and remove Illumina adapters.             #
-# adapter               path to a fasta file containing all the adapters, PCR  #
-#                       sequences etc.                                         #
 #=======================PARAMS=================================================#
-# trimming              'T' if you want to trim the reads, 'F' if you don't    #
-#                       want to trim your reads
-# seed                  specifies the maximum mismatch count which will still  #
-#                       allow                                                  #
-#                       a full match to be performed                           #
-# palindrome_ct         specifies how accurate the match between the two       #
-#                       'adapter ligated' reads must be for PE palindrome read #
-#                       alignment.                                             #
-# simple_ct             specifies how accurate the match between any adapter   #
-#                       etc. sequence must be against a read.                  #
-# minAdpLength          In addition to the alignment score, palindrome mode    #
-#                       can verify that a minimum length of adapter has been   #
-#                       detected.                                              #
-#                       If unspecified, this defaults to 8 bases, for          #
-#                       historical reasons. However, since palindrome mode has #
-#                       a very low false positive rate, this can be safely     #
-#                       reduced, even down to 1, to allow shorter adapter      #
-#                       fragments to be removed.                               #
-# keepBoth              (TRUE|FALSE) After read-though has been detected by    #
-#                       palindrome mode, and the adapter sequence removed, the #
-#                       reverse read contains the same sequence information as #
-#                       the forward read, albeit in reverse complement. For    #
-#                       this reason, the default behaviour is to entirely drop #
-#                       the reverse read. By specifying „true‟ for this        #
-#                       parameter, the reverse read will also be retained,     #
-#                       which may be useful e.g. if the downstream tools cannot#
-#                       handle a combination of paired and unpaired reads.     #
-# sliding                                                                      #
-# type:                 "SLIDINGWINDOW:<windowSize>:<requiredQuality>"         #
-#  - SLIDINGWINDOW      Sliding window trimming type                           #
-#  - windowSize         specifies the number of bases to average across        #
-#  - requiredQuality    specifies the average quality required.                #
-# maxinfo                                                                      #
-# - type                "MAXINFO" Performs an adaptive quality trim, balancing #
-#                       the benefits of                                        #
-#                       retaining longer reads against the costs of retaining  #
-#                       bases with errors.                                     #
-#  - targetLength       This specifies the read length which is likely to allow#
-#                       the location of the read within the target sequence to #
-#                       be determined.                                         #
-#  - strictness         This value, which should be set between 0 and 1,       #
-#                       specifies the balance between preserving as much read  #
-#                       length as possible vs. removal of incorrect bases. A   #
-#                       low value of this parameter (<0.2) favours longer      #
-#                       reads, while a high value (>0.8) favours read          #
-#                       correctness.                                           #
-# minlen                                                                       #
-# - type                "MINLEN"  This module removes reads that fall below    #
-#                       the specified minimal length. If required, it should   #
-#                       normally be after all other processing steps. Reads    #
-#                       removed by this step will be counted and included in   #
-#                       the „dropped reads‟ count presented in the trimmomatic #
-#                       summary.
-#  - len                Specifies the minimum length of reads to be kept.
-# extra_params          Extra parameters. 
-#------------------------------------------------------------------------------#
-# For more info see:                                                           #
+# trimming              'T' if you want to trim the reads                      #
+#                       'F' if you don't want to trim your reads               #
+# mode PE               The data type is paired reads                          #
+# threads               Number of threads                                      #       
+# type (clip)           'ILLUMINACLIP' Find and remove Illumina adapters       #
+# adapter               path to a fasta file containing all the adapters       #
+# seed                  The maximum mismatch count                             #
+# palindrome_ct         Accuracy threshold for paired-end adapter detection    #
+# simple_ct             Accuracy threshold for adapter detection               #
+# minAdpLength          Minimum adapter length to detect                       #
+# keepBoth              'TRUE' keep both reads after adapter removal           #
+#                       'FALSE' don't keep both reads after adapter removal    #
+# type (sliding)        "SLIDINGWINDOW" Trim reads based on average quality in #
+#                       a sliding window                                       #
+# windowSize            Number of bases in the sliding window                  #
+# requiredQuality       Minimum average quality in the sliding window          #
+# type (maxinfo)        "MAXINFO" Perform an adaptive quality trim             #
+# targetLength          Specify the target read length                         #
+# strictness            Number between 0 and 1. A low value favours longer     #
+#                       reads, while a high value favours read correctness     #
+# type (minlen)         "MINLEN" Specify minimum read length                   #
+# len                   Removes reads shorter than the specified length        #
+# extra_params          Extra parameters                                       #
+#=======================INFORMATION============================================#
 #usadellab.org/cms/uploads/supplementary/Trimmomatic/TrimmomaticManual_V0.32.pdf
 #------------------------------------------------------------------------------#
-
-# trimming = 'N' -> Je kan dan geen SPADES gebruiken ivm singles file gegenereerd door trimmomatic
-
 trimm:
   trimming: "T"
   mode: "PE"
@@ -235,6 +193,24 @@ trimm:
   extra_params: ""
 
 #------------------------------------------------------------------------------#
+#                       Analysis Type                                          #
+# rule: mapping                                                                #
+#=======================DESCRIPTION============================================#
+# Some metagenomic analysis use the contigs and some others the scaffolds in   #
+# order to perform the mapping, binning and other downstream analysis after the#
+# assembly. The following variable can take two values: CONTIGS or SCAFFOLDS   #
+# So deppending on this, the pipeline will continue the analysis with the      #
+# assembled contigs or with the assembled scaffolds.                           #
+#=======================PARAMS=================================================#
+# ANALYSIS              "CONTIGS" continue the analysis using the contigs      #
+#                       "SCAFFOLDS" continue the analysis using the scaffolds  #
+#=======================NOTE===================================================#
+# Not all assembly tools generate scaffolds, if you wan't to use scaffolds,    #
+# chose either SPADES or IDBA as assembly tool.                                #
+#------------------------------------------------------------------------------#
+ANALYSIS: "CONTIGS"
+
+#------------------------------------------------------------------------------#
 #                       Select assembly tool                                   #
 #=======================DESCRIPTION============================================#
 # This option allows the user to choose between different assemblers.          #
@@ -246,53 +222,34 @@ trimm:
 # - ASSEMBLED           Use "ASSEMBLED" if you already have contigs and want   #
 #                       to skip Meta-CASCABEL assembly steps.                  #
 # contigs               If ASSEMBLER = "ASSEMBLED" supply file pointing to     #
-#                       contigs/scaffolds.                                     #
+#                       contigs/scaffolds                                      #
 #------------------------------------------------------------------------------#
 ASSEMBLER: "MEGAHIT"
 contigs: ""
 
 #------------------------------------------------------------------------------#
-#                       Split assembly                                         #
-#=======================DESCRIPTION============================================#
-# This option allows the user to split the contig file. According to CONCOCT   #
-# documentation, in order to give more weight to larger contigs and mitigate   #
-# the effect of assembly errors we cut up the contigs into chunks of 10 Kb.    #
-# The final chunk is appended to the one before it if it is < SPLIT_SIZE Kb to #
-# prevent generating small contigs. This means that no contig < SPLIT_SIZE*2 Kb#
-# is cut up.                                                                   #
-# We recommend to set this to true whenever the pipeline is running for CONCOCT#
-# This method only work for contigs ((ANALYSIS: "CONTIGS")                     #
-#=======================PARAMS=================================================#
-# SPLIT_ASSEMBLY        "T" or "F" in order to split or not the contigs        #
-# SPLIT_SIZE             Chunk size (in bases) for splitting. Option -c within #
-#                        CONCOCT's script cut_up_fasta.py -c.                  #
-# Warning geven
-#------------------------------------------------------------------------------#
-SPLIT_ASSEMBLY: "F"
-SPLIT_SIZE: 20000
-
-#------------------------------------------------------------------------------#
 #                       Assembly with SPADES                                   #
-# rule: Spades                                                                 #
+# rule: spades                                                                 #
 #=======================DESCRIPTION============================================#
 # Assembly using spades, always try to use it with nice in order to avoid the  #
 # program to take a lot a memory! The nice parameter is used for this purpose. #
 # It ranges from minus 20 to plus 19 and can take on only integer values. A    #
 # value of minus 20 represents the highest priority level, whereas 19          #
 # represents the lowest.                                                       #
-# moreinfo at: http://spades.bioinf.spbau.ru/release3.11.1/manual.html#sec3.4  #
 #=======================PARAMS=================================================#
 # nice                  To avoid take all the resources. It ranges from minus  #
 #                       20 to plus 19 and can take on only integer values. A   #
 #                       value of minus 20 represents the highest priority      #
 #                       level, whereas 19 represents the lowest.               #
 # threads               Number of threads                                      #
-# memory                RAM limit for SPAdes in Gb (terminates if exceeded)    #
+# memory                RAM limit for SPADES in Gb (terminates if exceeded)    #
 # kmers                 Comma-separated list of k-mer sizes (must be odd and   #
 #                       less than 128)                                         #
-# merge_paired_reads    T or F to merge paired reads before assembling         #
-# extra_params          Any extra argument to be passed.                       #
-#                       Run spades.py -h for more options.                     #
+# merge_paired_reads    'T' to merge reads before assembling                   #
+#                       'F' don't merge reads before assembling                #
+# extra_params          Any extra params. Run spades.py -h for more options.   #
+#=======================INFORMATION============================================#
+# http://spades.bioinf.spbau.ru/release3.11.1/manual.html#sec3.4               #
 #------------------------------------------------------------------------------#
 spades:
   nice: "5"
@@ -313,8 +270,9 @@ spades:
 #=======================PARAMS=================================================#
 # step                  Increment of k-mer of each iteration                   #
 # threads               Number of threads                                      #
-# extra_params          Any extra argument to be passed. For more info run:    #
-#                       /export/data/aabdala/utils/idba/bin/idba_ud            #
+# extra_params          Any extra argument to be passed.                       #
+#=======================INFORMATION============================================#
+# https://github.com/loneknightpy/idba                                         #
 #------------------------------------------------------------------------------#
 idba:
   step: "10"
@@ -336,20 +294,19 @@ idba:
 # recommended to reduce the complexity of the de Bruijn graph. Quality trimming#
 # is also recommended for high-depth generic data, large --k-min (25 to 31) is #
 # recommended smaller --k-step, say 10, is more friendly to low-coverage       #
-# datasets: https://github.com/voutcn/megahit/wiki/Assembly-Tips               #
+# datasets                                                                     #
 #=======================PARAMS=================================================#
 # kmin                  Minimum kmer size (<= 255), must be odd number.        #
-#                       Default = 21                                           #
 # kmax                  Maximum kmer size (<= 255), must be odd number.        #
-#                       Default = 141                                          #
 # kstep                 Increment of kmer size of each iteration (<= 28),      #
-#                       must be even number. Default = 12                      #
+#                       must be even number.                                   #
 # memory                Max memory in byte to be used in SdBG construction,    #
 #                       set between 0-1, fraction of the machine's total memory#
-#                       Default = 0.5.                                         #
-# cpus                  Number of CPU threads default 6                        #
+# cpus                  Number of CPU threads.                                 #
 # extra_params          Any extra argument to be passed.                       #
 #                       For more info run: megahit -h                          #
+#=======================INFORMATION============================================#
+# https://github.com/voutcn/megahit/wiki/Assembly-Tips                         #
 #------------------------------------------------------------------------------#
 megahit:
   kmin: 21
@@ -360,6 +317,28 @@ megahit:
   extra_params: ""
 
 #------------------------------------------------------------------------------#
+#                       Split assembly                                         #
+# rule: split_assembly                                                         #
+#=======================DESCRIPTION============================================#
+# This option allows the user to split the contig file. According to CONCOCT   #
+# documentation, in order to give more weight to larger contigs and mitigate   #
+# the effect of assembly errors we cut up the contigs into chunks of 10 Kb.    #
+# The final chunk is appended to the one before it if it is < SPLIT_SIZE Kb to #
+# prevent generating small contigs. This means that no contig < SPLIT_SIZE*2 Kb#
+# is cut up.                                                                   #
+# We recommend to set this to true whenever the pipeline is running for CONCOCT#
+#=======================PARAMS=================================================#
+# SPLIT_ASSEMBLY        'T' to split contigs/scaffolds                         #
+#                       'F' don't split the contigs/scaffolds                  #
+# SPLIT_SIZE            Chunk size (in bases) for splitting. Option -c within  #
+#                       CONCOCT's script cut_up_fasta.py -c.                   #
+#=======================NOTE===================================================#
+# The quality assesment is performed on the pre-trimmed contigs/scaffolds      #
+#------------------------------------------------------------------------------#
+SPLIT_ASSEMBLY: "F"
+SPLIT_SIZE: 20000
+
+#------------------------------------------------------------------------------#
 #                       QUAST                                                  #
 # rule: quast_contigs and quast_scaffolds                                      #
 #=======================DESCRIPTION============================================#
@@ -368,24 +347,12 @@ megahit:
 # threads               Number of threads                                      #
 # extra_params          Any extra argument to be passed. For more info run:    #
 #                       quast.py --help                                        #
+#=======================INFORMATION============================================#
+# https://github.com/ablab/quast                                               #
 #------------------------------------------------------------------------------#
 quast:
   threads: "20"
   extra_params: ""
-
-#------------------------------------------------------------------------------#
-#                       Analysis Type                                          #
-# rule: mapping                                                                #
-#=======================DESCRIPTION============================================#
-# Some metagenomic analysis use the contigs and some others the scaffolds in   #
-# order to perform the mapping, binning and other downstream analysis after the#
-# assembly. The following variable can take two values: CONTIGS or SCAFFOLDS   #
-# So deppending on this, the pipeline will continue the analysis with the      #
-# assembled contigs or with the assembled scaffolds.                           #
-# Not all assembly tools generate scaffolds, if you wan't to use scaffolds,    #
-# chose either SPADES or IDBA.                                                 #
-#------------------------------------------------------------------------------#
-ANALYSIS: "CONTIGS"
 
 #------------------------------------------------------------------------------#
 #                       BWA MEM                                                #
