@@ -208,7 +208,7 @@ trimm:
 # Not all assembly tools generate scaffolds, if you wan't to use scaffolds,    #
 # chose either SPADES or IDBA as assembly tool.                                #
 #------------------------------------------------------------------------------#
-ANALYSIS: "CONTIGS"
+ANALYSIS: ""
 
 #------------------------------------------------------------------------------#
 #                       Select assembly tool                                   #
@@ -224,7 +224,7 @@ ANALYSIS: "CONTIGS"
 # contigs               If ASSEMBLER = "ASSEMBLED" supply file pointing to     #
 #                       contigs/scaffolds                                      #
 #------------------------------------------------------------------------------#
-ASSEMBLER: "MEGAHIT"
+ASSEMBLER: ""
 contigs: ""
 
 #------------------------------------------------------------------------------#
@@ -358,28 +358,35 @@ quast:
 #                       BWA MEM                                                #
 # rule: bwa_mem                                                                #
 #=======================DESCRIPTION============================================#
-# Map the trimmed reads against the assembly                                   #
+# Map the trimmed reads against to the assembly                                #
 #=======================PARAMS=================================================#
 # nice                  To avoid take all the resources. It ranges from minus  #
 #                       20 to plus 19 and can take on only integer values. A   #
 #                       value of minus 20 represents the highest priority      #
 #                       level, whereas 19 represents the lowest.               #
 # threads               number of threads                                      #
-# differential_coverage_matrix  Cross mapping or coassembly maybe??            #
-#-----------------------NOTE---------------------------------------------------#
+# differential_coverage_matrix       'T' A cross sample depth file is created  #            
+#                                    'F' A single sample depth file is created #
+#=======================NOTE===================================================#
+# When in differential_coverage_matrix mode, SemiBin2 still performs binning   #
+# single sample                                                                #
+#=======================INFORMATION============================================#
+# https://bio-bwa.sourceforge.net/bwa.shtml                                    #
 #------------------------------------------------------------------------------#
 bwa:
   nice: "5"
   threads: "12"
-  differential_coverage_matrix: "T"
+  differential_coverage_matrix: "F"
 
 #------------------------------------------------------------------------------#
 #                       jgi_summarize_bam_contig_depths                        #
-# rule: jgi_summ                                                               #
+# rule: summarize_bam                                                          #
 #=======================DESCRIPTION============================================#
-# This program generate a depth file from BAM files. It runs with all the      #
-# default parameters, however the extra_params variable is present in order to #
-# include an desired option.                                                   #
+# This program is a command from Metabat and generates a depth file from BAM   #
+# files. It runs with all the default parameters, however the extra_params     #
+# variable is present in order to include an desired option.                   #
+#=======================INFORMATION============================================#
+# https://gensoft.pasteur.fr/docs/MetaBAT/2.15/                                #
 #------------------------------------------------------------------------------#
 jgi_summ:
   extra_params: ""
@@ -394,17 +401,15 @@ jgi_summ:
 # - MAXBIN              this option run MaxBin2                                #
 # - CONCOCT             this option runs Concoct                               #
 # - BINSANITY           this option runs BinSanity workflow                    #
-# - DAS                 this option run all the above methods and then refine  #
-#                       bins with DASTool                                      #
-# - SEMIBIN             This option runs single sample binning with semibin2.  #
-#                                                                              #
-# After selecting the target method, you can fine tune the options for each    #
-# tool, using the options below                                                #                           
+# - SEMIBIN             This option runs semibin2                              #
+# - DAS                 this option runs multiple binning tools then refine    #
+#                       bins with DASTool. In DAS Tool in the configfile you   #
+#                       can chose which binning tools to run                   #                          
 #------------------------------------------------------------------------------#
 
 # The settings are more sensitive for DAS, if you don't use DAS make sure you change the settings to less sensitive
 # Binsanity and CONCOCT are the most memory inefficient
-BINNING: "MAXBIN"
+BINNING: ""
 
 #------------------------------------------------------------------------------#
 #                       Unbinned conntigs                                      #
