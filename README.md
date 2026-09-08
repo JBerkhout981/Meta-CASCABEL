@@ -24,12 +24,29 @@ The pipeline creates different output files which allow the user to explore the 
 The pipeline is designed to analyze one or more metagenomes.
 For each metagenome you should supply the paired end raw reads:
 
-Forward raw reads (fastq or fastq.gz)
-Reverse raw reads (fastq or fastq.gz)
+* Forward raw reads (fastq or fastq.gz)
+* Reverse raw reads (fastq or fastq.gz)
 
 When using unzipped reads make sure to set 'gzip_input' to 'F' in config.yaml, or to 'T' when working with zipped reads.
 If you want to analyze pre trimmed reads, you can supply these as input and then change 'trimming' in the configfile to 'F'.
 In order to only perform the binning, you can also supply a fasta file containing your assembly. In such case, you also need to supply the raw data.
+
+
+**Edit configuration file**
+
+To run the script you need to go through the configuration file (config.yaml). 
+
+Some mandatory options are left empty as default:
+* PROJECT
+* RUN
+* Input configuration (explained below)
+* ANALYSIS
+* ASSEMBLER
+* BINNING
+
+Make sure to go through all these options, otherwise the script won't run. 
+
+IMPORTANT! If you run the pipeline on SLURM set 'interactive' to 'F'
 
 **Configure the input files**
 
@@ -81,28 +98,13 @@ NIOZ118 /export/lv4/projects/workshop_2023/S10_Assembly/rawdata_1/NIOZ118_R1.fas
 NIOZ130 /export/lv4/projects/workshop_2023/S10_Assembly/rawdata_1/NIOZ130_R1.fastq.gz   /export/lv4/projects/workshop_2023/S10_Assembly/rawdata_1/NIOZ130_R2.fastq.gz
 ```
 
-**Edit configuration file**
+**Run Metacascabel on the HPC (i.e. Laplace)**
 
-To run the script you need to go through the configuration file (config.yaml). 
-
-Some mandatory options are left empty as default:
-* PROJECT
-* RUN
-* Input configuration (explained above)
-* ANALYSIS
-* ASSEMBLER
-* BINNING
-
-Make sure to go through all these options, otherwise the script won't run. 
-
-IMPORTANT! If you run the pipeline on SLURM set 'interactive' to 'F'
-
-**Run the pipeline using SLURM**
-
-If you open hpc.sh you can set -j (number of jobs) and -c (number of cpu's) according to your needs and available recources
 >  sbatch hpc.sh
 
-**Run the pipeline without SLURM**
+If you open hpc.sh you can set -j (number of jobs) and -c (number of cpu's) according to your needs and available recources
+
+**Run Metacascabel on an interactive server (i.e. ada)**
 
 *Activating environment*
 
@@ -118,13 +120,15 @@ If you open hpc.sh you can set -j (number of jobs) and -c (number of cpu's) acco
 
 *Run*
 
+> snakemake --configfile config.yaml  -j2 -c35 --use-conda --conda-frontend conda
+
 Set -j (number of jobs) and -c (number of cpu's) according to your needs and available recources
-> snakemake --configfile config.yaml  -j2 -c35 --use-conda --conda-frontend conda 
 
 *Generating report file*
 
-You can set the name to anything you want
 > snakemake --configfile config.yaml --report report_name.zip
+
+You can set the name to anything you want
 
 **Output files structure**
 
@@ -141,17 +145,20 @@ You can set the name to anything you want
 │           │   ├── read1_singles.fq
 │           │   ├── read2_paired.fq
 │           │   └── read2_singles.fq
+│           │ 
 │           ├── assembly_<ASSEMBLER> 
 │           │   ├── <SAMPLE>_contigs.fasta   # Assembly - contigs
 │           │   ├── <SAMPLE>_scaffolds.fasta # Assembly - scaffolds (if available)
 │           │   ├── <SAMPLE>_<ANALYSIS>_complete.fasta # Assembly before being split (when SPLIT_assembly: T)
 │           │   └── quast  # Assembly statistics
+│           │ 
 │           ├── bwa-mem  #Assembly mapping against raw reads
 │           │   ├── <ANALYSIS>_<ASSEMBLER>_depth.txt  # depth coverage
 │           │   ├── <ANALYSIS>_<ASSEMBLER>_mapped_against_cross-assembly_sorted.bam # bam file (when differential_coverage_matrix: F)
 │           │   ├── <ANALYSIS>_<ASSEMBLER>_mapped_against_cross-assembly_sorted.flagstat # stats
 │           │   ├── <ANALYSIS>_<ASSEMBLER>vs_<SAMPLE>_mapped_against_cross-assembly_sorted.bam # bam file (when differential_coverage_matrix: T)
 │           │   └── <ANALYSIS>_<ASSEMBLER>vs_<SAMPLE>_mapped_against_cross-assembly_sorted.flagstat # stats file
+│           │ 
 │           ├── binning #The location for the bins vary per method 
 │           │   ├── abundance.<method>.tsv  #Information about the bin abundance per method
 │           │   ├── binsanity
@@ -181,11 +188,12 @@ You can set the name to anything you want
 │           │   │   ├── NIOZ114-2.fna
 │           │   │   └── NIOZ114-3.fna
 │           │   └── FinalBins.summary.tsv
+│           │ 
 │           └── unbinned
 │               ├── unbinned_contigs_list.txt # List of unbinned contigs
 │               └── unbinned.fasta # fasta file with unbinned contigs
 └── samples
-    ├── <SAMPLE>
+    └── <SAMPLE>
         ├── benchmark
         │   ├── init_structure.benchmark
         │   └── sequali.benchmark
