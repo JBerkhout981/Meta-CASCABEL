@@ -17,7 +17,7 @@ The pipeline creates different output files which allow the user to explore the 
 
 **Download or clone the repository**
 
-> git clone -b MetaCASCABEL_v5 https://github.com/AlejandroAb/Meta-CASCABEL
+> git clone -b MetaCASCABEL_v5 https://github.com/Bioinformatics-NIOZ/Meta-CASCABEL
 
 **Required input files**
 
@@ -114,7 +114,7 @@ If you open hpc.sh you can set -j (number of jobs) and -c (number of cpu's) acco
 
 *dry run*
 
-> snakemake --configfile config.yaml -p
+> snakemake --configfile config.yaml  -j2 -c35 --use-conda --conda-frontend conda -n
 
 *Run*
 
@@ -128,43 +128,47 @@ You can set the name to anything you want
 
 **Output files structure**
 
-Needs to be updated
-
 ```
 <PROJECT>
 ├── runs
 │   └── <RUN>
 │       └── <SAMPLE>_data
-│           ├── taxonomy  #Output from taxonomy profiling tool
-│           │   └── <TAXONOMY_PROFILING>.taxonomy.report
 │           ├── trimmed
-│           │   ├── qc  #FastQC result for trimmed reads
-│           │   ├── read1_paired.fq  #Trimmed reads
+│           │   ├── sequali  # Quality Control result for trimmed reads
+│           │   │   ├── sequali.html
+│           │   │   └── sequali.json
+│           │   ├── read1_paired.fq  # Trimmed reads
 │           │   ├── read1_singles.fq
 │           │   ├── read2_paired.fq
 │           │   └── read2_singles.fq
 │           ├── assembly_<ASSEMBLER> 
-│           │   ├── contigs.fasta   # Assembly - contigs
-│           │   ├── scaffolds.fasta # Assembly - scaffolds (if available)
+│           │   ├── <SAMPLE>_contigs.fasta   # Assembly - contigs
+│           │   ├── <SAMPLE>_scaffolds.fasta # Assembly - scaffolds (if available)
+│           │   ├── <SAMPLE>_<ANALYSIS>_complete.fasta # Assembly before being split (when SPLIT_assembly: T)
 │           │   └── quast  # Assembly statistics
 │           ├── bwa-mem  #Assembly mapping against raw reads
 │           │   ├── <ANALYSIS>_<ASSEMBLER>_depth.txt  # depth coverage
-│           │   ├── <ANALYSIS>_<ASSEMBLER>_mapped_against_cross-assembly_sorted.bam # bam file
-│           │   └── <ANALYSIS>_<ASSEMBLER>_mapped_against_cross-assembly_sorted.flagstat #stats
+│           │   ├── <ANALYSIS>_<ASSEMBLER>_mapped_against_cross-assembly_sorted.bam # bam file (when differential_coverage_matrix: F)
+│           │   ├── <ANALYSIS>_<ASSEMBLER>_mapped_against_cross-assembly_sorted.flagstat # stats
+│           │   ├── <ANALYSIS>_<ASSEMBLER>vs_<SAMPLE>_mapped_against_cross-assembly_sorted.bam # bam file (when differential_coverage_matrix: T)
+│           │   └── <ANALYSIS>_<ASSEMBLER>vs_<SAMPLE>_mapped_against_cross-assembly_sorted.flagstat # stats file
 │           ├── binning #The location for the bins vary per method 
 │           │   ├── abundance.<method>.tsv  #Information about the bin abundance per method
 │           │   ├── binsanity
 │           │   │   └── <ANALYSIS>_<ASSEMBLER>
-│           │   │       └── BinSanity-Final-bins  #BinSanity bins folder
+│           │   │       └── BinSanity-Final-bins  # BinSanity bins folder
 │           │   ├── concoct
-│           │   │   └── <ANALYSIS>_<ASSEMBLER>    #Concoct bins
+│           │   │   └── <ANALYSIS>_<ASSEMBLER>    # Concoct bins
 │           │   ├── das
 │           │   │   └── <ANALYSIS>_<ASSEMBLER>
-│           │   │       └──DasOut_DASTool_bins    #DASTool bins
+│           │   │       └──DasOut_DASTool_bins    # DASTool bins
 │           │   ├── maxbin
-│           │   │   └── <ANALYSIS>_<ASSEMBLER>    #MaxBin bins
+│           │   │   └── <ANALYSIS>_<ASSEMBLER>    # MaxBin bins
 │           │   ├── metabat2
-│           │   │   └── <ANALYSIS>_<ASSEMBLER>    #Metabat bins
+│           │   │   └── <ANALYSIS>_<ASSEMBLER>    # Metabat bins
+│           │   ├── semibin2
+│           │   │   └── <ANALYSIS>_<ASSEMBLER>    
+│           │   │       └── output_bins           # Semibin bins
 │           │   ├── checkM_<bin_method>
 │           │   │   └── summary.txt
 │           │   ├── gtdbtk_<bin_method>
@@ -181,6 +185,14 @@ Needs to be updated
 │               ├── unbinned_contigs_list.txt # List of unbinned contigs
 │               └── unbinned.fasta # fasta file with unbinned contigs
 └── samples
+    ├── <SAMPLE>
+        ├── benchmark
+        │   ├── init_structure.benchmark
+        │   └── sequali.benchmark
+        └── qc
+            └── sequali # Quality control results for raw reads
+                ├── sequali.html
+                └── sequali.json
 ```
 
 
