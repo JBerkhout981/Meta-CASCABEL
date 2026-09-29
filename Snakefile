@@ -674,7 +674,7 @@ if config["BINNING"] == "METABAT" or config["BINNING"] == "DAS":
 elif config["BINNING"] != "METABAT" and config["BINNING"] != "DAS":
     rule skip_metabat:
         output:
-            log="{PROJECT}/runs/{run}/{sample}_data/binning/metabat2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/metabat.log"
+            temp("{PROJECT}/runs/{run}/{sample}_data/binning/metabat2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/metabat.log")
         shell:
             "touch {output}"
 
@@ -730,7 +730,7 @@ if config["BINNING"] == "MAXBIN" or (config["BINNING"] == "DAS" and config["das"
 elif (config["BINNING"] == "DAS" and config["das"]["maxbin"]["run"]!="T") or (config["BINNING"] != "MAXBIN" and config["BINNING"] != "DAS"):
     rule skip_maxbin:
         output:
-            log="{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/maxbin.log"
+            temp("{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/maxbin.log")
         shell:
             "touch {output}"
 if config["BINNING"] == "CONCOCT" or ( config["BINNING"] == "DAS" and config["das"]["concoct"]["run"]=="T"):
@@ -779,8 +779,8 @@ if config["BINNING"] == "CONCOCT" or ( config["BINNING"] == "DAS" and config["da
 elif (config["BINNING"] == "DAS" and config["das"]["concoct"]["run"]!="T") or (config["BINNING"] != "CONCOCT" and config["BINNING"] != "DAS"):
     rule skip_concoct:
         output:
-            log="{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/concoct.log",
-            log2="{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/bin_clustering_gt"+config["concoct"]["min_contig_length"]+".csv"
+            log=temp("{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/concoct.log"),
+            log2=temp("{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/bin_clustering_gt"+config["concoct"]["min_contig_length"]+".csv")
         shell:
             "touch {output.log} && touch {output.log2}"
 
@@ -823,7 +823,7 @@ if config["BINNING"] == "BINSANITY" or (config["BINNING"] == "DAS" and config["d
 elif (config["BINNING"] == "DAS" and config["das"]["binsanity"]["run"]!="T") or (config["BINNING"] != "BINSANITY" and config["BINNING"] != "DAS"):
     rule skip_bin_sanity:
         output:
-            log="{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanityWf.log"
+            temp("{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanityWf.log")
         shell:
             "touch {output}"
 
@@ -860,7 +860,7 @@ if config["BINNING"] == "SEMIBIN" or (config["BINNING"] == "DAS" and config["das
 elif (config["BINNING"] == "DAS" and config["das"]["semibin"]["run"]!="T") or (config["BINNING"] != "SEMIBIN" and config["BINNING"] != "DAS"):
     rule skip_semibin:
         output:
-            log="{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/SemiBinRun.log"
+            temp("{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/SemiBinRun.log")
         shell:
             "touch {output}"
 
@@ -929,7 +929,7 @@ else:
         params:
             "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]
         output:
-            "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log"
+            temp("{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log")
         shell:
             "touch {output}"
 
@@ -1726,10 +1726,40 @@ else:
             "echo 'prokka and diamond have not been executed' > {output}"
 
 rule cleanup:
+    input:
+        read1_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_paired.fq",
+        read2_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read2_paired.fq",
+        read1_single="{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_singles.fq" if config["trimm"]["trimming"] == "T" else "",
+        read2_single="{PROJECT}/runs/{run}/{sample}_data/trimmed/read2_singles.fq" if config["trimm"]["trimming"] == "T" else "",
+
+        # read12_singles="{PROJECT}/runs/{run}/{sample}_data/trimmed/all_singles.fq" if config["trimm"]["trimming"] == "T" else "",
+
+        contigs="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.fasta",
+        scaffolds="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_scaffolds.fasta",
+
+        bin_folder="{PROJECT}/runs/{run}/{sample}_data/binning/metabat2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/" if config["BINNING"] == "METABAT" else
+        "{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/" if config["BINNING"] == "MAXBIN" else
+        "{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/" if config["BINNING"] == "CONCOCT" else 
+        "{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanity-Final-bins/"  if config["BINNING"] == "BINSANITY" else
+        "{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/output_bins/" if config["BINNING"] == "SEMIBIN" else 
+        "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/DasOut_DASTool_bins/", 
+        bin_ext="fa"  if config["BINNING"] == "METABAT" else
+        "fasta"  if config["BINNING"] == "MAXBIN" else
+        "fa" if config["BINNING"] == "CONCOCT" else
+        "fna" if config["BINNING"] == "BINSANITY" else
+        "fa" if config["BINNING"] == "SEMIBIN" else
+        "fa",
     output:
         temp("{PROJECT}/runs/{run}/{sample}_data/cleanUp_flag.txt")
     shell:
-        "touch {output}"
+        """
+        gzip(read1_paired)
+        gzip(read2_paired)
+        gzip(read1_single)
+        gzip(read1_single)
+        
+        touch {output}
+        """
 
 rule report:
     input:
