@@ -29,7 +29,7 @@
 #=======================DESCRIPTION============================================#
 # The name of the project for which the pipe line will be executed.            #
 #------------------------------------------------------------------------------#
-PROJECT: "Test"
+PROJECT: "Small_metacascabel_test"
 
 #------------------------------------------------------------------------------#
 #                       RUN                                                    #
@@ -40,7 +40,7 @@ PROJECT: "Test"
 # The RUN variable can be set here or remain empty, in the latter case, the    #
 # user must assign this value via the command line --config RUN=User_run_name  #
 #------------------------------------------------------------------------------#
-RUN: "testje"
+RUN: "cleanup_maxbin_metabat"
 
 #------------------------------------------------------------------------------#
 #                       Description                                            #
@@ -58,7 +58,7 @@ description: ""
 # Same sample names used with input.txt script                                 #
 # Include all the names between quotes, and comma separated                    #
 #------------------------------------------------------------------------------#
-SAMPLES: ["NIOZ114"]
+SAMPLES: ["NIOZ114","NIOZ130"]
 
 #------------------------------------------------------------------------------#
 #                       INPUT FILES                                            #
@@ -75,9 +75,9 @@ SAMPLES: ["NIOZ114"]
 #                       txt file and put the name here (this can be any name)  #
 #                       An example of the .txt file is on Redmine              #
 #------------------------------------------------------------------------------#
-fw_reads: "/export/lv4/projects/workshop_2023/S10_Assembly/rawdata_1/NIOZ114_R1.fastq.gz"
-rv_reads: "/export/lv4/projects/workshop_2023/S10_Assembly/rawdata_1/NIOZ114_R2.fastq.gz"
-input_files: ""
+fw_reads: ""
+rv_reads: ""
+input_files: "input_test_set.txt"
 
 #------------------------------------------------------------------------------#
 #                       INPUT TYPE                                             #
@@ -602,7 +602,7 @@ das:
 # CREATE_UNBINNED       'T' obtain all unbinned contigs/scaffolds              #
 #                       'F' Don't obtain unbinned contigs/scaffolds            #
 #------------------------------------------------------------------------------#
-CREATE_UNBINNED: "F"
+CREATE_UNBINNED: "T"
 
 #------------------------------------------------------------------------------#
 #                       checkM lineage_wf                                      #
