@@ -1749,39 +1749,9 @@ rule report:
     shell:
         "touch {output}"
 
-rule cleanup_bins:
-    input:
-        "{PROJECT}/runs/{run}/{sample}_data/report_f.html"
-    params:
-        metabat_bins="{PROJECT}/runs/{run}/{sample}_data/binning/metabat2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/" 
-        if config["BINNING"] == "METABAT" or config["BINNING"] == "DAS" else "",
-        maxbin_bins="{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/" 
-        if config["BINNING"] == "MAXBIN" or config["das"]["maxbin"]["run"] == "T" else "",
-        concoct_bins="{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/" 
-        if config["BINNING"] == "CONCOCT" or config["das"]["concoct"]["run"] == "T" else "",
-        binsanity_bins="{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanity-Final-bins/"  
-        if config["BINNING"] == "BINSANITY" or config["das"]["binsanity"]["run"] == "T" else "",
-        semibin_bins="{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/output_bins/" 
-        if config["BINNING"] == "SEMIBIN" or config["das"]["semibin"]["run"] == "T" else "",
-        das_bins="{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/DasOut_DASTool_bins/"
-        if config["BINNING"] == "DAS" else ""
-    output:
-        temp("{PROJECT}/runs/{run}/{sample}_data/cleanUp_flag_bins.txt")
-    shell:
-        """
-        gzip {params.metabat_bins}*.fa
-        gzip {params.maxbin_bins}*.fasta
-        gzip {params.concoct_bins}*.fa
-        gzip {params.binsanity_bins}*.fna
-        gzip {params.semibin_bins}*.fa
-        gzip {params.das_bins}*.fa
-
-        touch {output}
-        """
-
 rule cleanup:
     input:
-        "{PROJECT}/runs/{run}/{sample}_data/cleanUp_flag_bins.txt"
+        "{PROJECT}/runs/{run}/{sample}_data/report_f.html"
     params:
         read1_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_paired.fq",
         read2_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read2_paired.fq",
@@ -1790,7 +1760,6 @@ rule cleanup:
 
         read12_singles="{PROJECT}/runs/{run}/{sample}_data/trimmed/all_singles.fq" 
         if config["trimm"]["trimming"] == "T" and config["ASSEMBLER"] == "SPADES" else "",
-
         reads_merged="{PROJECT}/runs/{run}/{sample}_data/trimmed/reads_merged.fastq" 
         if config["spades"]["merge_paired_reads"] == "T" or config["ASSEMBLER"] == "IDBA" else "",
 
@@ -1801,27 +1770,32 @@ rule cleanup:
         if config["ANALYSIS"] == "CONTIGS" and config["SPLIT_ASSEMBLY"] == "T" else "",
         unsplitted_scaffolds="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_scaffolds.complete.fasta"
         if config["ANALYSIS"] == "SCAFFOLDS" and config["SPLIT_ASSEMBLY"] == "T" else "",
-        
-        
 
+        metabat_bins="{PROJECT}/runs/{run}/{sample}_data/binning/metabat2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/*.fa" 
+        if config["BINNING"] == "METABAT" or config["BINNING"] == "DAS" else "",
+        maxbin_bins="{PROJECT}/runs/{run}/{sample}_data/binning/maxbin/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/*.fasta" 
+        if config["BINNING"] == "MAXBIN" or config["das"]["maxbin"]["run"] == "T" else "",
+        concoct_bins="{PROJECT}/runs/{run}/{sample}_data/binning/concoct/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/*.fa" 
+        if config["BINNING"] == "CONCOCT" or config["das"]["concoct"]["run"] == "T" else "",
+        binsanity_bins="{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanity-Final-bins/*.fna"  
+        if config["BINNING"] == "BINSANITY" or config["das"]["binsanity"]["run"] == "T" else "",
+        semibin_bins="{PROJECT}/runs/{run}/{sample}_data/binning/semibin2/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/output_bins/*.fa" 
+        if config["BINNING"] == "SEMIBIN" or config["das"]["semibin"]["run"] == "T" else "",
+        das_bins="{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/DasOut_DASTool_bins/*.fa"
+        if config["BINNING"] == "DAS" else "",
 
+        final_bins="{PROJECT}/runs/{run}/{sample}_data/binning/FinalBins/*.fna",
+        
         unbinned="{PROJECT}/runs/{run}/{sample}_data/unbinned/unbinned.fasta" if config["CREATE_UNBINNED"] == "T" else ""
-
     output:
         temp("{PROJECT}/runs/{run}/{sample}_data/cleanUp_flag.txt")
     shell:
         """
         for x in {params}; do 
-            if [ -z "$x" ]; then 
-                gzip "$x" 
-            elif [ -d "$x" ]; then 
-                gzip "$x" 
-            elif [ -f "$x" ]; then
+            if [ -f "$x" ]; then
                 gzip "$x"
             fi 
         done
         
         touch {output}
         """
-
-

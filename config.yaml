@@ -40,9 +40,9 @@ PROJECT: "Small_metacascabel_test"
 # The RUN variable can be set here or remain empty, in the latter case, the    #
 # user must assign this value via the command line --config RUN=User_run_name  #
 #------------------------------------------------------------------------------#
-RUN: "cleanup_maxbin_metabat"
+RUN: "cleanup_spades_das"
 
-#------------------------------------------------------------------------------#
+#-------------------------xc-----------------------------------------------------#
 #                       Description                                            #
 #=======================DESCRIPTION============================================#
 # Brief description for the pipeline. Any description written here will be     #
@@ -58,7 +58,7 @@ description: ""
 # Same sample names used with input.txt script                                 #
 # Include all the names between quotes, and comma separated                    #
 #------------------------------------------------------------------------------#
-SAMPLES: ["NIOZ114","NIOZ130"]
+SAMPLES: ["NIOZ114","NIOZ118"]
 
 #------------------------------------------------------------------------------#
 #                       INPUT FILES                                            #
@@ -88,7 +88,7 @@ input_files: "input_test_set.txt"
 # (only the reads!, the metadata file always needs to be uncompressed) or "F"  #
 # if the input files are regular fastq files                                   #
 #------------------------------------------------------------------------------#
-gzip_input: "F"
+gzip_input: "T"
 
 #------------------------------------------------------------------------------#
 #                       Execution mode                                         #
@@ -208,7 +208,7 @@ trimm:
 # Not all assembly tools generate scaffolds, if you wan't to use scaffolds,    #
 # chose either SPADES or IDBA as assembly tool.                                #
 #------------------------------------------------------------------------------#
-ANALYSIS: "CONTIGS"
+ANALYSIS: "SCAFFOLDS"
 
 #------------------------------------------------------------------------------#
 #                       Select assembly tool                                   #
@@ -224,7 +224,7 @@ ANALYSIS: "CONTIGS"
 # contigs               If ASSEMBLER = "ASSEMBLED" supply file pointing to     #
 #                       contigs/scaffolds                                      #
 #------------------------------------------------------------------------------#
-ASSEMBLER: "MEGAHIT"
+ASSEMBLER: "SPADES"
 contigs: ""
 
 #------------------------------------------------------------------------------#
@@ -334,7 +334,7 @@ megahit:
 #=======================NOTE===================================================#
 # The quality assesment is performed on the pre-trimmed contigs/scaffolds      #
 #------------------------------------------------------------------------------#
-SPLIT_ASSEMBLY: "F"
+SPLIT_ASSEMBLY: "T"
 SPLIT_SIZE: 20000
 
 #------------------------------------------------------------------------------#
@@ -410,7 +410,7 @@ jgi_summ:
 #   DAS, if you don't use DAS change the settings to less sensitive            #
 # - When using DAS, it will always run Metabat2 as one of the binning tools    #
 #------------------------------------------------------------------------------#
-BINNING: "METABAT"
+BINNING: "DAS"
 
 #------------------------------------------------------------------------------#
 #                       MetaBAT2                                               #
@@ -576,19 +576,19 @@ das:
     gtdbtk_analysis: "F"
     checkm_analysis: "F"
   binsanity: 
-    run: "F"
+    run: "T"
     gtdbtk_analysis: "F"
     checkm_analysis: "F"
   concoct: 
-   run: "F"
+   run: "T"
    gtdbtk_analysis: "F"
    checkm_analysis: "F"
   maxbin: 
-    run: "F"
+    run: "T"
     gtdbtk_analysis: "F"
     checkm_analysis: "F"
   semibin:
-    run: "F"
+    run: "T"
     gtdbtk_analysis: "F"
     checkm_analysis: "F"
 
