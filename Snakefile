@@ -808,7 +808,8 @@ if config["BINNING"] == "BINSANITY" or (config["BINNING"] == "DAS" and config["d
             #final bins will be at  {bin_directory}/BinSanity-Final-bins/final_Bin-xx.fna
             #also they can be found in the form final_Bin-xx_refined-xx.fna
             assembly="{sample}_scaffolds.fasta"
-            if config["ANALYSIS"] == "SCAFFOLDS" else "{sample}_contigs.fasta"
+            if config["ANALYSIS"] == "SCAFFOLDS" else "{sample}_contigs.fasta",
+            kmer_gc="{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanityWf-kmerGC.txt"
         output:
             log="{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanityWf.log"
         threads:
@@ -816,6 +817,7 @@ if config["BINNING"] == "BINSANITY" or (config["BINNING"] == "DAS" and config["d
         conda: 
             "binsanity_v0.5.4"
         shell:
+            "touch {params.kmer_gc}"
             "Binsanity-wf -f {params.contig_directory} -l {params.assembly} -c {input.depth} -o {params.bin_directory} --binPrefix  final "
             "-p {config[binsanity][preference]} -x {config[binsanity][min_contig_length]} --threads {config[binsanity][threads]} "
             "{config[binsanity][extra_params]}"

@@ -301,7 +301,7 @@ idba:
 # kstep                 Increment of kmer size of each iteration (<= 28),      #
 #                       must be even number.                                   #
 # memory                Max memory in byte to be used in SdBG construction,    #
-#                       set between 0-1, fraction of the machine's total memory#
+#                       setqbetween 0-1, fraction of the machine's total memory#
 # cpus                  Number of CPU threads.                                 #
 # extra_params          Any extra argument to be passed.                       #
 #=======================INFORMATION============================================#
