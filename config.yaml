@@ -484,15 +484,16 @@ maxbin:
 # CONCOCT can accurately (up to species level) bin metagenomic contigs.        #
 #=======================PARAMS=================================================#
 # min_contig_length     Minimum contig length.                                 #
-# max_iteration         Specify maximum number of iterations for binning proces#
+# max_iteration         Specify maximum number of iterations for the binning   #
+#                       proces (VBGM)                                          #
 # threads               Number of threads to use                               #
 # extra_params          Any extra params.                                      #
 #=======================INFORMATION============================================#
 # https://concoct.readthedocs.io/en/latest/index.html                          #
 #------------------------------------------------------------------------------#
 concoct:
-  min_contig_length: "2500"
-  max_iteration: "600"
+  min_contig_length: "1000"
+  max_iteration: "500"
   threads: "20"
   extra_params: ""
 
@@ -507,19 +508,27 @@ concoct:
 # coverage followed by refinement using GC% and k-mer frequencies yields more  #
 # complete bins than similar methods.                                          #
 #=======================PARAMS=================================================#
-# preference            Specify a preference. Decreasing = more lumping,       #
-#                       increasing = more splitting.                           #
+# preference            Specify a preference. Note: decreasing the             #
+#                       preference leads to more lumping, increasing will lead #
+#                       to more splitting. If your range of coverages are low  #
+#                       you will want to decrease the preference, if you have  #
+#                       10 or less replicates increasing the preference could  #
+#                       benefit you.                                           #
 # min_contig_length     Specify the contig size cut-off                        #
 # threads               Number of threads to use                               #
 # low_completion        'T' include low completion bins in downstream analysis #
 #                       'F' exclude low completion bins in downstream analysis #
+#                       BinSanity WF output two different kind of bins:        #
+#                       "refined" bins (high quality) bins and also low        #
+#                       completion bins.                                       #
 # extra_params          Any extra params.                                      #
 #=======================INFORMATION============================================#
 # https://github.com/edgraham/BinSanity/wiki                                   #
+# Or do: Binsanity-wf -h                                                       #
 #------------------------------------------------------------------------------#
 binsanity:
   preference: -3
-  min_contig_length: 2500
+  min_contig_length: 1000
   threads: 20
   low_completion: "T"
   extra_params: ""
