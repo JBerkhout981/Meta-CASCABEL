@@ -817,7 +817,6 @@ if config["BINNING"] == "BINSANITY" or (config["BINNING"] == "DAS" and config["d
             "binsanity_v0.5.4"
         shell:
             "Binsanity-wf -f {params.contig_directory} -l {params.assembly} -c {input.depth} -o {params.bin_directory} --binPrefix  final "
-            #"/export/data/aabdala/utils/BInSanity/BinSanity-master/bin/Binsanity-wf -f {params.contig_directory} -l {params.assembly} -c {input.depth} -o {params.bin_directory} --binPrefix  final "
             "-p {config[binsanity][preference]} -x {config[binsanity][min_contig_length]} --threads {config[binsanity][threads]} "
             "{config[binsanity][extra_params]}"
 elif (config["BINNING"] == "DAS" and config["das"]["binsanity"]["run"]!="T") or (config["BINNING"] != "BINSANITY" and config["BINNING"] != "DAS"):
@@ -988,7 +987,7 @@ rule checkM_binsanity:
         out_folder="{PROJECT}/runs/{run}/{sample}_data/binning/checkM_binsanity/",
         bin_ext="fna"
     threads:
-        int(config["checkM"]["threads"])         
+        int(config["checkM"]["threads"])
     output:
         out_file="{PROJECT}/runs/{run}/{sample}_data/binning/checkM_binsanity/summary.txt"
     conda:

@@ -40,7 +40,7 @@ PROJECT: "Small_metacascabel_test"
 # The RUN variable can be set here or remain empty, in the latter case, the    #
 # user must assign this value via the command line --config RUN=User_run_name  #
 #------------------------------------------------------------------------------#
-RUN: "cleanup_spades_das"
+RUN: "cleanup_idba_das_diff_cov_mat"
 
 #-------------------------xc-----------------------------------------------------#
 #                       Description                                            #
@@ -58,7 +58,7 @@ description: ""
 # Same sample names used with input.txt script                                 #
 # Include all the names between quotes, and comma separated                    #
 #------------------------------------------------------------------------------#
-SAMPLES: ["NIOZ114","NIOZ118"]
+SAMPLES: ["NIOZ114","NIOZ118", "NIOZ130"]
 
 #------------------------------------------------------------------------------#
 #                       INPUT FILES                                            #
@@ -208,7 +208,7 @@ trimm:
 # Not all assembly tools generate scaffolds, if you wan't to use scaffolds,    #
 # chose either SPADES or IDBA as assembly tool.                                #
 #------------------------------------------------------------------------------#
-ANALYSIS: "SCAFFOLDS"
+ANALYSIS: "CONTIGS"
 
 #------------------------------------------------------------------------------#
 #                       Select assembly tool                                   #
@@ -224,7 +224,7 @@ ANALYSIS: "SCAFFOLDS"
 # contigs               If ASSEMBLER = "ASSEMBLED" supply file pointing to     #
 #                       contigs/scaffolds                                      #
 #------------------------------------------------------------------------------#
-ASSEMBLER: "SPADES"
+ASSEMBLER: "IDBA"
 contigs: ""
 
 #------------------------------------------------------------------------------#
@@ -374,7 +374,7 @@ quast:
 bwa:
   nice: "5"
   threads: "12"
-  differential_coverage_matrix: "F"
+  differential_coverage_matrix: "T"
 
 #------------------------------------------------------------------------------#
 #                       jgi_summarize_bam_contig_depths                        #
@@ -435,9 +435,9 @@ BINNING: "DAS"
 metabat2:
   threads: "20"
   min_contig: "2500"
-  min_score: "30"
-  maxP: "98"
-  maxEdge: "400"
+  min_score: "60"
+  maxP: "95"
+  maxEdge: "200"
   min_bin_size: "200000"
   extra_params: ""
 
