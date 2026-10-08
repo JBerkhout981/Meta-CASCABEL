@@ -457,13 +457,18 @@ metabat2:
 # plotmarker            '-plotmarker' to generate plot with marker abundance   #
 #                       or leave empty to skip plot generation                 #
 # markerset             Marker gene sets, 107 (default) or 40.                 #
+#                       By default MaxBin will look for 107 marker genes present
+#                       in >95% of bacteria. Alternatively you can also choose #
+#                       40 marker gene sets that are universal among bacteria  #
+#                       and archaea                                            #
 # extra_params          Any extra params.                                      #
 #=======================INFORMATION============================================#
 # https://github.com/galsang-git/maxbin2/blob/main/README.txt                  #
+# https://flowcraft.readthedocs.io/en/latest/user/components/maxbin2.html      #
 #------------------------------------------------------------------------------#
 maxbin:
   threads: "20"
-  min_contig_length: "2500"
+  min_contig_length: "1000"
   max_iteration: "50"
   prob_threshold: "0.9"
   plotmarker: "-plotmarker"
