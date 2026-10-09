@@ -807,9 +807,7 @@ if config["BINNING"] == "BINSANITY" or (config["BINNING"] == "DAS" and config["d
             bin_directory="{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/",
             #final bins will be at  {bin_directory}/BinSanity-Final-bins/final_Bin-xx.fna
             #also they can be found in the form final_Bin-xx_refined-xx.fna
-            assembly="{sample}_scaffolds.fasta"
-            if config["ANALYSIS"] == "SCAFFOLDS" else "{sample}_contigs.fasta",
-            kmer_gc="{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanityWf-kmerGC.txt"
+            assembly="{sample}_scaffolds.fasta" if config["ANALYSIS"] == "SCAFFOLDS" else "{sample}_contigs.fasta"
         output:
             log="{PROJECT}/runs/{run}/{sample}_data/binning/binsanity/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/BinSanityWf.log"
         threads:
@@ -817,10 +815,11 @@ if config["BINNING"] == "BINSANITY" or (config["BINNING"] == "DAS" and config["d
         conda: 
             "binsanity_v0.5.4"
         shell:
-            "touch {params.kmer_gc}"
-            "Binsanity-wf -f {params.contig_directory} -l {params.assembly} -c {input.depth} -o {params.bin_directory} --binPrefix  final "
-            "-p {config[binsanity][preference]} -x {config[binsanity][min_contig_length]} --threads {config[binsanity][threads]} "
-            "{config[binsanity][extra_params]}"
+            """
+            Binsanity-wf -f {params.contig_directory} -l {params.assembly} -c {input.depth} -o {params.bin_directory} --binPrefix  final \
+            -p {config[binsanity][preference]} -x {config[binsanity][min_contig_length]} --threads {config[binsanity][threads]} \
+            {config[binsanity][extra_params]}
+            """
 elif (config["BINNING"] == "DAS" and config["das"]["binsanity"]["run"]!="T") or (config["BINNING"] != "BINSANITY" and config["BINNING"] != "DAS"):
     rule skip_bin_sanity:
         output:
@@ -1165,36 +1164,6 @@ rule gtdbtk_das:
     shell:
         "gtdbtk classify_wf --genome_dir  {params.bin_folder} --out_dir {params.out_folder}  -x {params.bin_ext} --cpus {config[gtdbtk][cpus]} {config[gtdbtk][extra_params]} > {output} "
 
-rule gtdbtk_bins:
-    input:
-        "{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_metabat2/summary.txt"
-        if config["BINNING"] == "METABAT" else
-        "{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_maxbin/summary.txt"
-        if config["BINNING"] == "MAXBIN" else
-        "{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_concoct/summary.txt"
-        if config["BINNING"] == "CONCOCT" else
-        "{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_binsanity/summary.txt"
-        if config["BINNING"] == "BINSANITY" else
-        "{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_semibin2/summary.txt"
-        if config["BINNING"] == "SEMIBIN" else
-        "{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_das/summary.txt"
-    params:
-        dir="gtdbtk_metabat2"
-        if config["BINNING"] == "METABAT" else
-        "gtdbtk_maxbin"
-        if config["BINNING"] == "MAXBIN" else
-        "gtdbtk_concoct"
-        if config["BINNING"] == "CONCOCT" else
-        "gtdbtk_binsanity"
-        if config["BINNING"] == "BINSANITY" else
-        "gtdbtk_semibin2"
-        if config["BINNING"] == "SEMIBIN" else
-        "gtdbtk_das"
-    output:
-        out_file="{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk/summary.txt"
-    shell:
-        "ln -s ../{params.dir}/summary.txt {output}"
-
 rule summarize_gtdbtk:
     input:
         "{PROJECT}/runs/{run}/{sample}_data/binning/gtdbtk_metabat2/summary.txt"
@@ -1255,7 +1224,7 @@ rule bin_cvg_metabat2:
         bin_ext="fa",
         coverage="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_depth.txt"
     output:
-        "{PROJECT}/runs/{run}/{sample}_data/binning/abundance.metabat.tsv"
+        temp("{PROJECT}/runs/{run}/{sample}_data/binning/abundance.metabat.tsv")
     shell:
         "Scripts/summary_coverage_metabat.sh {params.bin_folder} {params.bin_ext} {params.coverage} {output}" 
 
@@ -1268,7 +1237,7 @@ rule bin_cvg_concoct:
         bin_ext="fa",
         coverage="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_depth.txt"
     output:
-        "{PROJECT}/runs/{run}/{sample}_data/binning/abundance.concoct.tsv" 
+        temp("{PROJECT}/runs/{run}/{sample}_data/binning/abundance.concoct.tsv")
     shell:
         "Scripts/summary_coverage_concoct.sh {params.bin_folder} {params.bin_ext} {params.coverage} {output}" 
        
@@ -1281,7 +1250,7 @@ rule bin_cvg_maxbin:
         bin_ext="fasta",
         coverage="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_depth.txt"
     output:
-        "{PROJECT}/runs/{run}/{sample}_data/binning/abundance.maxbin.tsv"
+        temp("{PROJECT}/runs/{run}/{sample}_data/binning/abundance.maxbin.tsv")
     shell:
         "Scripts/summary_coverage_maxbin.sh {params.bin_folder} {params.bin_ext} {params.coverage} {output}" 
  
@@ -1294,7 +1263,7 @@ rule bin_cvg_binsanity:
         bin_ext="fna",
         coverage="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_depth.txt"
     output:
-        "{PROJECT}/runs/{run}/{sample}_data/binning/abundance.binsanity.tsv"
+        temp("{PROJECT}/runs/{run}/{sample}_data/binning/abundance.binsanity.tsv")
     shell:
         "Scripts/summary_coverage_bs.sh {params.bin_folder} {params.bin_ext} {params.coverage} {output}" 
 
@@ -1307,7 +1276,7 @@ rule bin_cvg_semibin2:
         bin_ext="fa",
         coverage="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_depth.txt"
     output:
-        "{PROJECT}/runs/{run}/{sample}_data/binning/abundance.semibin.tsv"
+        temp("{PROJECT}/runs/{run}/{sample}_data/binning/abundance.semibin.tsv")
     shell:
         "Scripts/summary_coverage_semibin.sh {params.bin_folder} {params.bin_ext} {params.coverage} {output}" 
  
@@ -1325,7 +1294,7 @@ rule bin_cvg_das:
         bin_ext="fa",
         coverage="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_depth.txt"
     output:
-        "{PROJECT}/runs/{run}/{sample}_data/binning/abundance.das.tsv"
+        temp("{PROJECT}/runs/{run}/{sample}_data/binning/abundance.das.tsv")
     shell:
         "Scripts/summary_coverage_das.sh {params.bin_folder} {params.bin_ext} {params.coverage} {output}" 
  
@@ -1361,7 +1330,7 @@ rule gc_prc_metabat2:
         out_folder="{PROJECT}/runs/{run}/{sample}_data/binning/",
         bin_ext="fa"
     output:
-        "{PROJECT}/runs/{run}/{sample}_data/binning/gc_prc.metabat.tsv"
+        temp("{PROJECT}/runs/{run}/{sample}_data/binning/gc_prc.metabat.tsv")
     shell:
         "Scripts/computeGC.sh {params.bin_folder} {params.bin_ext} {output}"
 
@@ -1374,7 +1343,7 @@ rule gc_prc_concoct:
         bin_ext="fa",
         coverage="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_depth.txt"
     output:
-        "{PROJECT}/runs/{run}/{sample}_data/binning/gc_prc.concoct.tsv"
+        temp("{PROJECT}/runs/{run}/{sample}_data/binning/gc_prc.concoct.tsv")
     shell:
         "Scripts/computeGC.sh {params.bin_folder} {params.bin_ext}  {output}"
 
@@ -1387,7 +1356,7 @@ rule gc_prc_maxbin:
         bin_ext="fasta",
         coverage="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_depth.txt"
     output:
-        "{PROJECT}/runs/{run}/{sample}_data/binning/gc_prc.maxbin.tsv"
+        temp("{PROJECT}/runs/{run}/{sample}_data/binning/gc_prc.maxbin.tsv")
     shell:
         "Scripts/computeGC.sh {params.bin_folder} {params.bin_ext} {output}"
 
@@ -1400,7 +1369,7 @@ rule gc_prc_binsanity:
         bin_ext="fna",
         coverage="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_depth.txt"
     output:
-        "{PROJECT}/runs/{run}/{sample}_data/binning/gc_prc.binsanity.tsv"
+        temp("{PROJECT}/runs/{run}/{sample}_data/binning/gc_prc.binsanity.tsv")
     shell:
         "Scripts/computeGC.sh {params.bin_folder} {params.bin_ext} {output}"
 
@@ -1412,7 +1381,7 @@ rule gc_prc_semibin2:
         out_folder="{PROJECT}/runs/{run}/{sample}_data/binning/",
         bin_ext="fa"
     output:
-        "{PROJECT}/runs/{run}/{sample}_data/binning/gc_prc.semibin.tsv"
+       temp("{PROJECT}/runs/{run}/{sample}_data/binning/gc_prc.semibin.tsv")
     shell:
         "Scripts/computeGC.sh {params.bin_folder} {params.bin_ext} {output}"
         
@@ -1430,7 +1399,7 @@ rule gc_prc_das:
         bin_ext="fa",
         coverage="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_depth.txt"
     output:
-        "{PROJECT}/runs/{run}/{sample}_data/binning/gc_prc.das.tsv"
+        temp("{PROJECT}/runs/{run}/{sample}_data/binning/gc_prc.das.tsv")
     shell:
         "Scripts/computeGC.sh {params.bin_folder} {params.bin_ext} {output}"
 
@@ -1750,7 +1719,7 @@ rule report:
     shell:
         "touch {output}"
 
-rule cleanup:
+rule cleanup_zip:
     input:
         "{PROJECT}/runs/{run}/{sample}_data/report_f.html"
     params:
@@ -1789,7 +1758,7 @@ rule cleanup:
         
         unbinned="{PROJECT}/runs/{run}/{sample}_data/unbinned/unbinned.fasta" if config["CREATE_UNBINNED"] == "T" else ""
     output:
-        temp("{PROJECT}/runs/{run}/{sample}_data/cleanUp_flag.txt")
+        temp("{PROJECT}/runs/{run}/{sample}_data/cleanUp_zip_flag.txt")
     shell:
         """
         for x in {params}; do 
@@ -1800,3 +1769,12 @@ rule cleanup:
         
         touch {output}
         """
+
+rule cleanup_remove:
+    input:
+        "{PROJECT}/runs/{run}/{sample}_data/cleanUp_zip_flag.txt"
+    params:
+    output:
+        temp("{PROJECT}/runs/{run}/{sample}_data/cleanUp_flag.txt")
+    shell:
+        "touch {output}"
