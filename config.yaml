@@ -40,9 +40,9 @@ PROJECT: "Small_metacascabel_test"
 # The RUN variable can be set here or remain empty, in the latter case, the    #
 # user must assign this value via the command line --config RUN=User_run_name  #
 #------------------------------------------------------------------------------#
-RUN: "test"
+RUN: "cleanup_megahit_metabat_test"
 
-#-------------------------xc-----------------------------------------------------#
+#------------------------------------------------------------------------------#
 #                       Description                                            #
 #=======================DESCRIPTION============================================#
 # Brief description for the pipeline. Any description written here will be     #
@@ -98,6 +98,15 @@ gzip_input: "T"
 # into the following link: TBD                                                 #
 #------------------------------------------------------------------------------#
 interactive : "F"
+
+#------------------------------------------------------------------------------#
+#                       Remove intermediate output files                       #
+#=======================DESCRIPTION============================================#
+# Set this flag to T (default) in order to remove all intermediate output      #
+# files and directories at the end of the snakemake run, a log file containing #
+# a list of all removed files/ddirectories can be found at: TBD                #
+#------------------------------------------------------------------------------#
+remove_intermediate_output: "T"
 
 ################################################################################
 #                       Specific Parameters Section                            #
@@ -208,7 +217,7 @@ trimm:
 # Not all assembly tools generate scaffolds, if you wan't to use scaffolds,    #
 # chose either SPADES or IDBA as assembly tool.                                #
 #------------------------------------------------------------------------------#
-ANALYSIS: "SCAFFOLDS"
+ANALYSIS: "CONTIGS"
 
 #------------------------------------------------------------------------------#
 #                       Select assembly tool                                   #
@@ -224,7 +233,7 @@ ANALYSIS: "SCAFFOLDS"
 # contigs               If ASSEMBLER = "ASSEMBLED" supply file pointing to     #
 #                       contigs/scaffolds                                      #
 #------------------------------------------------------------------------------#
-ASSEMBLER: "IDBA"
+ASSEMBLER: "MEGAHIT"
 contigs: ""
 
 #------------------------------------------------------------------------------#
@@ -374,7 +383,7 @@ quast:
 bwa:
   nice: "5"
   threads: "12"
-  differential_coverage_matrix: "T"
+  differential_coverage_matrix: "F"
 
 #------------------------------------------------------------------------------#
 #                       jgi_summarize_bam_contig_depths                        #

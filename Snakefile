@@ -9,7 +9,7 @@ Metagenomics Workflow for NIOZ MMBL.
 run=config["RUN"]
 rule all:
     input:
-        expand("{PROJECT}/runs/{run}/{sample}_data/cleanUp_flag.txt", PROJECT=config["PROJECT"],sample=config["SAMPLES"], run=run)
+        expand("{PROJECT}/runs/{run}/{sample}_data/cleanUp_log.txt", PROJECT=config["PROJECT"],sample=config["SAMPLES"], run=run)
 
 # SETTING UP DIRECTORY STRUCTURE
 if len(config["SAMPLES"])==1 and len(config["fw_reads"])>0 and len(config["rv_reads"])>0:
@@ -1642,8 +1642,7 @@ rule cleanup_zip:
 rule cleanup_remove:
     input:
         "{PROJECT}/runs/{run}/{sample}_data/cleanUp_zip_flag.txt"
-    params:
     output:
-        temp("{PROJECT}/runs/{run}/{sample}_data/cleanUp_flag.txt")
-    shell:
-        "touch {output}"
+        "{PROJECT}/runs/{run}/{sample}_data/cleanUp_log.txt"
+    script:
+        "cleanUp.py"
