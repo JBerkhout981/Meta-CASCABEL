@@ -1627,7 +1627,7 @@ rule cleanup_zip:
         
         unbinned="{PROJECT}/runs/{run}/{sample}_data/unbinned/unbinned.fasta" if config["CREATE_UNBINNED"] == "T" else ""
     output:
-        temp("{PROJECT}/runs/{run}/{sample}_data/cleanUp_zip_flag.txt")
+        "{PROJECT}/runs/{run}/{sample}_data/cleanUp_zip_flag.txt"
     shell:
         """
         for x in {params}; do 
