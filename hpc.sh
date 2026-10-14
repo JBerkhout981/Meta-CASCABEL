@@ -4,7 +4,7 @@
 #SBATCH --mail-user=aabdala@nioz.nl
 #SBATCH --mail-type=FAIL,BEGIN,END,TIME_LIMIT_80
 #SBATCH --time=5-10:00:00
-#SBATCH --cpus-per-task=50
+#SBATCH --cpus-per-task=100
 #SBATCH --mem=528G    #Default Mem
 
 module load anaconda/2024.02

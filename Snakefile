@@ -501,12 +501,12 @@ rule bwa_index:
     params:
         "{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_assembly"
     conda:
-        "bwa_samtool"
+        "fastalign_sam"
     shell:
-        "bwa index -p {params} {input.assembly}"
-#nice -5 bwa mem -t 4 $folderOut/cross-assembly $fq1 $fq2 \
-#   | samtools view -b - \
-#   | samtools sort - -o $fol/mapped_against_cross-assembly_sorted.bam
+        "bwa-fastalign index -p {params} {input.assembly}"
+    #nice -5 bwa mem -t 4 $folderOut/cross-assembly $fq1 $fq2 \
+    #   | samtools view -b - \
+    #   | samtools sort - -o $fol/mapped_against_cross-assembly_sorted.bam
 rule bwa_mem:
     input:
         read1_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_paired.fq",
@@ -521,9 +521,9 @@ rule bwa_mem:
     threads:
         int(config["bwa"]["threads"])
     conda:
-        "bwa_samtool"
+        "fastalign_sam"       
     shell:
-        "nice -{config[bwa][nice]} bwa mem -t {config[bwa][threads]} {params} "
+        "nice -{config[bwa][nice]} bwa-fastalign mem -t {config[bwa][threads]} {params} "
         "{input.read1_paired} {input.read2_paired} "
         "| samtools view --threads {config[bwa][threads]} -b - | samtools sort - -o {output} --threads {config[bwa][threads]}"
 
@@ -544,7 +544,7 @@ rule bwa_mem_mtx:
     threads:
         int(config["bwa"]["threads"])
     conda:
-        "bwa_samtool"
+        "fastalign_sam"        
     script:
         "Scripts/bwa_mem.py"
 
@@ -564,7 +564,7 @@ rule sam_flags:
     params:
         idx="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"
     conda:
-        "bwa_samtool"
+        "fastalign_sam"        
     shell:
         "samtools flagstat --threads {config[bwa][threads]} {input} > {output}"
         if config["bwa"]["differential_coverage_matrix"].lower() == "f" else
@@ -587,7 +587,7 @@ rule summarize_bam:
     params:
         "{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+""
     conda:
-        "metabat_v2.12.1"
+        "metabat_v2.18"
     shell:
         "jgi_summarize_bam_contig_depths --outputDepth {output} {config[jgi_summ][extra_params]} {input}"
         if config["bwa"]["differential_coverage_matrix"].lower() == "f" else
@@ -664,7 +664,7 @@ if config["BINNING"] == "METABAT" or config["BINNING"] == "DAS":
         threads:
             int(config["metabat2"]["threads"])
         conda:
-            "metabat_v2.12.1"
+            "metabat_v2.18"
         shell:
             "metabat2 -o {params} -i {input.assembly} -t {config[metabat2][threads]} "
             "-m {config[metabat2][min_contig]} -a {input.depth} "
@@ -1645,4 +1645,4 @@ rule cleanup_remove:
     output:
         "{PROJECT}/runs/{run}/{sample}_data/cleanUp_log.txt"
     script:
-        "cleanUp.py"
+        "Scripts/cleanUp.py"

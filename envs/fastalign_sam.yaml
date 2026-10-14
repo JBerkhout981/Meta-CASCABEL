@@ -1,0 +1,9 @@
+name: fastalign_sam
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+
+dependencies:
+  - bwa-fastalign=1.0.0
+  - samtools=1.24

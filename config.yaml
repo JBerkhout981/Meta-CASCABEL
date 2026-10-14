@@ -40,7 +40,7 @@ PROJECT: "Small_metacascabel_test"
 # The RUN variable can be set here or remain empty, in the latter case, the    #
 # user must assign this value via the command line --config RUN=User_run_name  #
 #------------------------------------------------------------------------------#
-RUN: "cleanup_megahit_metabat_test"
+RUN: "metabat2.18_test"
 
 #------------------------------------------------------------------------------#
 #                       Description                                            #
@@ -97,7 +97,7 @@ gzip_input: "T"
 # the pipeline. For a list for all the "interactive" checkpoints take a look   #
 # into the following link: TBD                                                 #
 #------------------------------------------------------------------------------#
-interactive : "T"
+interactive: "F"
 
 #------------------------------------------------------------------------------#
 #                       Remove intermediate output files                       #
@@ -137,8 +137,8 @@ remove_intermediate_output: "T"
 # https://github.com/rhpvorderman/sequali                                      #
 #------------------------------------------------------------------------------#
 QC:
-  onRawReads: "T"
-  onTrimmedReads: "T"
+  onRawReads: "F"
+  onTrimmedReads: "F"
   threads: 10
   extra_params: ""
 
@@ -343,7 +343,7 @@ megahit:
 #=======================NOTE===================================================#
 # The quality assesment is performed on the pre-trimmed contigs/scaffolds      #
 #------------------------------------------------------------------------------#
-SPLIT_ASSEMBLY: "T"
+SPLIT_ASSEMBLY: "F"
 SPLIT_SIZE: 20000
 
 #------------------------------------------------------------------------------#
@@ -419,7 +419,7 @@ jgi_summ:
 #   DAS, if you don't use DAS change the settings to less sensitive            #
 # - When using DAS, it will always run Metabat2 as one of the binning tools    #
 #------------------------------------------------------------------------------#
-BINNING: "METABAT"
+BINNING: "DAS"
 
 #------------------------------------------------------------------------------#
 #                       MetaBAT2                                               #
@@ -595,8 +595,8 @@ das:
   search_engine: diamond
   extra_params: ""
   metabat:
-    gtdbtk_analysis: "T"
-    checkm_analysis: TF"
+    gtdbtk_analysis: "F"
+    checkm_analysis: "F"
   binsanity: 
     run: "T"
     gtdbtk_analysis: "F"
