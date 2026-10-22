@@ -40,7 +40,7 @@ PROJECT: "Small_metacascabel_test"
 # The RUN variable can be set here or remain empty, in the latter case, the    #
 # user must assign this value via the command line --config RUN=User_run_name  #
 #------------------------------------------------------------------------------#
-RUN: "metabat2.18_test"
+RUN: "checkm_test"
 
 #------------------------------------------------------------------------------#
 #                       Description                                            #
@@ -492,13 +492,14 @@ maxbin:
 # composition kmer frequencies and coverage data for multiple samples.         #
 # CONCOCT can accurately (up to species level) bin metagenomic contigs.        #
 #=======================PARAMS=================================================#
-# min_contig_length     Minimum contig length.                                 #
+# min_contig_length     Minimum contig length. Default is 1000bp.              #
 # max_iteration         Specify maximum number of iterations for the binning   #
 #                       proces (VBGM)                                          #
 # threads               Number of threads to use                               #
 # extra_params          Any extra params.                                      #
 #=======================INFORMATION============================================#
 # https://concoct.readthedocs.io/en/latest/index.html                          #
+# concoct -h                                                                   #
 #------------------------------------------------------------------------------#
 concoct:
   min_contig_length: "2500"
@@ -523,7 +524,7 @@ concoct:
 #                       you will want to decrease the preference, if you have  #
 #                       10 or less replicates increasing the preference could  #
 #                       benefit you.                                           #
-# min_contig_length     Specify the contig size cut-off                        #
+# min_contig_length     Specify the contig size cut-off. Default is 1000bp.    #
 # threads               Number of threads to use                               #
 # low_completion        T or F. BinSanity WF output two different kind of bins:#
 #                       "refined" bins (high quality) bins and also low        #
@@ -536,7 +537,7 @@ concoct:
 #------------------------------------------------------------------------------#
 binsanity:
   preference: -3
-  min_contig_length: 1000
+  min_contig_length: 2500
   threads: 20
   low_completion: "T"
   extra_params: ""
@@ -552,14 +553,17 @@ binsanity:
 # min_bin_size          Minimum bin size in kilo-basepairs                     #
 # max_edge              The maximum number of edges that can be connected to   #
 #                       one contig                                             #
+# min_len               Minimal length for contigs in binning                  #
 # extra_params          Any extra params                                       #
 #=======================INFORMATION============================================#
 # https://semibin.readthedocs.io/en/latest/subcommands/                        #
+# SemiBin2 single_easy_bin -h                                                  #
 #------------------------------------------------------------------------------#
 semibin:
   threads: "20"
   min_bin_size: "200"
   max_edge: "200"
+  min_len: "2500"
   extra_params: ""
 
 #------------------------------------------------------------------------------#
@@ -612,7 +616,7 @@ das:
   semibin:
     run: "T"
     gtdbtk_analysis: "F"
-    checkm_analysis: "F"
+    checkm_analysis: "T"
 
 #------------------------------------------------------------------------------#
 #                       Unbinned                                               #

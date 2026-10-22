@@ -7,4 +7,4 @@ channels:
 dependencies:
   - python=3.8
   - setuptools=75
-  - checkm-genome=1.2.1
+  - checkm-genome=1.2.5

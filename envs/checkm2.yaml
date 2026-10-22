@@ -19,3 +19,4 @@ dependencies:
   - requests
   - packaging
   - tqdm
+  - checkm2=1.1.0

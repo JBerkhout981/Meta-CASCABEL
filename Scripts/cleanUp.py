@@ -12,13 +12,18 @@ def remove_file(file, log):
     3. Removes file/directory
     4. Writes removed file to log
     """
+    log.write(file)
     if not os.path.lexists(file):
+        log.write(f"unexistend {file}\n")
         return
     if os.path.islink(file) or os.path.isfile(file):
+        log.write(f"file/link {file}\n")
         os.remove(file)
     elif os.path.isdir(file):
+        log.write(f"dir {file}\n")
         shutil.rmtree(file)
     else:
+        log.write(f"returned {file}\n")
         return
     log.write(f"Removed: {file}\n")
 
@@ -64,29 +69,26 @@ def remove_files(file_path, log):
 
     # Metabat
     log.write("Starting METABAT cleanup\n")
-    metabat_dir = os.path.join(file_path, "metabat2")
-    log.write(binning)
-    log.write(metabat_dir)
+    metabat_dir = os.path.join(file_path, "binning", "metabat2")
     if binning not in ["METABAT", "DAS"]:
         remove_file(metabat_dir, log)
 
     # Binsanity
     log.write("Starting BINSANITY cleanup\n")
-    binsanity_dir = os.path.join(file_path, "binsanity")
-    log.write(binning)
-    log.write(binsanity_dir)
-    log.write(snakemake.config["das"]["binsanity"]["run"])
+    binsanity_dir = os.path.join(file_path, "binning", "binsanity")
     if binning == "BINSANITY" or (binning == "DAS" and snakemake.config["das"]["binsanity"]["run"] == "T"):
-        for file in glob.glob(os.path.join(binsanity_dir, "*", "Binsanity-records.tar")):
-            log.write(file)
+        log.write(f"is true")
+        log.write(str(glob.glob(os.path.join(binsanity_dir, "*"))) + "\n")
+        for file in glob.glob(os.path.join(binsanity_dir, "*", "Binsanity-records*")):
+            log.write(f"is true file is: {file}")
             remove_file(file, log)
     else:
-        log.write("kaas")
+        log.write(f"is not true file is: {file}")
         remove_file(binsanity_dir, log)
 
     # concoct
     log.write("Starting CONCOCT cleanup\n")
-    concoct_dir = os.path.join(file_path, "concoct")
+    concoct_dir = os.path.join(file_path, "binning", "concoct")
     if binning == "CONCOCT" or (binning == "DAS" and snakemake.config["das"]["concoct"]["run"] == "T"):
         concoct_remove = os.path.join(concoct_dir, "*", "*.csv")
         for file in glob.glob(concoct_remove):
@@ -96,7 +98,7 @@ def remove_files(file_path, log):
 
     # maxbin
     log.write("Starting MAXBIN cleanup\n")
-    maxbin_dir = os.path.join(file_path, "maxbin")
+    maxbin_dir = os.path.join(file_path, "binning", "maxbin")
     if binning == "MAXBIN" or (binning == "DAS" and snakemake.config["das"]["maxbin"]["run"] == "T"):
         maxbin_path = os.path.join(maxbin_dir, "*","*")
         maxbin_keep_list = ["binTable.tsv","*.fasta.gz","*.log","bin.abundance","bin.summary"]
@@ -143,9 +145,10 @@ def remove_files(file_path, log):
 
     # semibin2
     log.write("Starting SEMIBIN cleanup\n")
-    semibin_dir = os.path.join(file_path, "semibin2")
+    semibin_dir = os.path.join(file_path, "binning", "semibin2")
     if binning == "SEMIBIN" or (binning == "DAS" and snakemake.config["das"]["semibin"]["run"] == "T"):
         for file in glob.glob(os.path.join(semibin_dir, "*", "model.pt")):
+
             remove_file(file, log)
         semibin_remove = os.path.join(semibin_dir, "*", "*.csv")
         for file in glob.glob(semibin_remove):

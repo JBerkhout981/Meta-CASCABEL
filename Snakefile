@@ -564,7 +564,7 @@ rule sam_flags:
     params:
         idx="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"
     conda:
-        "fastalign_sam"        
+        "fastalign_sam"
     shell:
         "samtools flagstat --threads {config[bwa][threads]} {input} > {output}"
         if config["bwa"]["differential_coverage_matrix"].lower() == "f" else
@@ -855,6 +855,7 @@ if config["BINNING"] == "SEMIBIN" or (config["BINNING"] == "DAS" and config["das
                 -t {config[semibin][threads]} \
                 --minfasta-kbs {config[semibin][min_bin_size]} \
                 --max-edges {config[semibin][max_edge]} \
+                --min-len {config[semibin][min_len]}
                 {config[semibin][extra_params]}
             """  
 elif (config["BINNING"] == "DAS" and config["das"]["semibin"]["run"]!="T") or (config["BINNING"] != "SEMIBIN" and config["BINNING"] != "DAS"):
@@ -945,7 +946,7 @@ rule checkM_metabat2:
     threads:
         int(config["checkM"]["threads"])
     conda:
-        "checkm_v0.5.4"
+        "checkm"
     shell:
         "checkm lineage_wf -f {output.out_file} -t  {config[checkM][threads]} -x {params.bin_ext} {config[checkM][extra_params]} {params.bin_folder} {params.out_folder} "
 
@@ -961,7 +962,7 @@ rule checkM_maxbin:
     threads:
         int(config["checkM"]["threads"])
     conda:
-        "checkm_v0.5.4"
+        "checkm"
     shell:
         "checkm lineage_wf -f {output.out_file} -t  {config[checkM][threads]} -x {params.bin_ext} {config[checkM][extra_params]} {params.bin_folder} {params.out_folder} "
 
@@ -976,7 +977,7 @@ rule checkM_concoct:
     output:
         out_file="{PROJECT}/runs/{run}/{sample}_data/binning/checkM_concoct/summary.txt"
     conda:
-        "checkm_v0.5.4"
+        "checkm"
     shell:
         "checkm lineage_wf -f {output.out_file} -t  {config[checkM][threads]} -x {params.bin_ext} {config[checkM][extra_params]} {params.bin_folder} {params.out_folder} "
 
@@ -992,7 +993,7 @@ rule checkM_binsanity:
     output:
         out_file="{PROJECT}/runs/{run}/{sample}_data/binning/checkM_binsanity/summary.txt"
     conda:
-        "checkm_v0.5.4"
+        "checkm"
     shell:
         "checkm lineage_wf -f {output.out_file} -t  {config[checkM][threads]} -x {params.bin_ext} {config[checkM][extra_params]} {params.bin_folder} {params.out_folder} "
 
@@ -1008,7 +1009,7 @@ rule checkM_semibin2:
     threads:
         int(config["checkM"]["threads"])
     conda:
-        "checkm_v0.5.4"
+        "checkm"
     shell:
         "checkm lineage_wf -f {output.out_file} -t  {config[checkM][threads]} -x {params.bin_ext} {config[checkM][extra_params]} {params.bin_folder} {params.out_folder} "
 
@@ -1029,7 +1030,7 @@ rule checkM_das:
     threads:
         int(config["checkM"]["threads"])
     conda:
-        "checkm_v0.5.4"
+        "checkm"
     shell:
         "checkm lineage_wf -f {output.out_file} -t  {config[checkM][threads]} -x {params.bin_ext} {config[checkM][extra_params]} {params.bin_folder} {params.out_folder} "
 
@@ -1297,7 +1298,7 @@ rule bin_cvg_das:
         temp("{PROJECT}/runs/{run}/{sample}_data/binning/abundance.das.tsv")
     shell:
         "Scripts/summary_coverage_das.sh {params.bin_folder} {params.bin_ext} {params.coverage} {output}" 
- 
+
 rule summarize_coverage:
     input:
         abundance="{PROJECT}/runs/{run}/{sample}_data/binning/abundance.metabat.tsv"
@@ -1384,7 +1385,7 @@ rule gc_prc_semibin2:
        temp("{PROJECT}/runs/{run}/{sample}_data/binning/gc_prc.semibin.tsv")
     shell:
         "Scripts/computeGC.sh {params.bin_folder} {params.bin_ext} {output}"
-        
+
 rule gc_prc_das:
     input:
         "{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/das.log",
