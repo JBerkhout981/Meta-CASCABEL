@@ -40,7 +40,7 @@ PROJECT: "Small_metacascabel_test"
 # The RUN variable can be set here or remain empty, in the latter case, the    #
 # user must assign this value via the command line --config RUN=User_run_name  #
 #------------------------------------------------------------------------------#
-RUN: "checkm_test"
+RUN: "cleanup_spades_test"
 
 #------------------------------------------------------------------------------#
 #                       Description                                            #
@@ -58,7 +58,7 @@ description: ""
 # Same sample names used with input.txt script                                 #
 # Include all the names between quotes, and comma separated                    #
 #------------------------------------------------------------------------------#
-SAMPLES: ["NIOZ114","NIOZ118"]
+SAMPLES: ["NIOZ114"]
 
 #------------------------------------------------------------------------------#
 #                       INPUT FILES                                            #
@@ -137,8 +137,8 @@ remove_intermediate_output: "T"
 # https://github.com/rhpvorderman/sequali                                      #
 #------------------------------------------------------------------------------#
 QC:
-  onRawReads: "F"
-  onTrimmedReads: "F"
+  onRawReads: "T"
+  onTrimmedReads: "T"
   threads: 10
   extra_params: ""
 
@@ -233,7 +233,7 @@ ANALYSIS: "CONTIGS"
 # contigs               If ASSEMBLER = "ASSEMBLED" supply file pointing to     #
 #                       contigs/scaffolds                                      #
 #------------------------------------------------------------------------------#
-ASSEMBLER: "MEGAHIT"
+ASSEMBLER: "SPADES"
 contigs: ""
 
 #------------------------------------------------------------------------------#
@@ -343,7 +343,7 @@ megahit:
 #=======================NOTE===================================================#
 # The quality assesment is performed on the pre-trimmed contigs/scaffolds      #
 #------------------------------------------------------------------------------#
-SPLIT_ASSEMBLY: "F"
+SPLIT_ASSEMBLY: "T"
 SPLIT_SIZE: 20000
 
 #------------------------------------------------------------------------------#
@@ -419,7 +419,7 @@ jgi_summ:
 #   DAS, if you don't use DAS change the settings to less sensitive            #
 # - When using DAS, it will always run Metabat2 as one of the binning tools    #
 #------------------------------------------------------------------------------#
-BINNING: "DAS"
+BINNING: "SEMIBIN"
 
 #------------------------------------------------------------------------------#
 #                       MetaBAT2                                               #

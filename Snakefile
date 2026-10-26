@@ -946,7 +946,7 @@ rule checkM_metabat2:
     threads:
         int(config["checkM"]["threads"])
     conda:
-        "checkm"
+        "checkm_v1.2.5"
     shell:
         "checkm lineage_wf -f {output.out_file} -t  {config[checkM][threads]} -x {params.bin_ext} {config[checkM][extra_params]} {params.bin_folder} {params.out_folder} "
 
@@ -962,7 +962,7 @@ rule checkM_maxbin:
     threads:
         int(config["checkM"]["threads"])
     conda:
-        "checkm"
+        "checkm_v1.2.5"
     shell:
         "checkm lineage_wf -f {output.out_file} -t  {config[checkM][threads]} -x {params.bin_ext} {config[checkM][extra_params]} {params.bin_folder} {params.out_folder} "
 
@@ -977,7 +977,7 @@ rule checkM_concoct:
     output:
         out_file="{PROJECT}/runs/{run}/{sample}_data/binning/checkM_concoct/summary.txt"
     conda:
-        "checkm"
+        "checkm_v1.2.5"
     shell:
         "checkm lineage_wf -f {output.out_file} -t  {config[checkM][threads]} -x {params.bin_ext} {config[checkM][extra_params]} {params.bin_folder} {params.out_folder} "
 
@@ -993,7 +993,7 @@ rule checkM_binsanity:
     output:
         out_file="{PROJECT}/runs/{run}/{sample}_data/binning/checkM_binsanity/summary.txt"
     conda:
-        "checkm"
+        "checkm_v1.2.5"
     shell:
         "checkm lineage_wf -f {output.out_file} -t  {config[checkM][threads]} -x {params.bin_ext} {config[checkM][extra_params]} {params.bin_folder} {params.out_folder} "
 
@@ -1009,7 +1009,7 @@ rule checkM_semibin2:
     threads:
         int(config["checkM"]["threads"])
     conda:
-        "checkm"
+        "checkm_v1.2.5"
     shell:
         "checkm lineage_wf -f {output.out_file} -t  {config[checkM][threads]} -x {params.bin_ext} {config[checkM][extra_params]} {params.bin_folder} {params.out_folder} "
 
@@ -1030,7 +1030,7 @@ rule checkM_das:
     threads:
         int(config["checkM"]["threads"])
     conda:
-        "checkm"
+        "checkm_v1.2.5"
     shell:
         "checkm lineage_wf -f {output.out_file} -t  {config[checkM][threads]} -x {params.bin_ext} {config[checkM][extra_params]} {params.bin_folder} {params.out_folder} "
 
