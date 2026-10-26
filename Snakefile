@@ -1623,6 +1623,8 @@ rule cleanup_zip:
         if config["BINNING"] == "SEMIBIN" or config["das"]["semibin"]["run"] == "T" else "",
         das_bins="{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/DasOut_DASTool_bins/*.fa"
         if config["BINNING"] == "DAS" else "",
+        das_output="{PROJECT}/runs/{run}/{sample}_data/binning/das/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"/*.faa*"
+        if config["BINNING"] == "DAS" else "",
 
         final_bins="{PROJECT}/runs/{run}/{sample}_data/binning/FinalBins/*.fna",
         

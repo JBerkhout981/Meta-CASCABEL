@@ -12,18 +12,13 @@ def remove_file(file, log):
     3. Removes file/directory
     4. Writes removed file to log
     """
-    log.write(file)
     if not os.path.lexists(file):
-        log.write(f"unexistend {file}\n")
         return
     if os.path.islink(file) or os.path.isfile(file):
-        log.write(f"file/link {file}\n")
         os.remove(file)
     elif os.path.isdir(file):
-        log.write(f"dir {file}\n")
         shutil.rmtree(file)
     else:
-        log.write(f"returned {file}\n")
         return
     log.write(f"Removed: {file}\n")
 
@@ -64,6 +59,9 @@ def remove_files(file_path, log):
         if not keep:
             remove_file(file, log)
 
+    # bwa-mem
+    # Nog uitzoeken
+
     # Binning
     binning = snakemake.config["BINNING"]
 
@@ -77,13 +75,9 @@ def remove_files(file_path, log):
     log.write("Starting BINSANITY cleanup\n")
     binsanity_dir = os.path.join(file_path, "binning", "binsanity")
     if binning == "BINSANITY" or (binning == "DAS" and snakemake.config["das"]["binsanity"]["run"] == "T"):
-        log.write(f"is true")
-        log.write(str(glob.glob(os.path.join(binsanity_dir, "*"))) + "\n")
         for file in glob.glob(os.path.join(binsanity_dir, "*", "Binsanity-records*")):
-            log.write(f"is true file is: {file}")
             remove_file(file, log)
     else:
-        log.write(f"is not true file is: {file}")
         remove_file(binsanity_dir, log)
 
     # concoct
@@ -96,68 +90,32 @@ def remove_files(file_path, log):
     else:
         remove_file(concoct_dir, log)
 
-    # maxbin
-    log.write("Starting MAXBIN cleanup\n")
+
+    # MaxBin
     maxbin_dir = os.path.join(file_path, "binning", "maxbin")
     if binning == "MAXBIN" or (binning == "DAS" and snakemake.config["das"]["maxbin"]["run"] == "T"):
-        maxbin_path = os.path.join(maxbin_dir, "*","*")
-        maxbin_keep_list = ["binTable.tsv","*.fasta.gz","*.log","bin.abundance","bin.summary"]
-        for file in glob.glob(os.path.join(maxbin_path, "*")):
-            relative_path = os.path.relpath(file, maxbin_path)
-            keep = any(fnmatch.fnmatch(relative_path, pattern) for pattern in maxbin_keep_list)
-            if not keep:
-                remove_file(file, log)
-    else:
-        remove_file(maxbin_dir, log)
-
-    """
-    # MaxBin
-    maxbin_dir = os.path.join(file_path, "maxbin")
-
-    if binning == "MAXBIN" or (
-        binning == "DAS"
-        and snakemake.config["das"]["maxbin"]["run"] == "T"
-    ):
-        maxbin_keep_list = [
-            "binTable.tsv",
-            "*.fasta.gz",
-            "*.log",
-            "bin.abundance",
-            "bin.summary",
-        ]
-
+        maxbin_keep_list = ["binTable.tsv","*.fasta.gz","*.log","bin.abundance","bin.summary",]
         for file in glob.glob(os.path.join(maxbin_dir, "*", "*")):
             if not os.path.isfile(file):
                 continue
-
             filename = os.path.basename(file)
-            keep = any(
-                fnmatch.fnmatch(filename, pattern)
-                for pattern in maxbin_keep_list
-            )
-
+            keep = any(fnmatch.fnmatch(filename, pattern) for pattern in maxbin_keep_list)
             if not keep:
                 remove_file(file, log)
     else:
         remove_file(maxbin_dir, log)
-
-    """
 
     # semibin2
     log.write("Starting SEMIBIN cleanup\n")
     semibin_dir = os.path.join(file_path, "binning", "semibin2")
     if binning == "SEMIBIN" or (binning == "DAS" and snakemake.config["das"]["semibin"]["run"] == "T"):
         for file in glob.glob(os.path.join(semibin_dir, "*", "model.pt")):
-
             remove_file(file, log)
         semibin_remove = os.path.join(semibin_dir, "*", "*.csv")
         for file in glob.glob(semibin_remove):
             remove_file(file, log)
     else:
         remove_file(semibin_dir, log)
-
-    # das
-    # .faa files zippen
 
     # checkM
     
