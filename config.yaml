@@ -40,7 +40,7 @@ PROJECT: "Small_metacascabel_test"
 # The RUN variable can be set here or remain empty, in the latter case, the    #
 # user must assign this value via the command line --config RUN=User_run_name  #
 #------------------------------------------------------------------------------#
-RUN: "cleanup_spades_test"
+RUN: "cleanup_idba_test"
 
 #------------------------------------------------------------------------------#
 #                       Description                                            #
@@ -58,7 +58,7 @@ description: ""
 # Same sample names used with input.txt script                                 #
 # Include all the names between quotes, and comma separated                    #
 #------------------------------------------------------------------------------#
-SAMPLES: ["NIOZ114"]
+SAMPLES: ["NIOZ114", "NIOZ118"]
 
 #------------------------------------------------------------------------------#
 #                       INPUT FILES                                            #
@@ -233,7 +233,7 @@ ANALYSIS: "CONTIGS"
 # contigs               If ASSEMBLER = "ASSEMBLED" supply file pointing to     #
 #                       contigs/scaffolds                                      #
 #------------------------------------------------------------------------------#
-ASSEMBLER: "SPADES"
+ASSEMBLER: "IDBA"
 contigs: ""
 
 #------------------------------------------------------------------------------#
@@ -419,7 +419,7 @@ jgi_summ:
 #   DAS, if you don't use DAS change the settings to less sensitive            #
 # - When using DAS, it will always run Metabat2 as one of the binning tools    #
 #------------------------------------------------------------------------------#
-BINNING: "SEMIBIN"
+BINNING: "DAS"
 
 #------------------------------------------------------------------------------#
 #                       MetaBAT2                                               #
@@ -602,11 +602,11 @@ das:
     gtdbtk_analysis: "F"
     checkm_analysis: "F"
   binsanity: 
-    run: "T"
+    run: "F"
     gtdbtk_analysis: "F"
     checkm_analysis: "F"
   concoct: 
-   run: "T"
+   run: "F"
    gtdbtk_analysis: "F"
    checkm_analysis: "F"
   maxbin: 

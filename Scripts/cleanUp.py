@@ -92,6 +92,7 @@ def remove_files(file_path, log):
 
 
     # MaxBin
+    log.write("Starting MAXBIN cleanup\n")
     maxbin_dir = os.path.join(file_path, "binning", "maxbin")
     if binning == "MAXBIN" or (binning == "DAS" and snakemake.config["das"]["maxbin"]["run"] == "T"):
         maxbin_keep_list = ["binTable.tsv","*.fasta.gz","*.log","bin.abundance","bin.summary",]

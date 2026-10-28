@@ -1583,11 +1583,41 @@ rule report:
         # Unbinned
         "{PROJECT}/runs/{run}/{sample}_data/unbinned/unbinned.fasta"
         if config["CREATE_UNBINNED"] == "T" else
-        "{PROJECT}/runs/{run}/{sample}_data/unbinned/unbinned.txt",
+        "{PROJECT}/runs/{run}/{sample}_data/unbinned/unbinned.txt"
     output:
         temp("{PROJECT}/runs/{run}/{sample}_data/report_f.html")
     shell:
         "touch {output}"
+
+rule tool_versions:
+    params:
+        tools = {
+            "binsanity": ["binsanity_v0.5.4", "binsanity"] if config["BINNING"] == "BINSANITY" or config["das"]["binsanity"]["run"] == "T" else None,
+            "concoct": ["concoct","concoct"] if config["BINNING"] == "CONCOCT" or config["das"]["concoct"]["run"] == "T" else None,
+            "das": ["dasTool_v1.1.5","das_tool"] if config["BINNING"] == "DAS" else None,
+            "fastalign": ["fastalign_sam","bwa-fastalign"],
+            "samtools": ["fastalign_sam","samtools"],
+            "idba": ["idba_v1.1.3","idba"] if config["ASSEMBLER"] == "IDBA" else None,
+            "maxbin": ["maxbin_v2.2.7","maxbin2"] if config["BINNING"] == "MAXBIN" or config["das"]["maxbin"]["run"] == "T" else None,
+            "megahit": ["megahit_v1.2.9","megahit"] if config["ASSEMBLER"] == "MEGAHIT" else None,
+            "metabat": ["metabat_v2.18","metabat2"] if config["BINNING"] == "METABAT" or config["BINNING"] == "DAS" else None,
+            "quast": ["quast_v5.2.0","quast"],
+            "semibin": ["semibin_v2.4.0","semibin"] if config["BINNING"] == "SEMIBIN" or config["das"]["semibin"]["run"] == "T" else None,
+            "sequali": ["sequali_v1.0.2","sequali"] if config["QC"]["onRawReads"]== "T" or config["QC"]["onTrimmedReads"]== "T" else None,
+            "snakemake": ["snakemake_v7.14.2","snakemake"],
+            "spades": ["spades_v3.15.5","spades"] if config["ASSEMBLER"] == "SPADES" else None,
+            "trimmomatic": ["trimmomatic_v0.39","trimmomatic"] if config["trimm"]["trimming"] == "T" else None,
+        }
+    output:
+        "{PROJECT}/runs/{run}/{sample}_data/tool_versions.txt"
+    run:
+        with open(output[0], "w") as f:
+            f.write(f'{"Tool":<20} Version\n')
+        for x in params.tools.values(): 
+            if x is not None:
+                env = x[0]
+                tool = x[1]
+                shell("conda list -n {env} | awk '$1 == \"{tool}\" {{printf \"%-20s %s\\n\", $1, $2; exit}}' >> {output}")
 
 rule cleanup_zip:
     input:
@@ -1630,11 +1660,11 @@ rule cleanup_zip:
         
         unbinned="{PROJECT}/runs/{run}/{sample}_data/unbinned/unbinned.fasta" if config["CREATE_UNBINNED"] == "T" else ""
     output:
-        "{PROJECT}/runs/{run}/{sample}_data/cleanUp_zip_flag.txt"
+        temp("{PROJECT}/runs/{run}/{sample}_data/cleanUp_zip_flag.txt")
     shell:
         """
         for x in {params}; do 
-            if [ -f "$x" ]; then
+            if [ -s "$x" ] && [[ "$x" != *.gz ]]; then
                 gzip "$x"
             fi 
         done
@@ -1644,6 +1674,7 @@ rule cleanup_zip:
 
 rule cleanup_remove:
     input:
+        "{PROJECT}/runs/{run}/{sample}_data/tool_versions.txt",
         "{PROJECT}/runs/{run}/{sample}_data/cleanUp_zip_flag.txt"
     output:
         "{PROJECT}/runs/{run}/{sample}_data/cleanUp_log.txt"
