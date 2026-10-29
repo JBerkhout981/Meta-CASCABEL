@@ -2,7 +2,7 @@
 
 Snakemake pipeline for assembly and binning of metagenomics reads.
 
-**Current version:** 5.0
+**Current version:** 5.1
 
 The pipeline creates different output files which allow the user to explore the data and results in a simple way, as well as facilitate downstream analysis based on the generated output files.
 
@@ -46,7 +46,7 @@ Some mandatory options are left empty as default:
 
 Make sure to go through all these options, otherwise the script won't run. 
 
-IMPORTANT! If you run the pipeline on SLURM set 'interactive' to 'F'
+IMPORTANT! If you run the pipeline on the HPC set 'interactive' to 'F'
 
 **Configure the input files**
 

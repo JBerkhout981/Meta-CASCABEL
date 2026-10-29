@@ -36,7 +36,7 @@ elif len(config["input_files"])>2 and len(config["SAMPLES"])>=1:
 
 
 # QUALITY CONTROL ON RAW READS
-if config["QC"]["onRawReads"].lower() == "t":
+if config["sequali"]["onRawReads"].lower() == "t":
     rule sequali:
         """
         Runs QC with sequali on raw reads
@@ -51,13 +51,13 @@ if config["QC"]["onRawReads"].lower() == "t":
         params:
             outdir="{PROJECT}/samples/{sample}/qc/sequali/"
         threads:
-            int(config["QC"]["threads"])
+            int(config["sequali"]["threads"])
         benchmark:
             "{PROJECT}/samples/{sample}/benchmark/sequali.benchmark"
         conda:
             "sequali_v1.0.2"
         shell:
-            "sequali --outdir {params.outdir} --html  sequali.html --json sequali.json -t {config[QC][threads]}  {config[QC][extra_params]}  {input}"
+            "sequali --outdir {params.outdir} --html  sequali.html --json sequali.json -t {config[sequali][threads]}  {config[sequali][extra_params]}  {input}"
 
 # TRIMM READS
 # run trimmomatic to remove adapter contamination and trim very low quality parts (ends) of the reads.
@@ -68,7 +68,7 @@ if config["trimm"]["trimming"].lower() == "t":
         input:
             fw="{PROJECT}/samples/{sample}/rawdata/fw.fastq" if config["gzip_input"] == "F" else "{PROJECT}/samples/{sample}/rawdata/fw.fastq.gz",
             rv="{PROJECT}/samples/{sample}/rawdata/rv.fastq" if config["gzip_input"] == "F" else "{PROJECT}/samples/{sample}/rawdata/rv.fastq.gz",
-            tmp_seq="{PROJECT}/samples/{sample}/qc/sequali/sequali.html" if config["QC"]["onRawReads"].lower() == "t"
+            tmp_seq="{PROJECT}/samples/{sample}/qc/sequali/sequali.html" if config["sequali"]["onRawReads"].lower() == "t"
             else []
         output:
             read1_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_paired.fq",
@@ -132,7 +132,7 @@ else:
         input:
             fw="{PROJECT}/samples/{sample}/rawdata/fw.fastq" if config["gzip_input"] == "F" else "{PROJECT}/samples/{sample}/rawdata/fw.fastq.gz",
             rv="{PROJECT}/samples/{sample}/rawdata/rv.fastq" if config["gzip_input"] == "F" else "{PROJECT}/samples/{sample}/rawdata/rv.fastq.gz",
-            tmp_seq="{PROJECT}/samples/{sample}/qc/sequali/sequali.html" if config["QC"]["onRawReads"].lower() == "t"
+            tmp_seq="{PROJECT}/samples/{sample}/qc/sequali/sequali.html" if config["sequali"]["onRawReads"].lower() == "t"
             else []
         output:
             read1_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_paired.fq",
@@ -150,7 +150,7 @@ else:
             """
 
 # QUALITY CONTROL ON TRIMMED READS
-if config["QC"]["onTrimmedReads"].lower() == "t":
+if config["sequali"]["onTrimmedReads"].lower() == "t":
     rule sequali_trimmed_reads:
         input:
             r1="{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_paired.fq",
@@ -164,11 +164,11 @@ if config["QC"]["onTrimmedReads"].lower() == "t":
         benchmark:
             "{PROJECT}/runs/{run}/{sample}_data/trimmed/sequali.benchmark"
         threads:
-            int(config["QC"]["threads"])
+            int(config["sequali"]["threads"])
         conda:
             "sequali_v1.0.2"
         shell:
-            "sequali --outdir {params.outdir} --html  sequali.html --json sequali.json -t {config[QC][threads]}  {config[QC][extra_params]}  {input}"
+            "sequali --outdir {params.outdir} --html  sequali.html --json sequali.json -t {config[sequali][threads]}  {config[sequali][extra_params]}  {input}"
 
 """
 SPADES has the option to also work with merged reads and IDBA always uses merged reads
@@ -191,7 +191,7 @@ if config["ASSEMBLER"] == "SPADES":
         input:
             read1_single="{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_singles.fq",
             read2_single="{PROJECT}/runs/{run}/{sample}_data/trimmed/read2_singles.fq",
-            tmp_seq="{PROJECT}/runs/{run}/{sample}_data/trimmed/sequali/sequali.html" if config["QC"]["onTrimmedReads"].lower() == "t"
+            tmp_seq="{PROJECT}/runs/{run}/{sample}_data/trimmed/sequali/sequali.html" if config["sequali"]["onTrimmedReads"].lower() == "t"
             else []
         output:
             "{PROJECT}/runs/{run}/{sample}_data/trimmed/all_singles.fq"
@@ -274,7 +274,7 @@ if config["ASSEMBLER"] == "MEGAHIT":
         input:
             read1_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read1_paired.fq",
             read2_paired="{PROJECT}/runs/{run}/{sample}_data/trimmed/read2_paired.fq",
-            tmp_seq="{PROJECT}/runs/{run}/{sample}_data/trimmed/sequali/sequali.html" if config["QC"]["onTrimmedReads"].lower() == "t"
+            tmp_seq="{PROJECT}/runs/{run}/{sample}_data/trimmed/sequali/sequali.html" if config["sequali"]["onTrimmedReads"].lower() == "t"
             else []
         output:
             "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/final.contigs.fa"
@@ -321,7 +321,7 @@ if config["ASSEMBLER"] == "IDBA":
         conda:
             "idba_v1.1.3"
         shell:
-            "idba_ud -r {input} -o {params} "
+            "idba_ud -r {input} -o {params} --mink {config[idba][mink]} --maxk {config[idba][maxk]} "
             "--step {config[idba][step]} --num_threads {config[idba][threads]} {config[idba][extra_params]}"
     #As spades output contigs.fasta and scaffolds.fasta, we standarize those
     #names in order to decress complexity on downstream rules
@@ -349,8 +349,8 @@ if config["SPLIT_ASSEMBLY"] == "T":
     """
     This option will split the assembled reads into smaller chuncks.
     In order to do not affect the downstream rules (previously implemented)
-    the splitted contig file is renamed as the original contig file and the original
-    is renamed as contigs.complete.fasta at the end
+    the splitted contig file is renamed as the original contig/scaffolds file and the original
+    is renamed as contigs/scaffolds.complete.fasta at the end
     """
     rule split_assembly:
         input:
@@ -388,14 +388,6 @@ else:
             flag="{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/split_flag.txt"
         shell:
             "echo \"{config[ANALYSIS]}.fasta has not been splitted\" > {output.flag}"
-
-rule quast_libs:
-    input:
-        "{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/{sample}_contigs.fasta."
-    output:
-        temp("{PROJECT}/runs/{run}/{sample}_data/assembly_"+config["ASSEMBLER"]+"/quast/quast_lib_config.txt")
-    shell:
-        "export PYTHONPATH=/opt/Downloads/biolinux/quast-4.6.3/ && touch {output}"
 
 rule quast_contigs:
     input:
@@ -1603,7 +1595,7 @@ rule tool_versions:
             "metabat": ["metabat_v2.18","metabat2"] if config["BINNING"] == "METABAT" or config["BINNING"] == "DAS" else None,
             "quast": ["quast_v5.2.0","quast"],
             "semibin": ["semibin_v2.4.0","semibin"] if config["BINNING"] == "SEMIBIN" or config["das"]["semibin"]["run"] == "T" else None,
-            "sequali": ["sequali_v1.0.2","sequali"] if config["QC"]["onRawReads"]== "T" or config["QC"]["onTrimmedReads"]== "T" else None,
+            "sequali": ["sequali_v1.0.2","sequali"] if config["sequali"]["onRawReads"]== "T" or config["sequali"]["onTrimmedReads"]== "T" else None,
             "snakemake": ["snakemake_v7.14.2","snakemake"],
             "spades": ["spades_v3.15.5","spades"] if config["ASSEMBLER"] == "SPADES" else None,
             "trimmomatic": ["trimmomatic_v0.39","trimmomatic"] if config["trimm"]["trimming"] == "T" else None,

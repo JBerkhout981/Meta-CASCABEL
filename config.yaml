@@ -12,8 +12,8 @@
 # comment and will be ignored by snakemake.                                    #
 #                                                                              #
 # Author: Alejandro Abdala, Julia Engelmann and Juliette Berkhout              #
-# Date: 19/08/2026                                                             #
-# Version: 5                                                                   #
+# Date: 30/10/2026                                                             #
+# Version: 5.1                                                                 #
 ################################################################################
 
 ################################################################################
@@ -29,7 +29,7 @@
 #=======================DESCRIPTION============================================#
 # The name of the project for which the pipe line will be executed.            #
 #------------------------------------------------------------------------------#
-PROJECT: "Small_metacascabel_test"
+PROJECT: ""
 
 #------------------------------------------------------------------------------#
 #                       RUN                                                    #
@@ -40,7 +40,7 @@ PROJECT: "Small_metacascabel_test"
 # The RUN variable can be set here or remain empty, in the latter case, the    #
 # user must assign this value via the command line --config RUN=User_run_name  #
 #------------------------------------------------------------------------------#
-RUN: "cleanup_idba_test"
+RUN: ""
 
 #------------------------------------------------------------------------------#
 #                       Description                                            #
@@ -58,7 +58,7 @@ description: ""
 # Same sample names used with input.txt script                                 #
 # Include all the names between quotes, and comma separated                    #
 #------------------------------------------------------------------------------#
-SAMPLES: ["NIOZ114", "NIOZ118"]
+SAMPLES: []
 
 #------------------------------------------------------------------------------#
 #                       INPUT FILES                                            #
@@ -77,7 +77,7 @@ SAMPLES: ["NIOZ114", "NIOZ118"]
 #------------------------------------------------------------------------------#
 fw_reads: ""
 rv_reads: ""
-input_files: "input_test_set.txt"
+input_files: ""
 
 #------------------------------------------------------------------------------#
 #                       INPUT TYPE                                             #
@@ -103,8 +103,8 @@ interactive: "F"
 #                       Remove intermediate output files                       #
 #=======================DESCRIPTION============================================#
 # Set this flag to T (default) in order to remove all intermediate output      #
-# files and directories at the end of the snakemake run, a log file containing #
-# a list of all removed files/ddirectories can be found at: TBD                #
+# files and directories at the end of the snakemake run.                       #
+# cleanUp_log.txt contains a list of all the removed files.                    #
 #------------------------------------------------------------------------------#
 remove_intermediate_output: "T"
 
@@ -115,7 +115,7 @@ remove_intermediate_output: "T"
 # to run the different rules during the pipeline execution.                    #
 #                                                                              #
 # Some of the parameters below, contains an option called "extra_params".      #
-# This option is designed to allow the user enter any other extra parameter    #
+# This option is designed to allow the user to enter any other extra parameter #
 # available on the program to be executed, therefore if the default            #
 # configuration of the pipeline doesn't consider some particular user desired  #
 # argument, it can be specified on the extra_params section for each rule      #
@@ -136,9 +136,9 @@ remove_intermediate_output: "T"
 #=======================INFORMATION============================================#
 # https://github.com/rhpvorderman/sequali                                      #
 #------------------------------------------------------------------------------#
-QC:
-  onRawReads: "T"
-  onTrimmedReads: "T"
+sequali:
+  onRawReads: "F"
+  onTrimmedReads: "F"
   threads: 10
   extra_params: ""
 
@@ -147,8 +147,7 @@ QC:
 # rule: trimmomatic                                                            #
 #=======================DESCRIPTION============================================#
 # Remove adapter contamination and trim very low quality parts (ends) of the   #
-# reads. Use maxinfo 0.6 for Q trimming and leave read 1 and 2 separate since  #
-# spades (assembler) does no longer support merged reads                       #
+# reads. Use maxinfo 0.6 for Q trimming.                                       #
 #=======================PARAMS=================================================#
 # trimming              'T' if you want to trim the reads                      #
 #                       'F' if you don't want to trim your reads               #
@@ -176,7 +175,7 @@ QC:
 #=======================INFORMATION============================================#
 #usadellab.org/cms/uploads/supplementary/Trimmomatic/TrimmomaticManual_V0.32.pdf
 #------------------------------------------------------------------------------#
-trimm:
+trimm: 
   trimming: "T"
   mode: "PE"
   threads: 15
@@ -203,7 +202,6 @@ trimm:
 
 #------------------------------------------------------------------------------#
 #                       Analysis Type                                          #
-# rule: mapping                                                                #
 #=======================DESCRIPTION============================================#
 # Some metagenomic analysis use the contigs and some others the scaffolds in   #
 # order to perform the mapping, binning and other downstream analysis after the#
@@ -217,7 +215,7 @@ trimm:
 # Not all assembly tools generate scaffolds, if you wan't to use scaffolds,    #
 # chose either SPADES or IDBA as assembly tool.                                #
 #------------------------------------------------------------------------------#
-ANALYSIS: "CONTIGS"
+ANALYSIS: ""
 
 #------------------------------------------------------------------------------#
 #                       Select assembly tool                                   #
@@ -233,12 +231,12 @@ ANALYSIS: "CONTIGS"
 # contigs               If ASSEMBLER = "ASSEMBLED" supply file pointing to     #
 #                       contigs/scaffolds                                      #
 #------------------------------------------------------------------------------#
-ASSEMBLER: "IDBA"
+ASSEMBLER: ""
 contigs: ""
 
 #------------------------------------------------------------------------------#
 #                       Assembly with SPADES                                   #
-# rule: spades                                                                 #
+# rule: meta_spades_merged, meta_spades                                        #
 #=======================DESCRIPTION============================================#
 # Assembly using spades, always try to use it with nice in order to avoid the  #
 # program to take a lot a memory! The nice parameter is used for this purpose. #
@@ -258,7 +256,7 @@ contigs: ""
 #                       'F' don't merge reads before assembling                #
 # extra_params          Any extra params.                                      #
 #=======================INFORMATION============================================#
-# http://spades.bioinf.spbau.ru/release3.11.1/manual.html#sec3.4               #
+# https://ablab.github.io/spades/                                              #
 #------------------------------------------------------------------------------#
 spades:
   nice: "5"
@@ -266,26 +264,6 @@ spades:
   memory: "350"
   kmers: "21,33,55,77"
   merge_paired_reads: "F"
-  extra_params: ""
-
-#------------------------------------------------------------------------------#
-#                       Assembly with IDBA_UD                                  #
-# rule: idba                                                                   #
-#=======================DESCRIPTION============================================#
-# IDBA is the basic iterative de Bruijn graph assembler for second-generation  #
-# sequencing reads. IDBA-UD, an extension of IDBA, is designed to utilize      #
-# paired-end reads to assemble low-depth regions and use progressive depth on  #
-# contigs to reduce errors in high-depth regions.                              #
-#=======================PARAMS=================================================#
-# step                  Increment of k-mer of each iteration                   #
-# threads               Number of threads                                      #
-# extra_params          Any extra argument to be passed.                       #
-#=======================INFORMATION============================================#
-# https://github.com/loneknightpy/idba                                         #
-#------------------------------------------------------------------------------#
-idba:
-  step: "10"
-  threads: "35"
   extra_params: ""
 
 #------------------------------------------------------------------------------#
@@ -319,9 +297,33 @@ idba:
 megahit:
   kmin: 21
   kmax: 141
-  kstep: 14
+  kstep: 14 # Default is 10
   memory: 0.3
   cpus: 35
+  extra_params: ""
+
+#------------------------------------------------------------------------------#
+#                       Assembly with IDBA_UD                                  #
+# rule: idba                                                                   #
+#=======================DESCRIPTION============================================#
+# IDBA is the basic iterative de Bruijn graph assembler for second-generation  #
+# sequencing reads. IDBA-UD, an extension of IDBA, is designed to utilize      #
+# paired-end reads to assemble low-depth regions and use progressive depth on  #
+# contigs to reduce errors in high-depth regions.                              #
+#=======================PARAMS=================================================#
+# mink                  minimum k value (<=124)                                #
+# maxk                  maximum k value (<=124)                                #
+# step                  Increment of k-mer of each iteration                   #
+# threads               Number of threads                                      #
+# extra_params          Any extra argument to be passed.                       #
+#=======================INFORMATION============================================#
+# https://manpages.debian.org/unstable/idba/idba_ud.1.en.html                  #
+#------------------------------------------------------------------------------#
+idba:
+  mink: "20"
+  maxk: "100"
+  step: "10"
+  threads: "35"
   extra_params: ""
 
 #------------------------------------------------------------------------------#
@@ -341,9 +343,11 @@ megahit:
 # SPLIT_SIZE            Chunk size (in bases) for splitting. Option -c within  #
 #                       CONCOCT's script cut_up_fasta.py -c.                   #
 #=======================NOTE===================================================#
-# The quality assesment is performed on the pre-trimmed contigs/scaffolds      #
+# The quality assesment is performed on the pre-splitted contigs/scaffolds.    #
+# The original, unsplitted contig or scaffolds files will be renamed as:       #
+# contigs.complete.fasta or scaffolds.complete.fasta                           #
 #------------------------------------------------------------------------------#
-SPLIT_ASSEMBLY: "T"
+SPLIT_ASSEMBLY: "F"
 SPLIT_SIZE: 20000
 
 #------------------------------------------------------------------------------#
@@ -363,22 +367,33 @@ quast:
 
 #------------------------------------------------------------------------------#
 #                       BWA MEM                                                #
-# rule: bwa_mem                                                                #
+# rule: bwa_index, bwa_mem, bwa_mem_mtx and sam_flags                          #
 #=======================DESCRIPTION============================================#
-# Map the trimmed reads against to the assembly                                #
+# To generate bam files as input for binning, several steps are performed      #
+# using bwa-fastalign and samtools. These are the following:                   #
+#     1. Indexing the assembly                                                 #
+#     2. Mapping the trimmed reads against the indexed assembly per sample     #
+#        (When differential_coverage_matrix: F)                                #
+#     OR                                                                       #
+#     2. Mapping the trimmed reads of all samples against each indexed assembly#
+#        (When differential_coverage_matrix: T)                                #
+#     3. Generating .flagstat files of all the bam files, these files contain  #
+#        counts for each flagstat and are used to summarize the bwa results for#
+#        the report file.                                                      #
 #=======================PARAMS=================================================#
 # nice                  To avoid take all the resources. It ranges from minus  #
 #                       20 to plus 19 and can take on only integer values. A   #
 #                       value of minus 20 represents the highest priority      #
 #                       level, whereas 19 represents the lowest.               #
-# threads               number of threads                                      #
+# threads               Number of threads                                      #
 # differential_coverage_matrix       'T' A cross sample depth file is created  #            
 #                                    'F' A single sample depth file is created #
 #=======================NOTE===================================================#
-# When in differential_coverage_matrix mode, SemiBin2 still performs binning   #
-# single sample                                                                #
+# The differential_coverage_matrix == T mode works for all binning tools exept #
+# SemiBin2. Semibin2 will still perform binning in single sample mode          #
 #=======================INFORMATION============================================#
-# https://bio-bwa.sourceforge.net/bwa.shtml                                    #
+# https://github.com/zzhofict/BWA-FastAlign                                    #
+# https://www.htslib.org/doc/1.10/samtools-flagstat.html                       #
 #------------------------------------------------------------------------------#
 bwa:
   nice: "5"
@@ -392,6 +407,7 @@ bwa:
 # This program is a command from Metabat and generates a depth file from BAM   #
 # files. It runs with all the default parameters, however the extra_params     #
 # variable is present in order to include an desired option.                   #
+# This step is skipped for SemiBin2.                                           #
 #=======================INFORMATION============================================#
 # https://gensoft.pasteur.fr/docs/MetaBAT/2.15/                                #
 #------------------------------------------------------------------------------#
@@ -415,11 +431,62 @@ jgi_summ:
 #=======================NOTES==================================================#
 # - Binsanity and CONCOCT are the most memory inefficient binning tools        #
 # - After selecting the target method, you can fine tune the options for each  #
-#   tool, using the options below. The default settings are more sensitive for #
-#   DAS, if you don't use DAS change the settings to less sensitive            #
+#   tool, using the options below.                                             #
 # - When using DAS, it will always run Metabat2 as one of the binning tools    #
 #------------------------------------------------------------------------------#
-BINNING: "DAS"
+BINNING: ""
+
+#------------------------------------------------------------------------------#
+#                       DAS Tool                                               #
+# rule: das                                                                    #
+#=========DESCRIPTION==========================================================#
+# DAS Tool is an automated method that integrates the results of a flexible    #
+# number of binning algorithms to calculate an optimized, non-redundant set of #
+# bins from a single assembly.                                                 #
+#=======================PARAMS=================================================#
+# threads               Number of threads                                      #
+# db                    Directory of single copy gene database.                #
+# search_engine         Engine used for single copy gene identification        #
+#                       [blast/diamond/usearch].                               #
+# extra_params          Any extra params                                       #
+# run                   'T' for all the binning tools you want to use          #
+#                       'F' for all the binning tools you don't want to use    #
+# gtdbtk_analysis       'T' to perform gtdbtk analysis for this binning tool   #
+#                       'F' skip gtdbtk analysis for this binning tool         #
+# checkm_analysis       'T' to perform checkm analysis for this binning tool   #
+#                       'F' skip checkm analysis for this binning tool         #
+#=======================NOTES==================================================#
+# - Binsanity and CONCOCT are the most memory inefficient binning tools        #
+# - Das will always run Metabat2 as one of the binning tools (hence why there  #
+#   is no 'run' option for metabat)                                            #
+# - The checkM and gtdbtk analys only work if 'run' is set to 'T' for the tool #
+#=======================INFORMATION============================================#
+# https://github.com/cmks/DAS_Tool                                             #
+#------------------------------------------------------------------------------#
+das:
+  threads: "20"
+  db: "/export/lv13/databases/DAS_tool/release-1.1.7/"
+  search_engine: diamond
+  extra_params: ""
+  metabat:
+    gtdbtk_analysis: "F"
+    checkm_analysis: "F"
+  binsanity: 
+    run: "F"
+    gtdbtk_analysis: "F"
+    checkm_analysis: "F"
+  concoct: 
+   run: "F"
+   gtdbtk_analysis: "F"
+   checkm_analysis: "F"
+  maxbin: 
+    run: "F"
+    gtdbtk_analysis: "F"
+    checkm_analysis: "F"
+  semibin:
+    run: "F"
+    gtdbtk_analysis: "F"
+    checkm_analysis: "F"
 
 #------------------------------------------------------------------------------#
 #                       MetaBAT2                                               #
@@ -533,13 +600,13 @@ concoct:
 # extra_params          Any extra params.                                      #
 #=======================INFORMATION============================================#
 # https://github.com/edgraham/BinSanity/wiki                                   #
-# Or do: Binsanity-wf -h                                                       #
+# Binsanity-wf -h                                                              #
 #------------------------------------------------------------------------------#
 binsanity:
   preference: -3
   min_contig_length: 2500
   threads: 20
-  low_completion: "T"
+  low_completion: "F"
   extra_params: ""
 
 #------------------------------------------------------------------------------#
@@ -567,60 +634,8 @@ semibin:
   extra_params: ""
 
 #------------------------------------------------------------------------------#
-#                       DAS Tool                                               #
-# rule: das                                                                    #
-#=========DESCRIPTION==========================================================#
-# DAS Tool is an automated method that integrates the results of a flexible    #
-# number of binning algorithms to calculate an optimized, non-redundant set of #
-# bins from a single assembly.                                                 #
-#=======================PARAMS=================================================#
-# threads               Number of threads                                      #
-# db                    Directory of single copy gene database.                #
-# search_engine         Engine used for single copy gene identification        #
-#                       [blast/diamond/usearch].                               #
-# extra_params          Any extra params                                       #
-# run                   'T' for all the binning tools you want to use          #
-#                       'F' for all the binning tools you don't want to use    #
-# gtdbtk_analysis       'T' to perform gtdbtk analysis for this binning tool   #
-#                       'F' skip gtdbtk analysis for this binning tool         #
-# checkm_analysis       'T' to perform checkm analysis for this binning tool   #
-#                       'F' skip checkm analysis for this binning tool         #
-#=======================NOTES==================================================#
-# - Binsanity and CONCOCT are the most memory inefficient binning tools        #
-# - Das will always run Metabat2 as one of the binning tools (hence why there  #
-#   is no 'run' option for metabat)                                            #
-# - The checkM and gtdbtk analys only work if 'run' is set to 'T' for the tool #
-#=======================INFORMATION============================================#
-# https://github.com/cmks/DAS_Tool                                             #
-#------------------------------------------------------------------------------#
-das:
-  threads: "20"
-  db: "/export/lv13/databases/DAS_tool/release-1.1.7/"
-  search_engine: diamond
-  extra_params: ""
-  metabat:
-    gtdbtk_analysis: "F"
-    checkm_analysis: "F"
-  binsanity: 
-    run: "F"
-    gtdbtk_analysis: "F"
-    checkm_analysis: "F"
-  concoct: 
-   run: "F"
-   gtdbtk_analysis: "F"
-   checkm_analysis: "F"
-  maxbin: 
-    run: "T"
-    gtdbtk_analysis: "F"
-    checkm_analysis: "F"
-  semibin:
-    run: "T"
-    gtdbtk_analysis: "F"
-    checkm_analysis: "T"
-
-#------------------------------------------------------------------------------#
 #                       Unbinned                                               #
-# rule: get_unbinned                                                           #
+# rule: get_unbinned and create_unbinned_fasta                                 #
 #=======================DESCRIPTION============================================#
 # Here you can chose if you want to get a fasta file containing all contigs or #
 # scaffolds (depending on your 'ANALYSIS' choice in the config file)           #
@@ -628,11 +643,11 @@ das:
 # CREATE_UNBINNED       'T' obtain all unbinned contigs/scaffolds              #
 #                       'F' Don't obtain unbinned contigs/scaffolds            #
 #------------------------------------------------------------------------------#
-CREATE_UNBINNED: "T"
+CREATE_UNBINNED: "F"
 
 #------------------------------------------------------------------------------#
 #                       checkM lineage_wf                                      #
-# rule: checkm_<bin_method>                                                    #
+# rule: checkM_<bin_method>                                                    #
 #=======================DESCRIPTION============================================#
 # This rule asseses the quality of genomes recovered from isolates, single     #
 # cells or metagenomes.                                                        #
