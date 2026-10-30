@@ -124,6 +124,7 @@ remove_intermediate_output: "T"
 #------------------------------------------------------------------------------#
 #                       Quality control                                        #
 # rule: sequali and sequali_trimmed_reads                                      #
+# environment: sequali_v1.0.2                                                  #
 #=======================DESCRIPTION============================================#
 # Sequence quality metrics for FASTQ and uBAM files.                           #
 #=======================PARAMS=================================================#
@@ -134,7 +135,8 @@ remove_intermediate_output: "T"
 # threads               Number of threads to run sequali.                      #
 # extra_params          Extra parameters.                                      #
 #=======================INFORMATION============================================#
-# https://github.com/rhpvorderman/sequali                                      #
+# https://sequali.readthedocs.io/en/latest/#quickstart                         #
+# Or do: sequali -h                                                            #
 #------------------------------------------------------------------------------#
 sequali:
   onRawReads: "F"
@@ -145,6 +147,7 @@ sequali:
 #------------------------------------------------------------------------------#
 #                       Trimmomatic                                            #
 # rule: trimmomatic                                                            #
+# environment: trimmomatic_v0.39                                               #
 #=======================DESCRIPTION============================================#
 # Remove adapter contamination and trim very low quality parts (ends) of the   #
 # reads. Use maxinfo 0.6 for Q trimming.                                       #
@@ -174,6 +177,7 @@ sequali:
 # extra_params          Extra parameters                                       #
 #=======================INFORMATION============================================#
 #usadellab.org/cms/uploads/supplementary/Trimmomatic/TrimmomaticManual_V0.32.pdf
+# Or do: trimmomatic PE                                                        #
 #------------------------------------------------------------------------------#
 trimm: 
   trimming: "T"
@@ -237,6 +241,7 @@ contigs: ""
 #------------------------------------------------------------------------------#
 #                       Assembly with SPADES                                   #
 # rule: meta_spades_merged, meta_spades                                        #
+# environment: spades_v3.15.5                                                  #
 #=======================DESCRIPTION============================================#
 # Assembly using spades, always try to use it with nice in order to avoid the  #
 # program to take a lot a memory! The nice parameter is used for this purpose. #
@@ -251,12 +256,13 @@ contigs: ""
 # threads               Number of threads                                      #
 # memory                RAM limit for SPADES in Gb (terminates if exceeded)    #
 # kmers                 Comma-separated list of k-mer sizes (must be odd and   #
-#                       less than 128)                                         #
+#                       less than 128). Default: 'auto'                        #
 # merge_paired_reads    'T' to merge reads before assembling                   #
 #                       'F' don't merge reads before assembling                #
 # extra_params          Any extra params.                                      #
 #=======================INFORMATION============================================#
 # https://ablab.github.io/spades/                                              #
+# Or do: spades.py -h                                                          #
 #------------------------------------------------------------------------------#
 spades:
   nice: "5"
@@ -269,6 +275,7 @@ spades:
 #------------------------------------------------------------------------------#
 #                       Assembly with MEGAHIT                                  #
 # rule: megahit                                                                #
+# environment: megahit_v1.2.9                                                  #
 #=======================DESCRIPTION============================================#
 # MEGAHIT is a single node assembler for large and complex metagenomics NGS    #
 # reads, such as soil. It makes use of succinct de Bruijn graph (SdBG) to      #
@@ -293,11 +300,12 @@ spades:
 # extra_params          Any extra argument to be passed.                       #
 #=======================INFORMATION============================================#
 # https://github.com/voutcn/megahit/wiki/Assembly-Tips                         #
+# Or do:  megahit -h                                                           #
 #------------------------------------------------------------------------------#
 megahit:
   kmin: 21
   kmax: 141
-  kstep: 14 # Default is 10
+  kstep: 10
   memory: 0.3
   cpus: 35
   extra_params: ""
@@ -305,19 +313,21 @@ megahit:
 #------------------------------------------------------------------------------#
 #                       Assembly with IDBA_UD                                  #
 # rule: idba                                                                   #
+# environment: idba_v1.1.3                                                     #
 #=======================DESCRIPTION============================================#
 # IDBA is the basic iterative de Bruijn graph assembler for second-generation  #
 # sequencing reads. IDBA-UD, an extension of IDBA, is designed to utilize      #
 # paired-end reads to assemble low-depth regions and use progressive depth on  #
 # contigs to reduce errors in high-depth regions.                              #
 #=======================PARAMS=================================================#
-# mink                  minimum k value (<=124)                                #
-# maxk                  maximum k value (<=124)                                #
+# mink                  minimum k value (<=312)                                #
+# maxk                  maximum k value (<=312)                                #
 # step                  Increment of k-mer of each iteration                   #
 # threads               Number of threads                                      #
 # extra_params          Any extra argument to be passed.                       #
 #=======================INFORMATION============================================#
 # https://manpages.debian.org/unstable/idba/idba_ud.1.en.html                  #
+# Or do: idba_ud                                                               #
 #------------------------------------------------------------------------------#
 idba:
   mink: "20"
@@ -353,6 +363,7 @@ SPLIT_SIZE: 20000
 #------------------------------------------------------------------------------#
 #                       QUAST                                                  #
 # rule: quast_contigs and quast_scaffolds                                      #
+# environment: quast_v5.2.0                                                    #
 #=======================DESCRIPTION============================================#
 # QUality ASsessment Tool for Genome Assemblies                                #
 #=======================PARAMS=================================================#
@@ -360,6 +371,7 @@ SPLIT_SIZE: 20000
 # extra_params          Any extra argument to be passed.                       #
 #=======================INFORMATION============================================#
 # https://github.com/ablab/quast                                               #
+# Or do: quast --help                                                          #
 #------------------------------------------------------------------------------#
 quast:
   threads: "20"
@@ -368,6 +380,7 @@ quast:
 #------------------------------------------------------------------------------#
 #                       BWA MEM                                                #
 # rule: bwa_index, bwa_mem, bwa_mem_mtx and sam_flags                          #
+# environment: bwa-fastalign_v1.0.0_samtools_v1.24                             #
 #=======================DESCRIPTION============================================#
 # To generate bam files as input for binning, several steps are performed      #
 # using bwa-fastalign and samtools. These are the following:                   #
@@ -394,6 +407,8 @@ quast:
 #=======================INFORMATION============================================#
 # https://github.com/zzhofict/BWA-FastAlign                                    #
 # https://www.htslib.org/doc/1.10/samtools-flagstat.html                       #
+# Or do: bwa-fastalign                                                         #
+# Or do: samtools                                                              #
 #------------------------------------------------------------------------------#
 bwa:
   nice: "5"
@@ -403,6 +418,7 @@ bwa:
 #------------------------------------------------------------------------------#
 #                       jgi_summarize_bam_contig_depths                        #
 # rule: summarize_bam                                                          #
+# environment: metabat_v2.18                                                   #
 #=======================DESCRIPTION============================================#
 # This program is a command from Metabat and generates a depth file from BAM   #
 # files. It runs with all the default parameters, however the extra_params     #
@@ -410,6 +426,7 @@ bwa:
 # This step is skipped for SemiBin2.                                           #
 #=======================INFORMATION============================================#
 # https://gensoft.pasteur.fr/docs/MetaBAT/2.15/                                #
+# Or do: jgi_summarize_bam_contig_depths -h                                    #
 #------------------------------------------------------------------------------#
 jgi_summ:
   extra_params: ""
@@ -439,6 +456,7 @@ BINNING: ""
 #------------------------------------------------------------------------------#
 #                       DAS Tool                                               #
 # rule: das                                                                    #
+# environment: dasTool_v1.1.5                                                  #
 #=========DESCRIPTION==========================================================#
 # DAS Tool is an automated method that integrates the results of a flexible    #
 # number of binning algorithms to calculate an optimized, non-redundant set of #
@@ -462,6 +480,7 @@ BINNING: ""
 # - The checkM and gtdbtk analys only work if 'run' is set to 'T' for the tool #
 #=======================INFORMATION============================================#
 # https://github.com/cmks/DAS_Tool                                             #
+# Or do: DAS_Tool -h                                                           #
 #------------------------------------------------------------------------------#
 das:
   threads: "20"
@@ -491,6 +510,7 @@ das:
 #------------------------------------------------------------------------------#
 #                       MetaBAT2                                               #
 # rule: metabat                                                                #
+# environment: metabat_v2.18                                                   #
 #=======================DESCRIPTION============================================#
 # Metagenome Binning based on Abundance and Tetranucleotide frequency          #
 #=======================PARAMS=================================================#
@@ -507,6 +527,7 @@ das:
 # extra_params          Any extra params.                                      #
 #=======================INFORMATION============================================#
 # https://gensoft.pasteur.fr/docs/MetaBAT/2.15/                                #
+# Or do: metabat2 -h                                                           #
 #------------------------------------------------------------------------------#
 metabat2:
   threads: "20"
@@ -520,13 +541,14 @@ metabat2:
 #------------------------------------------------------------------------------#
 #                       MaxBin                                                 #
 # rule: maxbin                                                                 #
+# environment: maxbin_v2.2.7                                                   #
 #=======================DESCRIPTION============================================#
 # MaxBin uses the nucleotide composition information and contig abundance      #
 # information to do achieve binning through an Expectation-Maximization        # 
 # algorithm.                                                                   #
 #=======================PARAMS=================================================#
 # threads               Number of threads                                      #
-# min_contig_length     minimum contig length.                                 #
+# min_contig_length     minimum contig length. Default is 1000bp.              #
 # max_iteration         maximum Expectation-Maximization algorithm iteration   #
 #                       number.                                                #
 # prob_threshold        Probability threshold for EM final classification.     #
@@ -540,7 +562,7 @@ metabat2:
 # extra_params          Any extra params.                                      #
 #=======================INFORMATION============================================#
 # https://github.com/galsang-git/maxbin2/blob/main/README.txt                  #
-# https://flowcraft.readthedocs.io/en/latest/user/components/maxbin2.html      #
+# Or do: run_MaxBin.pl                                                         #
 #------------------------------------------------------------------------------#
 maxbin:
   threads: "20"
@@ -554,6 +576,7 @@ maxbin:
 #------------------------------------------------------------------------------#
 #                       concoct                                                #
 # rule: concoct                                                                #
+# environment: concoct                                                         #
 #=======================DESCRIPTION============================================#
 # CONCOCT does unsupervised binning of metagenomic contigs by using nucleotide #
 # composition kmer frequencies and coverage data for multiple samples.         #
@@ -566,7 +589,7 @@ maxbin:
 # extra_params          Any extra params.                                      #
 #=======================INFORMATION============================================#
 # https://concoct.readthedocs.io/en/latest/index.html                          #
-# concoct -h                                                                   #
+# Or do: concoct -h                                                            #
 #------------------------------------------------------------------------------#
 concoct:
   min_contig_length: "2500"
@@ -577,6 +600,7 @@ concoct:
 #------------------------------------------------------------------------------#
 #                       BinSanity_wf                                           #
 # rule: binsanity                                                              #
+# environment: binsanity_v0.5.4                                                #
 #=======================DESCRIPTION============================================#
 # BinSanity contains a suite a scripts designed to cluster contigs generated   #
 # from metagenomic assembly into putative genomes. What makes BinSanity unique #
@@ -600,7 +624,7 @@ concoct:
 # extra_params          Any extra params.                                      #
 #=======================INFORMATION============================================#
 # https://github.com/edgraham/BinSanity/wiki                                   #
-# Binsanity-wf -h                                                              #
+# Or do: Binsanity-wf -h                                                       #
 #------------------------------------------------------------------------------#
 binsanity:
   preference: -3
@@ -612,6 +636,7 @@ binsanity:
 #------------------------------------------------------------------------------#
 #                       Semibin2                                               #
 # rule: semibin                                                                #
+# environment: semibin_v2.4.0                                                  #
 #=======================DESCRIPTION============================================#
 # SemiBin is a command tool for metagenomic binning with deep learning, using  #
 # Siamese Neural networks.                                                     #
@@ -620,11 +645,13 @@ binsanity:
 # min_bin_size          Minimum bin size in kilo-basepairs                     #
 # max_edge              The maximum number of edges that can be connected to   #
 #                       one contig                                             #
-# min_len               Minimal length for contigs in binning                  #
+# min_len               Minimal length for contigs in binning. Default: SemiBin#
+#                       chooses 1000bp or 2500bp according the ratio of the    #
+#                       number of base pairs of contigs between 1000-2500bp    #
 # extra_params          Any extra params                                       #
 #=======================INFORMATION============================================#
 # https://semibin.readthedocs.io/en/latest/subcommands/                        #
-# SemiBin2 single_easy_bin -h                                                  #
+# Or do: SemiBin2 single_easy_bin -h                                           #
 #------------------------------------------------------------------------------#
 semibin:
   threads: "20"
@@ -648,6 +675,7 @@ CREATE_UNBINNED: "F"
 #------------------------------------------------------------------------------#
 #                       checkM lineage_wf                                      #
 # rule: checkM_<bin_method>                                                    #
+# environment: checkm_v1.2.5                                                   #
 #=======================DESCRIPTION============================================#
 # This rule asseses the quality of genomes recovered from isolates, single     #
 # cells or metagenomes.                                                        #
@@ -656,6 +684,7 @@ CREATE_UNBINNED: "F"
 # extra_params          Any extra params                                       #
 #=======================INFORMATION============================================#
 # https://github.com/Ecogenomics/CheckM/wiki/Workflows#lineage-specific-workflow
+# Or do: checkm lineage_wf -h                                                  #
 #------------------------------------------------------------------------------#
 checkM:
   threads: "15" 
@@ -664,6 +693,7 @@ checkM:
 #------------------------------------------------------------------------------#
 #                       GTDB-Tk classify_wf                                    #
 # rule: gtdbtk_<bin_method>                                                    #
+# environment: gtdbtk_v2.7.2                                                   #
 #=======================DESCRIPTION============================================#
 # GTDB-Tk is a software toolkit for assigning objective taxonomic              #
 # classifications to bacterial and archaeal genomes based on the Genome        #
@@ -673,6 +703,7 @@ checkM:
 # extra_params          Any extra params                                       #
 #=======================INFORMATION============================================#
 # https://ecogenomics.github.io/GTDBTk/commands/classify_wf.html               #
+# Or do: gtdbtk classify_wf --help                                             #
 #------------------------------------------------------------------------------#
 gtdbtk:
   cpus: "35"

@@ -493,7 +493,7 @@ rule bwa_index:
     params:
         "{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"+config["ANALYSIS"]+"_"+config["ASSEMBLER"]+"_assembly"
     conda:
-        "fastalign_sam"
+        "bwa-fastalign_v1.0.0_samtools_v1.24"
     shell:
         "bwa-fastalign index -p {params} {input.assembly}"
     #nice -5 bwa mem -t 4 $folderOut/cross-assembly $fq1 $fq2 \
@@ -513,7 +513,7 @@ rule bwa_mem:
     threads:
         int(config["bwa"]["threads"])
     conda:
-        "fastalign_sam"       
+        "bwa-fastalign_v1.0.0_samtools_v1.24"       
     shell:
         "nice -{config[bwa][nice]} bwa-fastalign mem -t {config[bwa][threads]} {params} "
         "{input.read1_paired} {input.read2_paired} "
@@ -536,7 +536,7 @@ rule bwa_mem_mtx:
     threads:
         int(config["bwa"]["threads"])
     conda:
-        "fastalign_sam"        
+        "bwa-fastalign_v1.0.0_samtools_v1.24"        
     script:
         "Scripts/bwa_mem.py"
 
@@ -556,7 +556,7 @@ rule sam_flags:
     params:
         idx="{PROJECT}/runs/{run}/{sample}_data/bwa-mem/"
     conda:
-        "fastalign_sam"
+        "bwa-fastalign_v1.0.0_samtools_v1.24"
     shell:
         "samtools flagstat --threads {config[bwa][threads]} {input} > {output}"
         if config["bwa"]["differential_coverage_matrix"].lower() == "f" else
@@ -839,16 +839,9 @@ if config["BINNING"] == "SEMIBIN" or (config["BINNING"] == "DAS" and config["das
             "semibin_v2.4.0"
         shell:
             """
-            SemiBin2 single_easy_bin \
-                -i {input.assembly} \
-                -b {input.depth} \
-                -o {params} \
-                --compression none \
-                -t {config[semibin][threads]} \
-                --minfasta-kbs {config[semibin][min_bin_size]} \
-                --max-edges {config[semibin][max_edge]} \
-                --min-len {config[semibin][min_len]}
-                {config[semibin][extra_params]}
+            SemiBin2 single_easy_bin -i {input.assembly} -b {input.depth} -o {params} \
+                --compression none -t {config[semibin][threads]} --minfasta-kbs {config[semibin][min_bin_size]} \
+                --max-edges {config[semibin][max_edge]} --min-len {config[semibin][min_len]} {config[semibin][extra_params]}
             """  
 elif (config["BINNING"] == "DAS" and config["das"]["semibin"]["run"]!="T") or (config["BINNING"] != "SEMIBIN" and config["BINNING"] != "DAS"):
     rule skip_semibin:
@@ -1587,8 +1580,8 @@ rule tool_versions:
             "binsanity": ["binsanity_v0.5.4", "binsanity"] if config["BINNING"] == "BINSANITY" or config["das"]["binsanity"]["run"] == "T" else None,
             "concoct": ["concoct","concoct"] if config["BINNING"] == "CONCOCT" or config["das"]["concoct"]["run"] == "T" else None,
             "das": ["dasTool_v1.1.5","das_tool"] if config["BINNING"] == "DAS" else None,
-            "fastalign": ["fastalign_sam","bwa-fastalign"],
-            "samtools": ["fastalign_sam","samtools"],
+            "fastalign": ["bwa-fastalign_v1.0.0_samtools_v1.24","bwa-fastalign"],
+            "samtools": ["bwa-fastalign_v1.0.0_samtools_v1.24","samtools"],
             "idba": ["idba_v1.1.3","idba"] if config["ASSEMBLER"] == "IDBA" else None,
             "maxbin": ["maxbin_v2.2.7","maxbin2"] if config["BINNING"] == "MAXBIN" or config["das"]["maxbin"]["run"] == "T" else None,
             "megahit": ["megahit_v1.2.9","megahit"] if config["ASSEMBLER"] == "MEGAHIT" else None,
